@@ -7,6 +7,9 @@ from pydantic import BaseModel
 class Datas(BaseModel):
     data_frames: List[DataFrame]
 
+    class Config:
+        arbitrary_types_allowed = True
+
     @property
     def df(self):
         return self.data_frames[0]
