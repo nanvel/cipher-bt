@@ -1,0 +1,25 @@
+name: cipher-tests
+
+on:
+  push:
+    branches:
+      - master
+
+jobs:
+  publish-docs:
+    name: Run tests
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v3
+
+      - uses: actions/setup-python@v4
+        with:
+          python-version: '3.10'
+
+      - uses: Gr1N/setup-poetry@v8
+
+      - run: poetry config virtualenvs.create false --local
+      - run: poetry install
+      - run: pytest tests
