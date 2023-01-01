@@ -3,12 +3,13 @@ from typing import Optional
 
 from pandas import DataFrame
 
-from .models import Datas, Trade, Trades
+from .models import Datas, Trade, Trades, Wallet
 
 
 class Strategy(ABC):
     datas: Datas
     trades: Trades
+    wallet: Wallet
 
     # def __init__(self, param1, param2):
     #     self.param1 = param1
