@@ -15,15 +15,19 @@ class DatasFactory:
         # datas = Datas()
 
         for source in sources:
-            with tempfile.TemporaryDirectory() as path:
-                tmp_path = Path(path) / "example.csv"
-                first_ts, last_ts = source.load(ts=start_ts, path=tmp_path)
-                print(tmp_path, first_ts, last_ts)
+            temp_path = self.cache_root / self._temp_path(source=source, ts=start_ts)
+            temp_path.parent.mkdir(parents=True, exist_ok=True)
+
+            first_ts, last_ts = source.load(ts=start_ts, path=temp_path)
+            print(temp_path, first_ts, last_ts)
 
         # pd.concat((pd.read_csv(f) for f in all_files), ignore_index=True)
         # assert datas.data_frames
 
         # return datas
+
+    def _temp_path(self, source: Source, ts: Time):
+        return source.slug + f"/{int(ts.to_timestamp() * 1000)}.csv"
 
     def _find_cached(self, ts: Time):
         """Find what we already have cached for the time range."""

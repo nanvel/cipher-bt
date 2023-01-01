@@ -11,6 +11,8 @@ class Source(ABC):
         pass
 
     @abstractmethod
-    def load(self, ts: Time, path: Path) -> (Time, Time):
+    def load(
+        self, ts: Time, path: Path
+    ) -> (Time, Time, bool):  # first_ts, last_ts, completed
         """Load 500 rows into path."""
         pass

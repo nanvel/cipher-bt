@@ -33,7 +33,7 @@ class Time(BaseModel):
         return TimeDelta(seconds=int((self.ts - other.ts) / 1000))
 
     def __add__(self, other: Interval):
-        return self.__class__(ts=self.ts + Interval.seconds * 1000)
+        return self.__class__(ts=self.ts + other.seconds * 1000)
 
     def __lt__(self, other):
         return self.ts < other.ts

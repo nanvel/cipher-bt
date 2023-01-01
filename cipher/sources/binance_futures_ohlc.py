@@ -33,7 +33,7 @@ class BinanceFuturesOHLCSource(Source):
     def slug(self):
         return f"binance_futures_ohlc/{self.symbol.lower()}_{self.interval.to_binance_slug()}"
 
-    def load(self, ts: Time, path: Path) -> (Time, Time):
+    def load(self, ts: Time, path: Path) -> (Time, Time, bool):
         """query: start_ts, interval, symbol"""
         start_ts = ts.block_ts(self.interval * self.limit)
 
@@ -49,7 +49,11 @@ class BinanceFuturesOHLCSource(Source):
 
         self._write(rows, path=path)
 
-        return Time.from_timestamp(rows[0][0]), Time.from_timestamp(rows[-1][0])
+        return (
+            Time.from_timestamp(rows[0][0]),
+            Time.from_timestamp(rows[-1][0]),
+            len(rows) == self.limit,
+        )
 
     def _write(self, rows, path):
         with path.open("w") as f:
