@@ -38,3 +38,6 @@ class Interval(BaseModel):
     @classmethod
     def from_seconds(cls, seconds):
         return cls(seconds=seconds)
+
+    def __mul__(self, other: int) -> "Interval":
+        return self.__class__(seconds=self.seconds * other)

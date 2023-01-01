@@ -25,7 +25,13 @@ def test_to_slug():
     assert result == "1h"
 
 
-def test_to_binace_slug():
+def test_to_binance_slug():
     result = Interval(seconds=60).to_slug()
 
     assert result == "1m"
+
+
+def test_mul():
+    result = Interval(seconds=60) * 15
+
+    assert result.seconds == 60 * 15
