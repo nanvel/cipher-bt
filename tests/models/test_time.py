@@ -1,6 +1,6 @@
 import datetime
 
-from cipher.models import Time
+from cipher.models import Interval, Time
 
 
 def test_from_timestamp():
@@ -47,8 +47,15 @@ def test_compare():
 
 def test_sub():
     ts = 940_000_000_000
-    delta = 100
+    delta = 100_000
     time1 = Time(ts=ts)
     time2 = Time(ts=ts + delta)
 
     assert (time2 - time1).seconds == 100
+
+
+def test_block_start():
+    ts = 940_000_000_000
+    result = Time(ts=ts).block_ts(interval=Interval(seconds=3600))
+
+    assert result.to_timestamp() == 939_999_600_000

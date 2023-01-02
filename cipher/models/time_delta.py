@@ -11,3 +11,6 @@ class TimeDelta(BaseModel):
 
     def to_seconds(self) -> int:
         return self.seconds
+
+    def __truediv__(self, other: int) -> "TimeDelta":
+        return self.__class__(seconds=self.seconds // other)
