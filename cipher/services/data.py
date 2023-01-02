@@ -33,7 +33,9 @@ class DataService:
             else:
                 ts = last_ts + (last_ts - first_ts) / 2
 
-        return pd.concat((pd.read_csv(p) for p in paths), ignore_index=True)
+        df = pd.concat((pd.read_csv(p) for p in paths), ignore_index=True)
+
+        return df[(df.ts >= start_ts.to_timestamp()) & (df.ts < stop_ts.to_timestamp())]
 
     def _load_from_source(self, source: Source, ts: Time) -> (Time, Time, Path, bool):
         temp_path = self.cache_root / self._build_temp_path(prefix=source.slug, ts=ts)

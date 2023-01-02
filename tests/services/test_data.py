@@ -48,7 +48,7 @@ def test_use_cached():
     )
 
     assert isinstance(result, DataFrame)
-    assert result.shape == (3, 11)
+    assert result.shape == (1, 11)
 
 
 def test_load():
