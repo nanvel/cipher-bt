@@ -3,7 +3,7 @@ from typing import List
 from .models import Datas, Time, Trades, Wallet
 from .services.data import DataService
 from .sources import Source
-from tests.strategy import Strategy
+from .strategy import Strategy
 
 
 class Engine:
@@ -33,11 +33,22 @@ class Engine:
             ]
         )
 
+        trades = Trades()
+
         self.strategy.datas = datas
-        self.strategy.trades = Trades()
+        self.strategy.trades = trades
         self.strategy.wallet = self.wallet
 
-        signals = self.strategy.process()
+        signals = self.strategy.find_signal_handlers()
+
+        df = self.strategy.process()
+        lower_price, upper_price = None, None
+
+        for ts, row in df.iterrows():
+            row_dict = dict(row)
+            if row["entry"]:
+                self.strategy.on_entry(row=row_dict)
+            lower_price, upper_price = trades.prices_of_interest(row.close)
 
     def _signal_methods(self):
         pass

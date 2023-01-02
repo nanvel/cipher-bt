@@ -22,3 +22,6 @@ pytest = "^7.2.0"
 [build-system]
 requires = ["poetry-core"]
 build-backend = "poetry.core.masonry.api"
+
+[tool.poetry.scripts]
+cipher = "cipher.cli:app"

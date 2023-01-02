@@ -40,6 +40,6 @@ class Strategy(ABC):
         handlers = []
         for key, _ in inspect.getmembers(cls):
             if key.startswith("on_") and key not in skip_handler:
-                handlers.append(key)
+                handlers.append(key[3:])
 
         return handlers

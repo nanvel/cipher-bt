@@ -18,4 +18,4 @@ class SignalStrategy(Strategy):
 
 
 def test_signal_handlers():
-    assert SignalStrategy().find_signal_handlers() == ["on_something_else"]
+    assert SignalStrategy().find_signal_handlers() == ["something_else"]
