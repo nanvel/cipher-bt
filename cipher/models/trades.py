@@ -6,4 +6,4 @@ from .trade import Trade
 
 
 class Trades(BaseModel):
-    trades: List[Trade]
+    trades: List[Trade] = []

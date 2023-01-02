@@ -21,7 +21,9 @@ class DataService:
                 first_ts, last_ts, p = result
                 completed = True
             else:
-                first_ts, last_ts, p, completed = self._load_from_source(source=source, ts=ts)
+                first_ts, last_ts, p, completed = self._load_from_source(
+                    source=source, ts=ts
+                )
 
             paths.append(p)
 
@@ -35,7 +37,11 @@ class DataService:
 
         df = pd.concat((pd.read_csv(p) for p in paths), ignore_index=True)
 
-        return df[(df.ts >= start_ts.to_timestamp()) & (df.ts < stop_ts.to_timestamp())]
+        return (
+            df[(df.ts >= start_ts.to_timestamp()) & (df.ts < stop_ts.to_timestamp())]
+            .astype({"ts": "datetime64[ms]"})
+            .set_index("ts")
+        )
 
     def _load_from_source(self, source: Source, ts: Time) -> (Time, Time, Path, bool):
         temp_path = self.cache_root / self._build_temp_path(prefix=source.slug, ts=ts)
