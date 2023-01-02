@@ -69,6 +69,3 @@ class Engine:
                 if row[signal]:
                     for trade in trades.open_trades():
                         getattr(self.strategy, f"on_{signal}")(row=row, trade=trade)
-
-    def _signal_methods(self):
-        pass
