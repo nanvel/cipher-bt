@@ -36,7 +36,7 @@ class DataService:
         return pd.concat((pd.read_csv(p) for p in paths), ignore_index=True)
 
     def _load_from_source(self, source: Source, ts: Time) -> (Time, Time, Path, bool):
-        temp_path = self.cache_root / self._temp_path(prefix=source.slug, ts=ts)
+        temp_path = self.cache_root / self._build_temp_path(prefix=source.slug, ts=ts)
         temp_path.parent.mkdir(parents=True, exist_ok=True)
 
         try:
@@ -51,7 +51,7 @@ class DataService:
             last_ts,
             temp_path.rename(
                 self.cache_root
-                / self._full_path(
+                / self._build_path(
                     prefix=source.slug,
                     first_ts=first_ts,
                     last_ts=last_ts,
@@ -82,10 +82,10 @@ class DataService:
             except ValueError:
                 pass
 
-    def _temp_path(self, prefix: str, ts: Time):
+    def _build_temp_path(self, prefix: str, ts: Time):
         return prefix + f"/{ts.to_timestamp() // 1000}.csv"
 
-    def _full_path(self, prefix: str, first_ts: Time, last_ts: Time, completed: bool):
+    def _build_path(self, prefix: str, first_ts: Time, last_ts: Time, completed: bool):
         completed = "c" if completed else "i"
         return (
             prefix

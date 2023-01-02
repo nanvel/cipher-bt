@@ -51,7 +51,7 @@ def source():
 
 
 def test_slug(source):
-    assert source.slug == "binance_futures_ohlc/btcusdt_1h"
+    assert source.slug == "fake_ohlc/btcusdt_1h"
 
 
 def test_request(source):
