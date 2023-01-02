@@ -11,6 +11,8 @@ from .time import Time
 class Trade(BaseModel):
     direction: Direction
     transactions: List[Transaction]
+    take_profit: Decimal
+    stop_loss: Decimal
 
     @property
     def position(self) -> Decimal:
