@@ -1,5 +1,6 @@
 from typing import List
 
+from .factories.trade import TradeFactory
 from .models import Datas, Time, Trades, Wallet
 from .services.data import DataService
 from .sources import Source
@@ -38,17 +39,36 @@ class Engine:
         self.strategy.datas = datas
         self.strategy.trades = trades
         self.strategy.wallet = self.wallet
+        self.strategy.trade_factory = TradeFactory()
 
         signals = self.strategy.find_signal_handlers()
 
         df = self.strategy.process()
-        lower_price, upper_price = None, None
 
         for ts, row in df.iterrows():
             row_dict = dict(row)
+            row_dict["ts"] = ts
+
+            lower_price, upper_price = trades.prices_of_interest(row.close)
+            if (lower_price and row["low"] < lower_price) or (
+                upper_price and row["high"] > upper_price
+            ):
+                for trade in trades.open_trades:
+                    take_profit, stop_loss = trade.check(
+                        low=row["low"], high=row["high"]
+                    )
+                    if take_profit:
+                        self.strategy.on_take_profit(row=row_dict, trade=trade)
+                    if stop_loss:
+                        self.strategy.on_stop_loss(row=row_dict, trade=trade)
+
             if row["entry"]:
                 self.strategy.on_entry(row=row_dict)
-            lower_price, upper_price = trades.prices_of_interest(row.close)
+
+            for signal in signals:
+                if row[signal]:
+                    for trade in trades.open_trades():
+                        getattr(self.strategy, f"on_{signal}")(row=row, trade=trade)
 
     def _signal_methods(self):
         pass

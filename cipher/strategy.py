@@ -4,6 +4,7 @@ from typing import List, Optional
 
 from pandas import DataFrame
 
+from .factories.trade import TradeFactory
 from .models import Datas, Trade, Trades, Wallet
 
 
@@ -11,6 +12,7 @@ class Strategy(ABC):
     datas: Datas
     trades: Trades
     wallet: Wallet
+    trade_factory: TradeFactory
 
     # def __init__(self, param1, param2):
     #     self.param1 = param1

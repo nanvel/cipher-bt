@@ -37,8 +37,12 @@ class GoldenStrategy(Strategy):
         return df
 
     def on_entry(self, row: dict) -> Optional[Trade]:
-        print(row)
-        return None
+        return self.trade_factory.create(
+            row=row,
+            quote_quantity=Decimal(10),
+            take_profit_pt=Decimal(2),
+            stop_loss_pt=Decimal(1),
+        )
 
 
 @app.command()

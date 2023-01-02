@@ -15,6 +15,10 @@ class Trade(BaseModel):
     stop_loss: Decimal
 
     @property
+    def is_long(self):
+        return self.direction == Direction.LONG
+
+    @property
     def position(self) -> Decimal:
         return sum([i.base_quantity for i in self.transactions])
 
@@ -32,5 +36,34 @@ class Trade(BaseModel):
             return self.transactions[-1].ts
         return None
 
-    def liquidate(self):
-        pass
+    def liquidate(self, price: Decimal, ts: Time):
+        self.reduce(price=price, ts=ts, quantity=self.position)
+
+    def add(self, price: Decimal, quantity: Decimal, ts: Time):
+        self.transactions.append(
+            Transaction(ts=ts, base_quantity=quantity, quote_quantity=-quantity * price)
+        )
+
+    def reduce(self, price: Decimal, quantity: Decimal, ts: Time):
+        self.transactions.append(
+            Transaction(ts=ts, base_quantity=-quantity, quote_quantity=quantity * price)
+        )
+
+    def check(
+        self, low: Decimal, high: Decimal
+    ) -> (bool, bool):  # take_profit, stop_loss
+        take_profit = False
+        stop_loss = False
+
+        if self.is_long:
+            if low < self.stop_loss:
+                stop_loss = True
+            elif high > self.take_profit:
+                take_profit = True
+        else:
+            if high > self.stop_loss:
+                stop_loss = True
+            elif low < self.take_profit:
+                stop_loss = True
+
+        return take_profit, stop_loss
