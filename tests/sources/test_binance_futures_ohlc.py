@@ -51,15 +51,16 @@ def source():
 
 
 def test_slug(source):
-    assert source.slug == "fake_ohlc/btcusdt_1h"
+    assert source.slug == "binance_futures_ohlc/btcusdt_1h"
 
 
 def test_request(source):
     ts = Time.from_datetime(datetime.datetime(2022, 1, 1))
-    first_ts, last_ts = source.load(ts=ts, path=Path("/tmp/"))
+    first_ts, last_ts, completed = source.load(ts=ts, path=Path("/tmp/"))
 
     assert first_ts.to_timestamp() == 1639800000000
     assert last_ts.to_timestamp() == 1641596400000
+    assert completed is False
 
     source._request.assert_called_once()
     source._write.assert_called_once()

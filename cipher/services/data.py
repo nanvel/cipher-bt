@@ -71,8 +71,6 @@ class DataService:
                 first_ts = int(first_ts)
                 last_ts = int(last_ts)
 
-                print("...", first_ts, second, last_ts)
-
                 if first_ts <= second <= last_ts:
                     return (
                         Time.from_timestamp(first_ts * 1000),
