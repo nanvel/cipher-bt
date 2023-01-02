@@ -4,6 +4,7 @@
 graph TD;
     Log-->Broker;
     Log-->Visualize;
+    Log-->Stats;
     Wallet-->Broker;
     Trade-->Broker;
     Broker-->Engine;
