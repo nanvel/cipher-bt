@@ -3,7 +3,7 @@ from typing import List
 from .models import Datas, Time, Trades, Wallet
 from .services.data import DataService
 from .sources import Source
-from .strategy import Strategy
+from tests.strategy import Strategy
 
 
 class Engine:
@@ -38,3 +38,6 @@ class Engine:
         self.strategy.wallet = self.wallet
 
         signals = self.strategy.process()
+
+    def _signal_methods(self):
+        pass

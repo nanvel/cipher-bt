@@ -17,18 +17,16 @@ class FakeOHLCSource(Source):
 
     @property
     def slug(self):
-        return 'fake_ohlc/btcusdt_1h'
+        return "fake_ohlc/btcusdt_1h"
 
-    def load(
-        self, ts: Time, path: Path
-    ) -> (Time, Time, bool):
+    def load(self, ts: Time, path: Path) -> (Time, Time, bool):
         if self.raise_error:
             raise AssertionError("Should not be called!")
 
         return (
             Time.from_timestamp(1578600000000),
             Time.from_timestamp(1580396400000),
-            True
+            True,
         )
 
 
@@ -48,7 +46,7 @@ def test_use_cached():
     )
 
     assert isinstance(result, DataFrame)
-    assert result.shape == (1, 11)
+    assert result.shape == (1, 10)
 
 
 def test_load():
@@ -67,5 +65,5 @@ def test_load():
             ),
         )
 
-    assert 'fake_ohlc/btcusdt_1h/1579494600.csv' in str(e.value)
-    assert 'fake_ohlc/btcusdt_1h/1578600000_1580396400_c.csv' in str(e.value)
+    assert "fake_ohlc/btcusdt_1h/1579494600.csv" in str(e.value)
+    assert "fake_ohlc/btcusdt_1h/1578600000_1580396400_c.csv" in str(e.value)
