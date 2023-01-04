@@ -1,18 +1,14 @@
-import inspect
 from abc import ABC, abstractmethod
-from typing import List, Optional
 
 from pandas import DataFrame
 
-from .factories.trade import TradeFactory
-from .models import Datas, Trade, Trades, Wallet
+from .models import Session, Wallet
+from .wrappers import DatasWrapper
 
 
 class Strategy(ABC):
-    datas: Datas
-    trades: Trades
+    datas: DatasWrapper
     wallet: Wallet
-    trade_factory: TradeFactory
 
     # def __init__(self, param1, param2):
     #     self.param1 = param1
@@ -23,25 +19,14 @@ class Strategy(ABC):
         pass
 
     @abstractmethod
-    def on_entry(self, row: dict) -> Optional[Trade]:
+    def on_entry(self, row: dict, session: Session) -> None:
         pass
 
-    # def on_<signal>(self, row: dict, trade: Trade) -> None:
+    # def on_<signal>(self, row: dict, session: Session) -> None:
     #     pass
 
-    def on_take_profit(self, row: dict, trade: Trade) -> None:
-        trade.liquidate()
+    def on_take_profit(self, row: dict, session: Session) -> None:
+        session.position = 0
 
-    def on_stop_loss(self, row: dict, trade: Trade) -> None:
-        trade.liquidate()
-
-    @classmethod
-    def find_signal_handlers(cls) -> List[str]:
-        skip_handler = {"on_entry", "on_take_profit", "on_stop_loss"}
-
-        handlers = []
-        for key, _ in inspect.getmembers(cls):
-            if key.startswith("on_") and key not in skip_handler:
-                handlers.append(key[3:])
-
-        return handlers
+    def on_stop_loss(self, row: dict, session: Session) -> None:
+        session.position = 0

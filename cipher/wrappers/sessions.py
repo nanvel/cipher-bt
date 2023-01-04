@@ -2,25 +2,25 @@ from decimal import Decimal
 from operator import attrgetter
 from typing import List, Optional
 
-from pydantic import BaseModel
-
-from .trade import Trade
+from ..models.session import Session
 
 
-class Trades(BaseModel):
-    trades: List[Trade] = []
+class SessionsWrapper:
+    def __init__(self, sessions: List[Session]):
+        self.sessions = sessions
+
+    def __iadd__(self, other):
+        self.sessions.append(other)
 
     @property
-    def open_trades(self):
-        return filter(attrgetter("is_open"), self.trades)
+    def open_sessions(self):
+        return filter(attrgetter("is_open"), self.sessions)
 
-    def prices_of_interest(
-        self, price: Decimal
-    ) -> (Optional[Decimal], Optional[Decimal]):
+    def prices_of_interest(self) -> (Optional[Decimal], Optional[Decimal]):
         """Find the closest prices at which we will need to check stop_loss/take_profit."""
         closest_up = None
         closest_down = None
-        for trade in self.open_trades:
+        for trade in self.open_sessions:
             min_price = min(trade.take_profit, trade.stop_loss)
             max_price = max(trade.take_profit, trade.stop_loss)
 
