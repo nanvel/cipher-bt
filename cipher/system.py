@@ -1,24 +1,22 @@
-import sys
 from typing import Union
-from pathlib import Path
 
+from .container import Container
 from .engine import Engine
 from .models import Time
 from .plotters import FinplotPlotter, OHLCPlotRow
-from .services import DataService
 from .sources import SOURCES
 from .strategy import Strategy
 
 
 class Cipher:
     def __init__(self):
+        self.container = Container()
+
         self.strategy = None
         self.sources = []
         self.sessions = None
 
-        work_dir = Path(sys.argv[0]).resolve().parent
-
-        self.data_service = DataService(cache_root=work_dir / ".cache")
+        self.data_service = self.container.data_service()
         self.df = None
 
     def set_strategy(self, strategy: Strategy):
