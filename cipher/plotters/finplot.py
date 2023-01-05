@@ -1,6 +1,16 @@
+import colorsys
 import datetime
 
 import finplot as fplt
+
+
+def create_palette(n):
+    hsv_tuples = [(x * 1.0 / n, 0.5, 0.5) for x in range(n)]
+    rgb_tuples = map(lambda x: colorsys.hsv_to_rgb(*x), hsv_tuples)
+
+    return [
+        "#{:02x}{:02x}{:02x}".format(*[int(i * 255) for i in t]) for t in rgb_tuples
+    ]
 
 
 class PlotRow:
@@ -25,13 +35,28 @@ class SignalsPlotRow(PlotRow):
         self.signals = signals
 
     def plot(self, axes):
+        palette = create_palette(len(self.signals) + 2)
         for n, signal in enumerate(self.signals):
             fplt.plot(
-                self.df[signal][self.df[signal] == True].replace({True: n + 1}),
+                self.df[signal].replace({True: n + 1, False: None}),
                 ax=axes,
-                color="#4a5",
-                style="^",
+                color=palette[n],
+                style="o",
                 legend=signal,
+            )
+
+
+class IndicatorsPlotRow(PlotRow):
+    def __init__(self, df, indicators):
+        self.df = df
+        self.indicators = indicators
+
+    def plot(self, axes):
+        for n, indicator in enumerate(self.indicators):
+            fplt.plot(
+                self.df[indicator],
+                ax=axes,
+                legend=indicator,
             )
 
 

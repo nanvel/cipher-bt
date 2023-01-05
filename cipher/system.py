@@ -3,7 +3,7 @@ from typing import Union
 from .container import Container
 from .engine import Engine
 from .models import Time
-from .plotters import FinplotPlotter, OHLCPlotRow, SignalsPlotRow
+from .plotters import FinplotPlotter, OHLCPlotRow, SignalsPlotRow, IndicatorsPlotRow
 from .sources import SOURCES
 from .strategy import Strategy
 
@@ -47,7 +47,10 @@ class Cipher:
         """TODO: default plotter by env and what is installed."""
         plotter = FinplotPlotter(
             rows=[
-                [OHLCPlotRow(df=self.df, show_volume=False)],
+                [
+                    OHLCPlotRow(df=self.df, show_volume=False),
+                    IndicatorsPlotRow(df=self.df, indicators=["sma200", "ema50"]),
+                ],
                 [SignalsPlotRow(df=self.df, signals=self.signals)],
             ]
         )
