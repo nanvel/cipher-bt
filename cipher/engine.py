@@ -69,3 +69,5 @@ class Engine:
                 if row[signal]:
                     for session in self.sessions.open_sessions:
                         getattr(self.strategy, f"on_{signal}")(row=row, session=session)
+
+        return df

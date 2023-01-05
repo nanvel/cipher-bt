@@ -29,29 +29,28 @@ class Position:
         self.value = Decimal(0)
 
     def __iadd__(self, other: Union[Base, Quote, Percent, Decimal, int, str]):
-        difference = self._parse_quantity(other)
-        if difference:
-            self.value += difference
-            transaction = Transaction(
-                ts=self._tick.ts,
-                base_quantity=difference,
-                quote_quantity=difference * self._tick.price,
-            )
-            self._events.append(transaction)
-            self._wallet.apply(transaction)
+        to_add = self._parse_quantity(other)
+        self._add(to_add)
 
     def __isub__(self, other: Union[Base, Quote, Percent, Decimal, int, str]):
-        self.__iadd__(-self._parse_quantity(other))
+        to_sub = self._parse_quantity(other)
+        self._add(-to_sub)
+
+    def __imul__(self, other: Union[Decimal, int, str]):
+        mul = self._parse_quantity(other)
+        self._add((self.value * mul) - self.value)
 
     def set(self, value: Union[Base, Quote, Percent, Decimal, int, str]):
         new_value = self._parse_quantity(value)
-        difference = new_value - self.value
-        if difference:
-            self.value = new_value
+        self._add(new_value - self.value)
+
+    def _add(self, to_add: Decimal):
+        if to_add:
+            self.value += to_add
             transaction = Transaction(
                 ts=self._tick.ts,
-                base_quantity=difference,
-                quote_quantity=difference * self._tick.price,
+                base_quantity=to_add,
+                quote_quantity=to_add * self._tick.price,
             )
             self._events.append(transaction)
             self._wallet.apply(transaction)

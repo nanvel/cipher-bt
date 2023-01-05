@@ -1,9 +1,13 @@
 import datetime
+from typing import Union
 
 from pydantic import BaseModel
 
 from .interval import Interval
 from .time_delta import TimeDelta
+
+
+STRING_FORMATS = ("%Y-%m-%dT%H:%M", "%Y-%m-%d", "%Y-%m-%d %H:%M")
 
 
 class Time(BaseModel):
@@ -28,6 +32,18 @@ class Time(BaseModel):
         return cls(
             ts=round(dt.replace(tzinfo=datetime.timezone.utc).timestamp() * 1000)
         )
+
+    @classmethod
+    def from_string(cls, s: Union[str, datetime.datetime]):
+        if isinstance(s, datetime.datetime):
+            return cls.from_datetime(s)
+        for string_format in STRING_FORMATS:
+            try:
+                dt = datetime.datetime.strptime(s, string_format)
+            except ValueError:
+                continue
+            return cls.from_datetime(dt)
+        raise ValueError("Invalid datetime format.")
 
     def __sub__(self, other: "Time") -> TimeDelta:
         return TimeDelta(seconds=int((self.ts - other.ts) / 1000))
