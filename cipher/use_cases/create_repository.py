@@ -1,3 +1,6 @@
+from pathlib import Path
+
+
 class CreateRepository:
     """Create a new repository with:
     - .env
@@ -7,14 +10,11 @@ class CreateRepository:
 
     NAME_REGEXP = r"^[\w\-]+$"
 
-    def __init__(self, root):
-        self.root = root
+    def __init__(self, templates_root: Path):
+        self.templates_root = templates_root
 
     def call(self, name):
-        name = name.strip()
-
-        if name == ".":
-            pass
+        print(f"Create {name}")
 
     def _validate_path(self):
         pass

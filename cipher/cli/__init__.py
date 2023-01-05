@@ -1,10 +1,10 @@
 import typer
 
-from .new import new_cmd
+from .create import create_cmd
 
 
 app = typer.Typer()
-app.add_typer(new_cmd, name="new")
+app.add_typer(create_cmd, name="create")
 
 
 @app.callback()
