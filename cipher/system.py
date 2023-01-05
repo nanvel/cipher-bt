@@ -3,7 +3,7 @@ from typing import Union
 from .container import Container
 from .engine import Engine
 from .models import Time
-from .plotters import FinplotPlotter, OHLCPlotRow
+from .plotters import FinplotPlotter, OHLCPlotRow, SignalsPlotRow
 from .sources import SOURCES
 from .strategy import Strategy
 
@@ -15,6 +15,7 @@ class Cipher:
         self.strategy = None
         self.sources = []
         self.sessions = None
+        self.signals = None
 
         self.data_service = self.container.data_service()
         self.df = None
@@ -36,6 +37,7 @@ class Cipher:
 
         self.df = _engine.run()
         self.sessions = _engine.sessions
+        self.signals = _engine.signals
 
     @property
     def stats(self):
@@ -43,5 +45,10 @@ class Cipher:
 
     def plot(self, plotter=None):
         """TODO: default plotter by env and what is installed."""
-        plotter = FinplotPlotter(rows=[[OHLCPlotRow(df=self.df)]])
+        plotter = FinplotPlotter(
+            rows=[
+                [OHLCPlotRow(df=self.df, show_volume=False)],
+                [SignalsPlotRow(df=self.df, signals=self.signals)],
+            ]
+        )
         plotter.run()

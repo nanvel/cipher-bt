@@ -1,4 +1,4 @@
-from .finplot import FinplotPlotter, OHLCPlotRow
+from .finplot import FinplotPlotter, OHLCPlotRow, SignalsPlotRow
 
 
-__all__ = ('FinplotPlotter', 'OHLCPlotRow')
+__all__ = ("FinplotPlotter", "OHLCPlotRow", "SignalsPlotRow")

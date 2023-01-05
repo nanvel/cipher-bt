@@ -24,6 +24,7 @@ class Engine:
         self.sessions = SessionsWrapper([])
         self.wallet = Wallet()
         self.strategy.wallet = self.wallet
+        self.signals = StrategyWrapper(self.strategy).find_signal_handlers()
 
     def run(self):
         datas = [
@@ -36,8 +37,6 @@ class Engine:
         self.strategy.datas = DatasWrapper(datas)
 
         tick = Tick.init()
-
-        signals = StrategyWrapper(self.strategy).find_signal_handlers()
 
         df = self.strategy.process()
 
@@ -65,7 +64,7 @@ class Engine:
                 if new_session.position != 0:
                     self.sessions += new_session
 
-            for signal in signals:
+            for signal in self.signals:
                 if row[signal]:
                     for session in self.sessions.open_sessions:
                         getattr(self.strategy, f"on_{signal}")(row=row, session=session)

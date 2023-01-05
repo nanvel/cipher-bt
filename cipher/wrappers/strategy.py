@@ -8,10 +8,10 @@ class StrategyWrapper:
         self.strategy = strategy
 
     def find_signal_handlers(self) -> List[str]:
-        skip_handler = {"on_entry", "on_take_profit", "on_stop_loss"}
+        skip_handler = {"on_take_profit", "on_stop_loss"}
 
         handlers = []
-        for key, _ in inspect.getmembers(self.__class__):
+        for key, _ in inspect.getmembers(self.strategy.__class__):
             if key.startswith("on_") and key not in skip_handler:
                 handlers.append(key[3:])
 
