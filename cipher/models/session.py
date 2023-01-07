@@ -1,69 +1,13 @@
 from decimal import Decimal
-from typing import List, Optional, Union
+from typing import Optional, Union
 
-from .cursor import Cursor
-from .time import Time
-from .transaction import Transaction
-from .wallet import Wallet
+from ..utils import to_decimal
 from ..values import Base, Percent, Quote
-
-
-def to_decimal(value: Union[int, str, Decimal]) -> Decimal:
-    if isinstance(value, Decimal):
-        return value
-    elif isinstance(value, (int, str)):
-        return Decimal(value)
-    elif isinstance(value, float):
-        raise ValueError(
-            "Float is not supported, pass either string '1.2', or Decimal('1.2')."
-        )
-    else:
-        raise ValueError("Supported types: int, str, Decimal.")
-
-
-class Position:
-    def __init__(self, cursor: Cursor, transactions: List[Transaction], wallet: Wallet):
-        self._cursor = cursor
-        self._transactions = transactions
-        self._wallet = wallet
-        self.value = Decimal(0)
-
-    def __iadd__(self, other: Union[Base, Quote, Percent, Decimal, int, str]):
-        to_add = self._parse_quantity(other)
-        self._add(to_add)
-
-    def __isub__(self, other: Union[Base, Quote, Percent, Decimal, int, str]):
-        to_sub = self._parse_quantity(other)
-        self._add(-to_sub)
-
-    def __imul__(self, other: Union[Decimal, int, str]):
-        mul = self._parse_quantity(other)
-        self._add((self.value * mul) - self.value)
-
-    def set(self, value: Union[Base, Quote, Percent, Decimal, int, str]):
-        new_value = self._parse_quantity(value)
-        self._add(new_value - self.value)
-
-    def _add(self, to_add: Decimal):
-        if to_add:
-            self.value += to_add
-            transaction = Transaction(
-                ts=self._cursor.ts,
-                base_quantity=to_add,
-                quote_quantity=to_add * self._cursor.price,
-            )
-            self._transactions.append(transaction)
-            self._wallet.apply(transaction)
-
-    def _parse_quantity(self, quantity) -> Decimal:
-        if isinstance(quantity, Base):
-            return quantity.value
-        elif isinstance(quantity, Quote):
-            return quantity.value / self._cursor.price
-        elif isinstance(quantity, Percent):
-            return quantity.value / Decimal(100) * self.value
-        else:
-            return to_decimal(quantity)
+from .cursor import Cursor
+from .position import Position
+from .time import Time
+from .transactions import Transactions
+from .wallet import Wallet
 
 
 class Session:
@@ -71,7 +15,8 @@ class Session:
         self._cursor = cursor
         self._take_profit: Optional[Decimal] = None
         self._stop_loss: Optional[Decimal] = None
-        self.transactions: List[Transaction] = []
+
+        self.transactions = Transactions()
         self._position = Position(
             cursor=cursor, transactions=self.transactions, wallet=wallet
         )
@@ -117,8 +62,8 @@ class Session:
         self._stop_loss = price
 
     @property
-    def position(self) -> Decimal:
-        return self._position.value
+    def position(self) -> Position:
+        return self._position
 
     @position.setter
     def position(self, value: Union[Base, Quote, Percent, Decimal, int, str]):

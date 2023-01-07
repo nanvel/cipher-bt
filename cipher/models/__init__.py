@@ -3,6 +3,7 @@ from .cursor import Cursor
 from .datas import Datas
 from .interval import Interval
 from .output import Output
+from .position import Position
 from .session import Session
 from .sessions import Sessions
 from .time import Time
@@ -18,6 +19,7 @@ __all__ = (
     "Datas",
     "Interval",
     "Output",
+    "Position",
     "Session",
     "Sessions",
     "SimpleCommission",
