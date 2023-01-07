@@ -1,10 +1,10 @@
-from typing import Union
+from typing import List, Union
 
 from .container import Container
 from .engine import Engine
 from .models import Time
 from .plotters import FinplotPlotter, OHLCPlotRow, SignalsPlotRow, IndicatorsPlotRow
-from .sources import SOURCES
+from .sources import Source, SOURCES
 from .strategy import Strategy
 
 
@@ -13,7 +13,7 @@ class Cipher:
         self.container = Container()
 
         self.strategy = None
-        self.sources = []
+        self.sources: List[Source] = []
         self.sessions = None
         self.signals = None
 
@@ -23,8 +23,11 @@ class Cipher:
     def set_strategy(self, strategy: Strategy):
         self.strategy = strategy
 
-    def add_source(self, source, **kwargs):
-        self.sources.append(SOURCES[source](**kwargs))
+    def add_source(self, source: Union[Source, str], **kwargs):
+        if isinstance(source, Source):
+            self.sources.append(source)
+        else:
+            self.sources.append(SOURCES[source](**kwargs))
 
     def run(self, start_ts: Union[Time, str], stop_ts: Union[Time, str], **kwargs):
         _engine = Engine(
