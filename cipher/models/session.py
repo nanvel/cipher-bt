@@ -1,7 +1,7 @@
 from decimal import Decimal
 from typing import List, Optional, Union
 
-from .tick import Tick
+from .cursor import Cursor
 from .time import Time
 from .transaction import Transaction
 from .wallet import Wallet
@@ -22,8 +22,8 @@ def to_decimal(value: Union[int, str, Decimal]) -> Decimal:
 
 
 class Position:
-    def __init__(self, tick: Tick, transactions: List[Transaction], wallet: Wallet):
-        self._tick = tick
+    def __init__(self, cursor: Cursor, transactions: List[Transaction], wallet: Wallet):
+        self._cursor = cursor
         self._transactions = transactions
         self._wallet = wallet
         self.value = Decimal(0)
@@ -48,9 +48,9 @@ class Position:
         if to_add:
             self.value += to_add
             transaction = Transaction(
-                ts=self._tick.ts,
+                ts=self._cursor.ts,
                 base_quantity=to_add,
-                quote_quantity=to_add * self._tick.price,
+                quote_quantity=to_add * self._cursor.price,
             )
             self._transactions.append(transaction)
             self._wallet.apply(transaction)
@@ -59,7 +59,7 @@ class Position:
         if isinstance(quantity, Base):
             return quantity.value
         elif isinstance(quantity, Quote):
-            return quantity.value / self._tick.price
+            return quantity.value / self._cursor.price
         elif isinstance(quantity, Percent):
             return quantity.value / Decimal(100) * self.value
         else:
@@ -67,18 +67,18 @@ class Position:
 
 
 class Session:
-    def __init__(self, tick: Tick, wallet: Wallet):
-        self._tick = tick
+    def __init__(self, cursor: Cursor, wallet: Wallet):
+        self._cursor = cursor
         self._take_profit: Optional[Decimal] = None
         self._stop_loss: Optional[Decimal] = None
         self.transactions: List[Transaction] = []
         self._position = Position(
-            tick=tick, transactions=self.transactions, wallet=wallet
+            cursor=cursor, transactions=self.transactions, wallet=wallet
         )
 
     def _parse_price(self, price: Union[Percent, Decimal, int, str]) -> Decimal:
         if isinstance(price, Percent):
-            return (price.value / Decimal(100) + Decimal(1)) * self._tick.price
+            return (price.value / Decimal(100) + Decimal(1)) * self._cursor.price
         else:
             return to_decimal(price)
 
@@ -93,9 +93,9 @@ class Session:
             return
 
         if self.is_long:
-            assert price > self._tick.price
+            assert price > self._cursor.price
         else:
-            assert price < self._tick.price
+            assert price < self._cursor.price
 
         self._take_profit = price
 
@@ -110,9 +110,9 @@ class Session:
             return
 
         if self.is_long:
-            assert price < self._tick.price
+            assert price < self._cursor.price
         else:
-            assert price > self._tick.price
+            assert price > self._cursor.price
 
         self._stop_loss = price
 

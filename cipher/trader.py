@@ -1,7 +1,7 @@
 import inspect
 from typing import List
 
-from .models import Datas, Session, Sessions, Tick, Time, Wallet
+from .models import Cursor, Datas, Session, Sessions, Time, Wallet
 from .services.data import DataService
 from .sources import Source
 from .strategy import Strategy
@@ -35,14 +35,14 @@ class Trader:
 
         self.strategy.datas = datas
 
-        tick = Tick.init()
+        cursor = Cursor()
 
         df = self.strategy.process()
 
         for ts, row in df.iterrows():
             row_dict = dict(row)
-            tick.ts = row_dict["ts"] = Time.from_datetime(ts)
-            tick.price = row["close"]
+            cursor.ts = row_dict["ts"] = Time.from_datetime(ts)
+            cursor.price = row["close"]
 
             lower_price, upper_price = self.sessions.prices_of_interest()
             if (lower_price and row["low"] < lower_price) or (
@@ -58,12 +58,12 @@ class Trader:
                         self.strategy.on_stop_loss(row=row_dict, session=session)
 
             if row["entry"]:
-                new_session = Session(tick=tick, wallet=self.strategy.wallet)
+                new_session = Session(cursor=cursor, wallet=self.strategy.wallet)
                 self.strategy.on_entry(row=row_dict, session=new_session)
                 if new_session.position != 0:
                     self.sessions += new_session
 
-            signal = self._find_signal_handlers()
+            signals = self._find_signal_handlers()
             for signal in signals:
                 if row[signal]:
                     for session in self.sessions.open_sessions:
