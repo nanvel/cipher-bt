@@ -40,6 +40,7 @@ class Trader:
         df = self.strategy.process()
         signals = self._find_signal_handlers()
 
+        row_dict = {}
         for ts, row in df.iterrows():
             row_dict = dict(row)
             cursor.ts = row_dict["ts"] = Time.from_datetime(ts)
@@ -68,6 +69,9 @@ class Trader:
                 if row[signal]:
                     for session in self.sessions.open_sessions:
                         getattr(self.strategy, f"on_{signal}")(row=row, session=session)
+
+        for session in self.sessions.open_sessions:
+            self.strategy.on_stop(row=row_dict, session=session)
 
         return Output(
             df=df,
