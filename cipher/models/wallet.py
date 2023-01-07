@@ -8,7 +8,7 @@ class Wallet:
 
     def apply(self, transaction):
         self._base += transaction.base
-        self._quote -= transaction.quote
+        self._quote += transaction.quote
 
     @property
     def base(self):
