@@ -3,12 +3,12 @@ from decimal import Decimal
 
 from pydantic import BaseModel
 
+from ..utils import to_decimal
+
 
 class Base(BaseModel):
     value: Decimal
 
 
 def base(value: Union[int, str, Decimal]):
-    if isinstance(value, Decimal):
-        return Base(value=value)
-    return Base(value=Decimal(value))
+    return Base(value=to_decimal(value))

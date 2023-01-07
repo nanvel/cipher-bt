@@ -3,12 +3,12 @@ from decimal import Decimal
 
 from pydantic import BaseModel
 
+from .percent import to_decimal
+
 
 class Quote(BaseModel):
     value: Decimal
 
 
 def quote(value: Union[int, str, Decimal]):
-    if isinstance(value, Decimal):
-        return Quote(value=value)
-    return Quote(value=Decimal(value))
+    return Quote(value=to_decimal(value))
