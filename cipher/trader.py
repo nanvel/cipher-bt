@@ -1,7 +1,7 @@
 import inspect
 from typing import List
 
-from .models import Cursor, Datas, Session, Sessions, Time, Wallet
+from .models import Cursor, Datas, Output, Session, Sessions, Time, Wallet
 from .services.data import DataService
 from .sources import Source
 from .strategy import Strategy
@@ -25,7 +25,7 @@ class Trader:
         self.wallet = Wallet()
         self.strategy.wallet = self.wallet
 
-    def run(self):
+    def run(self) -> Output:
         datas = Datas(
             self.data_service.load_df(
                 source=s, start_ts=self.start_ts, stop_ts=self.stop_ts
@@ -38,6 +38,7 @@ class Trader:
         cursor = Cursor()
 
         df = self.strategy.process()
+        signals = self._find_signal_handlers()
 
         for ts, row in df.iterrows():
             row_dict = dict(row)
@@ -63,13 +64,16 @@ class Trader:
                 if new_session.position != 0:
                     self.sessions += new_session
 
-            signals = self._find_signal_handlers()
             for signal in signals:
                 if row[signal]:
                     for session in self.sessions.open_sessions:
                         getattr(self.strategy, f"on_{signal}")(row=row, session=session)
 
-        return df
+        return Output(
+            df=df,
+            sessions=self.sessions,
+            signals=signals,
+        )
 
     def _find_signal_handlers(self) -> List[str]:
         skip_handler = {"on_take_profit", "on_stop_loss", "on_stop"}

@@ -3,10 +3,10 @@ from typing import List
 from pandas import DataFrame
 from pydantic import BaseModel
 
-from .transactions import Transactions
+from .sessions import Sessions
 
 
 class Output(BaseModel):
     df: DataFrame
-    transactions: Transactions
+    sessions: Sessions
     signals: List[str]
