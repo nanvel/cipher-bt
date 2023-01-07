@@ -1,20 +1,12 @@
 from decimal import Decimal
 from operator import attrgetter
-from typing import List, Optional
-
-from ..models.session import Session
+from typing import Optional
 
 
-class SessionsWrapper:
-    def __init__(self, sessions: List[Session]):
-        self.sessions = sessions
-
-    def __iadd__(self, other):
-        self.sessions.append(other)
-
+class Sessions(list):
     @property
     def open_sessions(self):
-        return filter(attrgetter("is_open"), self.sessions)
+        return list(filter(attrgetter("is_open"), self))
 
     def prices_of_interest(self) -> (Optional[Decimal], Optional[Decimal]):
         """Find the closest prices at which we will need to check stop_loss/take_profit."""

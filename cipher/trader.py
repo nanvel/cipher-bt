@@ -1,13 +1,13 @@
+import inspect
 from typing import List
 
-from .models import Session, Tick, Time, Wallet
+from .models import Datas, Session, Sessions, Tick, Time, Wallet
 from .services.data import DataService
 from .sources import Source
 from .strategy import Strategy
-from .wrappers import DatasWrapper, SessionsWrapper, StrategyWrapper
 
 
-class Engine:
+class Trader:
     def __init__(
         self,
         data_service: DataService,
@@ -21,20 +21,19 @@ class Engine:
         self.start_ts = start_ts
         self.stop_ts = stop_ts
         self.strategy = strategy
-        self.sessions = SessionsWrapper([])
+        self.sessions = Sessions()
         self.wallet = Wallet()
         self.strategy.wallet = self.wallet
-        self.signals = StrategyWrapper(self.strategy).find_signal_handlers()
 
     def run(self):
-        datas = [
+        datas = Datas(
             self.data_service.load_df(
                 source=s, start_ts=self.start_ts, stop_ts=self.stop_ts
             )
             for s in self.sources
-        ]
+        )
 
-        self.strategy.datas = DatasWrapper(datas)
+        self.strategy.datas = datas
 
         tick = Tick.init()
 
@@ -64,9 +63,20 @@ class Engine:
                 if new_session.position != 0:
                     self.sessions += new_session
 
-            for signal in self.signals:
+            signal = self._find_signal_handlers()
+            for signal in signals:
                 if row[signal]:
                     for session in self.sessions.open_sessions:
                         getattr(self.strategy, f"on_{signal}")(row=row, session=session)
 
         return df
+
+    def _find_signal_handlers(self) -> List[str]:
+        skip_handler = {"on_take_profit", "on_stop_loss", "on_stop"}
+
+        handlers = []
+        for key, _ in inspect.getmembers(self.strategy.__class__):
+            if key.startswith("on_") and key not in skip_handler:
+                handlers.append(key[3:])
+
+        return handlers

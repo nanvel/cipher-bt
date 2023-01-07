@@ -1,7 +1,11 @@
 import colorsys
 import datetime
+from typing import Optional
 
 import finplot as fplt
+from pandas import DataFrame
+
+from .base import Plotter
 
 
 def create_palette(n):
@@ -13,57 +17,26 @@ def create_palette(n):
     ]
 
 
-class PlotRow:
-    pass
+class FinplotPlotter(Plotter):
+    OHLC = "ohlc"
+    OHLCV = "ohlcv"
+    SIGNALS = "signals"
+    SESSIONS = "sessions"
+    BRACKETS = "brackets"
+    BALANCE = "balance"
+    POSITIONS = "positions"
 
-
-class OHLCPlotRow(PlotRow):
-    def __init__(self, df, show_volume=False):
-        # TODO: check if all rows that required are present
-        self.df = df
-        self.show_volume = show_volume
-
-    def plot(self, axes):
-        fplt.candlestick_ochl(self.df[["open", "close", "high", "low"]], ax=axes)
-        if self.show_volume:
-            fplt.volume_ocv(self.df[["open", "close", "volume"]], ax=axes.overlay())
-
-
-class SignalsPlotRow(PlotRow):
-    def __init__(self, df, signals):
-        self.df = df
-        self.signals = signals
-
-    def plot(self, axes):
-        palette = create_palette(len(self.signals) + 2)
-        for n, signal in enumerate(self.signals):
-            fplt.plot(
-                self.df[signal].replace({True: n + 1, False: None}),
-                ax=axes,
-                color=palette[n],
-                style="o",
-                legend=signal,
-            )
-
-
-class IndicatorsPlotRow(PlotRow):
-    def __init__(self, df, indicators):
-        self.df = df
-        self.indicators = indicators
-
-    def plot(self, axes):
-        for n, indicator in enumerate(self.indicators):
-            fplt.plot(
-                self.df[indicator],
-                ax=axes,
-                legend=indicator,
-            )
-
-
-class FinplotPlotter:
-    def __init__(self, rows, title="Example"):
-        self.rows = rows
+    def __init__(
+        self, df: DataFrame, rows: Optional[list] = None, title: str = "Example"
+    ):
+        self.rows = rows or [
+            [self.OHLC, self.SESSIONS],
+            [self.SIGNALS],
+            [self.SESSIONS],
+            [self.BALANCE],
+        ]
         self.title = title
+        self.df = df
 
     def run(self):
         fplt.display_timezone = datetime.timezone.utc
@@ -73,6 +46,32 @@ class FinplotPlotter:
 
         for rows, ax in zip(self.rows, axs):
             for row in rows:
-                row.plot(axes=ax)
+                method = getattr(self, f"_{row}", None)
+                if method:
+                    method(ax)
+                elif row in self.df.columns:
+                    fplt.plot(
+                        self.df[row],
+                        ax=ax,
+                        legend=row,
+                    )
 
         fplt.show()
+
+    def _ohlc(self, ax):
+        fplt.candlestick_ochl(self.df[["open", "close", "high", "low"]], ax=ax)
+
+    def _ohlcv(self, ax):
+        fplt.candlestick_ochl(self.df[["open", "close", "high", "low"]], ax=ax)
+        fplt.volume_ocv(self.df[["open", "close", "volume"]], ax=ax.overlay())
+
+    def _signals(self, ax):
+        palette = create_palette(len(self.signals) + 2)
+        for n, signal in enumerate(self.signals):
+            fplt.plot(
+                self.df[signal].replace({True: n + 1, False: None}),
+                ax=ax,
+                color=palette[n],
+                style="o",
+                legend=signal,
+            )

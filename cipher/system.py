@@ -2,17 +2,18 @@ from decimal import Decimal
 from typing import List, Optional, Union
 
 from .container import Container
-from .engine import Engine
 from .models import Commission, Time, SimpleCommission
 from .plotters import FinplotPlotter, OHLCPlotRow, SignalsPlotRow, IndicatorsPlotRow
 from .sources import Source, SOURCES
 from .strategy import Strategy
+from .trader import Trader
 from .values import Percent
 
 
 class Cipher:
-    def __init__(self):
+    def __init__(self, **settings):
         self.container = Container()
+        self.container.config.from_dict(settings)
 
         self.strategy = None
         self.sources: List[Source] = []
@@ -39,7 +40,7 @@ class Cipher:
             self.commission = SimpleCommission(value=value)
 
     def run(self, start_ts: Union[Time, str], stop_ts: Union[Time, str], **kwargs):
-        _engine = Engine(
+        trader = Trader(
             data_service=self.data_service,
             sources=self.sources,
             strategy=self.strategy,
@@ -47,9 +48,9 @@ class Cipher:
             stop_ts=Time.from_string(stop_ts),
         )
 
-        self.df = _engine.run()
-        self.sessions = _engine.sessions
-        self.signals = _engine.signals
+        self.df = trader.run()
+        self.sessions = trader.sessions
+        self.signals = trader.signals
 
     @property
     def stats(self):

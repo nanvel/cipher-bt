@@ -1,24 +1,20 @@
-from abc import ABC, abstractmethod
-
 from pandas import DataFrame
 
-from .models import Session, Wallet
-from .wrappers import DatasWrapper
+from .models import Datas, Session, Wallet
 
 
-class Strategy(ABC):
-    datas: DatasWrapper
+class Strategy:
+    datas: Datas
     wallet: Wallet
 
     # def __init__(self, param1, param2):
     #     self.param1 = param1
     #     self.param2 = param2
 
-    @abstractmethod
     def process(self) -> DataFrame:
-        pass
+        self.datas.df["entry"] = False
+        return self.datas.df
 
-    @abstractmethod
     def on_entry(self, row: dict, session: Session) -> None:
         pass
 
@@ -30,3 +26,6 @@ class Strategy(ABC):
 
     def on_stop_loss(self, row: dict, session: Session) -> None:
         session.position = 0
+
+    def on_stop(self, row: dict, session: Session) -> None:
+        pass
