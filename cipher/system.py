@@ -2,7 +2,7 @@ from decimal import Decimal
 from typing import List, Optional, Union
 
 from .container import Container
-from .models import Commission, Time, SimpleCommission
+from .models import Commission, Datas, Output, SimpleCommission, Time
 from .plotters import FinplotPlotter
 from .sources import Source, SOURCES
 from .strategy import Strategy
@@ -15,10 +15,9 @@ class Cipher:
         self.container = Container()
         self.container.config.from_dict(settings)
 
-        self.strategy = None
+        self.strategy: Optional[Strategy] = None
         self.sources: List[Source] = []
-        self.sessions = None
-        self.signals = None
+        self.output: Optional[Output] = None
         self.commission: Optional[Commission] = None
 
         self.data_service = self.container.data_service()
@@ -39,32 +38,29 @@ class Cipher:
         else:
             self.commission = SimpleCommission(value=value)
 
-    def run(self, start_ts: Union[Time, str], stop_ts: Union[Time, str], **kwargs):
-        trader = Trader(
-            data_service=self.data_service,
-            sources=self.sources,
-            strategy=self.strategy,
-            start_ts=Time.from_string(start_ts),
-            stop_ts=Time.from_string(stop_ts),
-        )
+    def run(self, start_ts: Union[Time, str], stop_ts: Union[Time, str]):
+        assert self.strategy
+        assert self.sources
 
-        self.df = trader.run()
-        self.sessions = trader.sessions
-        self.signals = trader.signals
+        self.output = Trader(
+            datas=Datas(
+                self.data_service.load_df(
+                    source=s,
+                    start_ts=Time.from_string(start_ts),
+                    stop_ts=Time.from_string(stop_ts),
+                )
+                for s in self.sources
+            ),
+            strategy=self.strategy,
+        ).run()
 
     @property
     def stats(self):
         return None
 
-    def plot(self, plotter=None):
+    def plot(self, plotter=None, **kwargs):
         """TODO: default plotter by env and what is installed."""
-        plotter = FinplotPlotter(
-            rows=[
-                [
-                    OHLCPlotRow(df=self.df, show_volume=False),
-                    IndicatorsPlotRow(df=self.df, indicators=["sma200", "ema50"]),
-                ],
-                [SignalsPlotRow(df=self.df, signals=self.signals)],
-            ]
-        )
+        assert self.output
+
+        plotter = FinplotPlotter(output=self.output)
         plotter.run()

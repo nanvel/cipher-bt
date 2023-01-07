@@ -1,4 +1,4 @@
-from typing import List
+from typing import List, Optional
 
 from pandas import DataFrame
 from pydantic import BaseModel
@@ -10,6 +10,8 @@ class Output(BaseModel):
     df: DataFrame
     sessions: Sessions
     signals: List[str]
+    title: str
+    description: Optional[str] = None
 
     class Config:
         arbitrary_types_allowed = True

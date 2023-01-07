@@ -2,9 +2,10 @@ import colorsys
 import datetime
 from typing import Optional
 
-import finplot as fplt
+import finplot
 from pandas import DataFrame
 
+from ..models import Output
 from .base import Plotter
 
 
@@ -56,14 +57,14 @@ class FinplotPlotter(Plotter):
                         legend=row,
                     )
 
-        fplt.show()
+        finplot.show()
 
     def _ohlc(self, ax):
-        fplt.candlestick_ochl(self.df[["open", "close", "high", "low"]], ax=ax)
+        finplot.candlestick_ochl(self.df[["open", "close", "high", "low"]], ax=ax)
 
     def _ohlcv(self, ax):
-        fplt.candlestick_ochl(self.df[["open", "close", "high", "low"]], ax=ax)
-        fplt.volume_ocv(self.df[["open", "close", "volume"]], ax=ax.overlay())
+        finplot.candlestick_ochl(self.df[["open", "close", "high", "low"]], ax=ax)
+        finplot.volume_ocv(self.df[["open", "close", "volume"]], ax=ax.overlay())
 
     def _signals(self, ax):
         palette = create_palette(len(self.signals) + 2)
