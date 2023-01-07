@@ -3,7 +3,7 @@ from typing import List, Optional, Union
 
 from .container import Container
 from .models import Commission, Time, SimpleCommission
-from .plotters import FinplotPlotter, OHLCPlotRow, SignalsPlotRow, IndicatorsPlotRow
+from .plotters import FinplotPlotter
 from .sources import Source, SOURCES
 from .strategy import Strategy
 from .trader import Trader

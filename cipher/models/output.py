@@ -10,3 +10,6 @@ class Output(BaseModel):
     df: DataFrame
     sessions: Sessions
     signals: List[str]
+
+    class Config:
+        arbitrary_types_allowed = True
