@@ -6,6 +6,9 @@ from pydantic import BaseModel
 class TimeDelta(BaseModel):
     seconds: int
 
+    class Config:
+        frozen = True
+
     def to_timedelta(self) -> datetime.timedelta:
         return datetime.timedelta(seconds=self.seconds)
 

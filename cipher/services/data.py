@@ -54,6 +54,16 @@ class DataService:
                 temp_path.unlink()
             raise
 
+        if completed:
+            incomplete_path = self.cache_root / self._build_path(
+                prefix=source.slug,
+                first_ts=first_ts,
+                last_ts=last_ts,
+                completed=False,
+            )
+            if incomplete_path.exists():
+                incomplete_path.unlink()
+
         return (
             first_ts,
             last_ts,
@@ -73,9 +83,13 @@ class DataService:
         self, prefix: str, ts: Time
     ) -> Optional[Tuple[Time, Time, Path]]:
         second = int(ts.to_timestamp() / 1000)
-        for p in (self.cache_root / prefix).glob("*_c.csv"):
+        for p in (self.cache_root / prefix).glob("*.csv"):
             try:
-                first_ts, last_ts, _ = p.stem.split("_")
+                first_ts, last_ts = p.stem.split("_")
+
+                if not last_ts:
+                    continue
+
                 first_ts = int(first_ts)
                 last_ts = int(last_ts)
 
@@ -92,8 +106,8 @@ class DataService:
         return prefix + f"/{ts.to_timestamp() // 1000}.csv"
 
     def _build_path(self, prefix: str, first_ts: Time, last_ts: Time, completed: bool):
-        completed = "c" if completed else "i"
         return (
             prefix
-            + f"/{first_ts.to_timestamp() // 1000}_{last_ts.to_timestamp() // 1000}_{completed}.csv"
+            + f"/{first_ts.to_timestamp() // 1000}_"
+            + (f"{last_ts.to_timestamp() // 1000}.csv" if completed else ".csv")
         )

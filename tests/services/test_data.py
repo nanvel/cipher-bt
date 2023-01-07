@@ -66,4 +66,4 @@ def test_load():
         )
 
     assert "fake_ohlc/btcusdt_1h/1579494600.csv" in str(e.value)
-    assert "fake_ohlc/btcusdt_1h/1578600000_1580396400_c.csv" in str(e.value)
+    assert "fake_ohlc/btcusdt_1h/1578600000_1580396400.csv" in str(e.value)

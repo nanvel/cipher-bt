@@ -6,10 +6,13 @@ from .time import Time
 
 
 class Transaction(BaseModel):
-    base_quantity: Decimal
-    quote_quantity: Decimal
     ts: Time
+    base: Decimal
+    quote: Decimal
 
     @property
     def price(self) -> Decimal:
-        return self.quote_quantity / self.base_quantity
+        return self.quote / self.base
+
+    class Config:
+        frozen = True

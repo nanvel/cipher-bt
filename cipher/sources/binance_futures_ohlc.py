@@ -1,5 +1,6 @@
 import csv
 from pathlib import Path
+from typing import Union
 from urllib.parse import urlencode, urljoin
 
 import requests
@@ -25,9 +26,13 @@ class BinanceFuturesOHLCSource(Source):
         "taker_buy_quote_volume",
     ]
 
-    def __init__(self, symbol: str, interval: Interval):
+    def __init__(self, symbol: str, interval: Union[Interval, str]):
+        if isinstance(interval, str):
+            self.interval = Interval.from_binance_slug(interval)
+        else:
+            self.interval = interval
+
         self.symbol = symbol
-        self.interval = interval
 
     @property
     def slug(self):
