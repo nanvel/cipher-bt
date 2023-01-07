@@ -8,17 +8,20 @@ class Sessions(list):
     def open_sessions(self):
         return list(filter(attrgetter("is_open"), self))
 
-    def prices_of_interest(self) -> (Optional[Decimal], Optional[Decimal]):
+    def closest_sl_tp(self) -> (Optional[Decimal], Optional[Decimal]):
         """Find the closest prices at which we will need to check stop_loss/take_profit."""
-        closest_up = None
-        closest_down = None
-        for trade in self.open_sessions:
-            min_price = min(trade.take_profit, trade.stop_loss)
-            max_price = max(trade.take_profit, trade.stop_loss)
+        ups = []
+        downs = []
+        for session in self.open_sessions:
+            if session.is_long:
+                if session.take_profit:
+                    ups.append(session.take_profit)
+                if session.stop_loss:
+                    downs.append(session.stop_loss)
+            else:
+                if session.take_profit:
+                    downs.append(session.take_profit)
+                if session.stop_loss:
+                    ups.append(session.stop_loss)
 
-            if closest_up is None or closest_up > max_price:
-                closest_up = max_price
-            if closest_down is None or closest_down < min_price:
-                closest_down = min_price
-
-        return closest_down, closest_up
+        return max(downs) if downs else None, min(ups) if ups else None
