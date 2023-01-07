@@ -66,8 +66,11 @@ class Session:
         return self._position
 
     @position.setter
-    def position(self, value: Union[Base, Quote, Percent, Decimal, int, str]):
-        self._position.set(value)
+    def position(self, value: Union[Base, Quote, Percent, Decimal, int, str, Position]):
+        if isinstance(value, Position):
+            self._position = value
+        else:
+            self._position.set(value)
 
     @property
     def quote(self) -> Decimal:
@@ -79,7 +82,7 @@ class Session:
 
     @property
     def is_open(self) -> bool:
-        return self.position != 0
+        return self._position.value != 0
 
     @property
     def opened_ts(self) -> Time:
@@ -88,10 +91,10 @@ class Session:
     @property
     def closed_ts(self) -> Optional[Time]:
         if self.is_open:
-            return self.transactions[-1].ts
-        return None
+            return None
+        return self.transactions[-1].ts
 
-    def check(
+    def should_tp_sl(
         self, low: Decimal, high: Decimal
     ) -> (bool, bool):  # take_profit, stop_loss
         take_profit = False
