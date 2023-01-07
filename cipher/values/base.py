@@ -5,8 +5,10 @@ from pydantic import BaseModel
 
 
 class Base(BaseModel):
-    value: Union[int, str, Decimal]
+    value: Decimal
 
 
 def base(value: Union[int, str, Decimal]):
-    return Base(value=value)
+    if isinstance(value, Decimal):
+        return Base(value=value)
+    return Base(value=Decimal(value))

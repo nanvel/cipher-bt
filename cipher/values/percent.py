@@ -5,8 +5,10 @@ from pydantic import BaseModel
 
 
 class Percent(BaseModel):
-    value: Union[int, str, Decimal]
+    value: Decimal
 
 
 def percent(value: Union[int, str, Decimal]):
-    return Percent(value=value)
+    if isinstance(value, Decimal):
+        return Percent(value=value)
+    return Percent(value=Decimal(value))

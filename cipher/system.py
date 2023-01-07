@@ -1,11 +1,13 @@
-from typing import List, Union
+from decimal import Decimal
+from typing import List, Optional, Union
 
 from .container import Container
 from .engine import Engine
-from .models import Time
+from .models import Commission, Time, SimpleCommission
 from .plotters import FinplotPlotter, OHLCPlotRow, SignalsPlotRow, IndicatorsPlotRow
 from .sources import Source, SOURCES
 from .strategy import Strategy
+from .values import Percent
 
 
 class Cipher:
@@ -16,6 +18,7 @@ class Cipher:
         self.sources: List[Source] = []
         self.sessions = None
         self.signals = None
+        self.commission: Optional[Commission] = None
 
         self.data_service = self.container.data_service()
         self.df = None
@@ -28,6 +31,12 @@ class Cipher:
             self.sources.append(source)
         else:
             self.sources.append(SOURCES[source](**kwargs))
+
+    def add_commission(self, value: Union[Commission, Decimal, str, Percent]):
+        if isinstance(value, Commission):
+            self.commission = value
+        else:
+            self.commission = SimpleCommission(value=value)
 
     def run(self, start_ts: Union[Time, str], stop_ts: Union[Time, str], **kwargs):
         _engine = Engine(

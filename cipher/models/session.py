@@ -57,11 +57,11 @@ class Position:
 
     def _parse_quantity(self, quantity) -> Decimal:
         if isinstance(quantity, Base):
-            return to_decimal(quantity.value)
+            return quantity.value
         elif isinstance(quantity, Quote):
-            return to_decimal(quantity.value) / self._tick.price
+            return quantity.value / self._tick.price
         elif isinstance(quantity, Percent):
-            return to_decimal(quantity.value) * self.value
+            return quantity.value / Decimal(100) * self.value
         else:
             return to_decimal(quantity)
 
@@ -78,7 +78,7 @@ class Session:
 
     def _parse_price(self, price: Union[Percent, Decimal, int, str]) -> Decimal:
         if isinstance(price, Percent):
-            return to_decimal(price.value) * self._tick.price
+            return (price.value / Decimal(100) + Decimal(1)) * self._tick.price
         else:
             return to_decimal(price)
 
