@@ -3,7 +3,6 @@ import datetime
 from typing import Optional
 
 import finplot
-from pandas import DataFrame
 
 from ..models import Output
 from .base import Plotter
@@ -25,52 +24,57 @@ class FinplotPlotter(Plotter):
     SESSIONS = "sessions"
     BRACKETS = "brackets"
     BALANCE = "balance"
-    POSITIONS = "positions"
+    POSITION = "position"
 
-    def __init__(
-        self, df: DataFrame, rows: Optional[list] = None, title: str = "Example"
-    ):
-        self.rows = rows or [
+    def __init__(self, output: Output):
+        self.output = output
+
+    def run(self, rows: Optional[list] = None):
+        rows = rows or [
             [self.OHLC, self.SESSIONS],
             [self.SIGNALS],
-            [self.SESSIONS],
+            [self.POSITION],
             [self.BALANCE],
         ]
-        self.title = title
-        self.df = df
 
-    def run(self):
-        fplt.display_timezone = datetime.timezone.utc
-        axs = fplt.create_plot(self.title, rows=len(self.rows))
-        if len(self.rows) == 1:
+        finplot.display_timezone = datetime.timezone.utc
+        axs = finplot.create_plot(self.output.title, rows=len(rows))
+        if len(rows) == 1:
             axs = [axs]
 
-        for rows, ax in zip(self.rows, axs):
+        for rows, ax in zip(rows, axs):
             for row in rows:
                 method = getattr(self, f"_{row}", None)
                 if method:
                     method(ax)
-                elif row in self.df.columns:
-                    fplt.plot(
-                        self.df[row],
+                elif row in self.output.df.columns:
+                    finplot.plot(
+                        self.output.df[row],
                         ax=ax,
                         legend=row,
                     )
 
         finplot.show()
 
+    def _ohlc_supported(self):
+        pass
+
     def _ohlc(self, ax):
-        finplot.candlestick_ochl(self.df[["open", "close", "high", "low"]], ax=ax)
+        finplot.candlestick_ochl(
+            self.output.df[["open", "close", "high", "low"]], ax=ax
+        )
 
     def _ohlcv(self, ax):
-        finplot.candlestick_ochl(self.df[["open", "close", "high", "low"]], ax=ax)
-        finplot.volume_ocv(self.df[["open", "close", "volume"]], ax=ax.overlay())
+        finplot.candlestick_ochl(
+            self.output.df[["open", "close", "high", "low"]], ax=ax
+        )
+        finplot.volume_ocv(self.output.df[["open", "close", "volume"]], ax=ax.overlay())
 
     def _signals(self, ax):
-        palette = create_palette(len(self.signals) + 2)
-        for n, signal in enumerate(self.signals):
-            fplt.plot(
-                self.df[signal].replace({True: n + 1, False: None}),
+        palette = create_palette(len(self.output.signals) + 2)
+        for n, signal in enumerate(self.output.signals):
+            finplot.plot(
+                self.output.df[signal].replace({True: n + 1, False: None}),
                 ax=ax,
                 color=palette[n],
                 style="o",

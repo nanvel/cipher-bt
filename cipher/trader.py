@@ -27,7 +27,7 @@ class Trader:
             cursor.ts = row_dict["ts"] = Time.from_datetime(ts)
             cursor.price = row["close"]
 
-            lower_price, upper_price = sessions.prices_of_interest()
+            lower_price, upper_price = sessions.closest_sl_tp()
             if (lower_price and row["low"] < lower_price) or (
                 upper_price and row["high"] > upper_price
             ):
@@ -75,17 +75,17 @@ class Trader:
     def _extract_strategy_title(self) -> str:
         doc = self.strategy.__doc__ or ""
         lines = list(
-            filter(lambda x: x.length(), map(lambda i: i.strip(), doc.split("\n")))
+            filter(lambda x: len(x), map(lambda i: i.strip(), doc.split("\n")))
         )
 
         if not lines:
             matches = finditer(
-                r'.+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)',
-                self.strategy.__class__.__name__
+                r".+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)",
+                self.strategy.__class__.__name__,
             )
-            lines.append((' '.join([m.group(0) for m in matches])).title())
+            lines.append((" ".join([m.group(0) for m in matches])).title())
 
         return lines[0]
 
     def _extract_strategy_description(self) -> str:
-        return "\n".join(self.strategy.__doc__.split("\n")[1:]).strip() or None
+        return "\n".join((self.strategy.__doc__ or "").split("\n")[1:]).strip() or None
