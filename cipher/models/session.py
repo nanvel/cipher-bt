@@ -1,9 +1,9 @@
 from decimal import Decimal
 from typing import List, Optional, Union
 
-from .events import Event, SetStopLoss, SetTakeProfit, Transaction
 from .tick import Tick
 from .time import Time
+from .transaction import Transaction
 from .wallet import Wallet
 from ..values import Base, Percent, Quote
 
@@ -22,9 +22,9 @@ def to_decimal(value: Union[int, str, Decimal]) -> Decimal:
 
 
 class Position:
-    def __init__(self, tick: Tick, events: List[Event], wallet: Wallet):
+    def __init__(self, tick: Tick, transactions: List[Transaction], wallet: Wallet):
         self._tick = tick
-        self._events = events
+        self._transactions = transactions
         self._wallet = wallet
         self.value = Decimal(0)
 
@@ -52,7 +52,7 @@ class Position:
                 base_quantity=to_add,
                 quote_quantity=to_add * self._tick.price,
             )
-            self._events.append(transaction)
+            self._transactions.append(transaction)
             self._wallet.apply(transaction)
 
     def _parse_quantity(self, quantity) -> Decimal:
@@ -71,8 +71,10 @@ class Session:
         self._tick = tick
         self._take_profit: Optional[Decimal] = None
         self._stop_loss: Optional[Decimal] = None
-        self.events: List[Event] = []
-        self._position = Position(tick=tick, events=self.events, wallet=wallet)
+        self.transactions: List[Transaction] = []
+        self._position = Position(
+            tick=tick, transactions=self.transactions, wallet=wallet
+        )
 
     def _parse_price(self, price: Union[Percent, Decimal, int, str]) -> Decimal:
         if isinstance(price, Percent):
@@ -96,7 +98,6 @@ class Session:
             assert price < self._tick.price
 
         self._take_profit = price
-        self.events.append(SetTakeProfit(ts=self._tick.ts, price=price))
 
     @property
     def stop_loss(self) -> Optional[Decimal]:
@@ -114,7 +115,6 @@ class Session:
             assert price > self._tick.price
 
         self._stop_loss = price
-        self.events.append(SetStopLoss(ts=self._tick.ts, price=price))
 
     @property
     def position(self) -> Decimal:
@@ -127,10 +127,6 @@ class Session:
     @property
     def quote(self) -> Decimal:
         return sum([t.quote for t in self.transactions])
-
-    @property
-    def transactions(self) -> List[Transaction]:
-        return list(filter(lambda i: isinstance(i, Transaction), self.events))
 
     @property
     def is_long(self) -> bool:

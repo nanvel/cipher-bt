@@ -5,11 +5,8 @@ from pydantic import BaseModel
 from .time import Time
 
 
-class Event(BaseModel):
+class Transaction(BaseModel):
     ts: Time
-
-
-class Transaction(Event):
     base: Decimal
     quote: Decimal
 
@@ -17,10 +14,5 @@ class Transaction(Event):
     def price(self) -> Decimal:
         return self.quote / self.base
 
-
-class SetStopLoss(Event):
-    price: Decimal
-
-
-class SetTakeProfit(Event):
-    price: Decimal
+    class Config:
+        frozen = True

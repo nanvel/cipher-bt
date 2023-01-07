@@ -1,12 +1,19 @@
 from decimal import Decimal
 
-from pydantic import BaseModel
 
-
-class Wallet(BaseModel):
-    base: Decimal = Decimal(0)
-    quote: Decimal = Decimal(0)
+class Wallet:
+    def __init__(self):
+        self._base = Decimal(0)
+        self._quote = Decimal(0)
 
     def apply(self, transaction):
-        self.base += transaction.base
-        self.quote -= transaction.quote
+        self._base += transaction.base
+        self._quote -= transaction.quote
+
+    @property
+    def base(self):
+        return self._base
+
+    @property
+    def quote(self):
+        return self._quote

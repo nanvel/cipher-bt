@@ -13,6 +13,9 @@ STRING_FORMATS = ("%Y-%m-%dT%H:%M", "%Y-%m-%d", "%Y-%m-%d %H:%M")
 class Time(BaseModel):
     ts: int  # ms
 
+    class Config:
+        frozen = True
+
     def to_datetime(self) -> datetime.datetime:
         return datetime.datetime.utcfromtimestamp(self.ts * 1.0 / 1000)
 

@@ -22,6 +22,9 @@ BINANCE_INTERVALS = {
 class Interval(BaseModel):
     seconds: int
 
+    class Config:
+        frozen = True
+
     def to_seconds(self):
         return self.seconds
 
