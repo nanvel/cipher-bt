@@ -160,28 +160,28 @@ class FinplotPlotter(Plotter):
         finplot.plot(
             self.output.df["long_session_open"],
             ax=ax,
-            style="^",
+            style=">",
             legend="Long Open",
             color="green",
         )
         finplot.plot(
             self.output.df["long_session_close"],
             ax=ax,
-            style="v",
+            style="<",
             legend="Long Close",
             color="green",
         )
         finplot.plot(
             self.output.df["short_session_open"],
             ax=ax,
-            style="v",
+            style=">",
             legend="Short Open",
             color="red",
         )
         finplot.plot(
             self.output.df["short_session_close"],
             ax=ax,
-            style="^",
+            style="<",
             legend="Shor Close",
             color="red",
         )
