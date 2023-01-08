@@ -36,9 +36,11 @@ class Trader:
                         low=row["low"], high=row["high"]
                     )
                     if take_profit:
-                        self.strategy.on_take_profit(row=row_dict, session=session)
+                        with cursor.patch_price(take_profit):
+                            self.strategy.on_take_profit(row=row_dict, session=session)
                     if stop_loss:
-                        self.strategy.on_stop_loss(row=row_dict, session=session)
+                        with cursor.patch_price(stop_loss):
+                            self.strategy.on_stop_loss(row=row_dict, session=session)
 
             if row["entry"]:
                 new_session = Session(cursor=cursor, wallet=self.strategy.wallet)

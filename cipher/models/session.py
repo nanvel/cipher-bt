@@ -102,19 +102,19 @@ class Session:
 
     def should_tp_sl(
         self, low: Decimal, high: Decimal
-    ) -> (bool, bool):  # take_profit, stop_loss
-        take_profit = False
-        stop_loss = False
+    ) -> (Optional[Decimal], Optional[Decimal]):  # take_profit, stop_loss
+        take_profit = None
+        stop_loss = None
 
         if self.is_long:
             if low < self.stop_loss:
-                stop_loss = True
+                stop_loss = self.stop_loss
             elif high > self.take_profit:
-                take_profit = True
+                take_profit = self.take_profit
         else:
             if high > self.stop_loss:
-                stop_loss = True
+                stop_loss = self.stop_loss
             elif low < self.take_profit:
-                stop_loss = True
+                take_profit = self.take_profit
 
         return take_profit, stop_loss
