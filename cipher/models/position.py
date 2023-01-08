@@ -38,7 +38,7 @@ class Position:
             transaction = Transaction(
                 ts=self._cursor.ts,
                 base=to_add,
-                quote=to_add * self._cursor.price,
+                quote=-to_add * self._cursor.price,
             )
             self._transactions.append(transaction)
             self._wallet.apply(transaction)

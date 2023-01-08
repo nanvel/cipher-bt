@@ -87,6 +87,10 @@ class Session:
         return self._position.value != 0
 
     @property
+    def is_closed(self) -> bool:
+        return not self.is_open
+
+    @property
     def opened_ts(self) -> Time:
         return self.transactions[0].ts
 

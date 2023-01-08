@@ -27,7 +27,7 @@ class Trader:
 
             cursor.set(ts=ts, price=row_dict["close"])
 
-            lower_price, upper_price = sessions.closest_sl_tp()
+            lower_price, upper_price = sessions.find_closest_sl_tp()
             if (lower_price and row["low"] < lower_price) or (
                 upper_price and row["high"] > upper_price
             ):

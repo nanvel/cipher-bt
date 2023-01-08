@@ -80,3 +80,7 @@ class FinplotPlotter(Plotter):
                 style="o",
                 legend=signal,
             )
+
+    def _position(self, ax):
+        for transaction in self.output.sessions.transactions:
+            pass
