@@ -116,6 +116,7 @@ class FinplotPlotter(Plotter):
             )
 
         self.output.df["position"] = self.output.df["position"].fillna(method="ffill")
+        self.output.df["quote"] = self.output.df["quote"].fillna(method="ffill")
 
         finplot.plot(
             self.output.df["position"] * self.output.df["close"]
