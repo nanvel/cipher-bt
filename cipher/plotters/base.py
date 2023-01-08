@@ -33,6 +33,9 @@ class Plotter(ABC):
         elif isinstance(start, int):
             if start == 0:
                 self.df = self.df.head(limit)
+            elif start < 0:
+                first = len(self.df.index) + start
+                self.df = self.df.iloc[first : first + limit]
             else:
                 self.df = self.df.iloc[start : start + limit]
         elif isinstance(start, datetime.datetime):

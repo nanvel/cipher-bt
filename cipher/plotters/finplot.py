@@ -10,6 +10,10 @@ from .base import Plotter
 class FinplotPlotter(Plotter):
     """Markers: https://matplotlib.org/stable/api/markers_api.html"""
 
+    @property
+    def default_limit(self) -> int:
+        return 2000
+
     def run(self, rows: Optional[list] = None):
         rows = self._filter_rows(
             rows
