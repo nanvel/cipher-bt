@@ -98,3 +98,28 @@ class FinplotPlotter(Plotter):
             ax=ax,
             legend="Position",
         )
+
+    def _balance(self, ax):
+        self.output.df["position"] = None
+        self.output.df["quote"] = None
+        wallet = Wallet()
+
+        self.output.df.at[self.output.df.index.min(), "position"] = 0
+        self.output.df.at[self.output.df.index.min(), "quote"] = 0
+        for transaction in self.output.sessions.transactions:
+            wallet.apply(transaction)
+            self.output.df.at[transaction.ts.to_datetime(), "position"] = float(
+                wallet.base
+            )
+            self.output.df.at[transaction.ts.to_datetime(), "quote"] = float(
+                wallet.quote
+            )
+
+        self.output.df["position"] = self.output.df["position"].fillna(method="ffill")
+
+        finplot.plot(
+            self.output.df["position"] * self.output.df["close"]
+            + self.output.df["quote"],
+            ax=ax,
+            legend="Balance",
+        )
