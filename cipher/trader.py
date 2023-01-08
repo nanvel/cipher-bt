@@ -32,7 +32,7 @@ class Trader:
                 upper_price and row["high"] > upper_price
             ):
                 for session in sessions.open_sessions:
-                    take_profit, stop_loss = session.check(
+                    take_profit, stop_loss = session.should_tp_sl(
                         low=row["low"], high=row["high"]
                     )
                     if take_profit:

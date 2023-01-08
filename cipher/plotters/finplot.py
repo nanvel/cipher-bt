@@ -3,6 +3,7 @@ import datetime
 from typing import Optional
 
 import finplot
+import pandas
 
 from ..models import Output, Wallet
 from .base import Plotter
@@ -18,6 +19,8 @@ def create_palette(n):
 
 
 class FinplotPlotter(Plotter):
+    """Markers: https://matplotlib.org/stable/api/markers_api.html"""
+
     OHLC = "ohlc"
     OHLCV = "ohlcv"
     SIGNALS = "signals"
@@ -100,8 +103,8 @@ class FinplotPlotter(Plotter):
         )
 
     def _balance(self, ax):
-        self.output.df["position"] = None
-        self.output.df["quote"] = None
+        self.output.df["position"] = pandas.Series(dtype="float64")
+        self.output.df["quote"] = pandas.Series(dtype="float64")
         wallet = Wallet()
 
         self.output.df.at[self.output.df.index.min(), "position"] = 0
@@ -123,4 +126,89 @@ class FinplotPlotter(Plotter):
             + self.output.df["quote"],
             ax=ax,
             legend="Balance",
+        )
+
+    def _sessions(self, ax):
+        self.output.df["long_session_open"] = pandas.Series(dtype="float64")
+        self.output.df["long_session_close"] = pandas.Series(dtype="float64")
+        self.output.df["short_session_open"] = pandas.Series(dtype="float64")
+        self.output.df["short_session_close"] = pandas.Series(dtype="float64")
+
+        for session in self.output.sessions:
+            ts = session.opened_ts.to_datetime()
+
+            if session.is_long:
+                self.output.df.at[ts, "long_session_open"] = self.output.df.at[
+                    ts, "close"
+                ]
+            else:
+                self.output.df.at[ts, "short_session_open"] = self.output.df.at[
+                    ts, "close"
+                ]
+
+            if session.is_closed:
+                close_ts = session.closed_ts.to_datetime()
+                if session.is_long:
+                    self.output.df.at[
+                        close_ts, "long_session_close"
+                    ] = self.output.df.at[close_ts, "close"]
+                else:
+                    self.output.df.at[
+                        close_ts, "short_session_close"
+                    ] = self.output.df.at[close_ts, "close"]
+
+        finplot.plot(
+            self.output.df["long_session_open"],
+            ax=ax,
+            style="^",
+            legend="Long Open",
+            color="green",
+        )
+        finplot.plot(
+            self.output.df["long_session_close"],
+            ax=ax,
+            style="v",
+            legend="Long Close",
+            color="green",
+        )
+        finplot.plot(
+            self.output.df["short_session_open"],
+            ax=ax,
+            style="v",
+            legend="Short Open",
+            color="red",
+        )
+        finplot.plot(
+            self.output.df["short_session_close"],
+            ax=ax,
+            style="^",
+            legend="Shor Close",
+            color="red",
+        )
+
+    def _brackets(self, ax):
+        self.output.df["bracket_sl"] = pandas.Series(dtype="float64")
+        self.output.df["bracket_tp"] = pandas.Series(dtype="float64")
+        for session in self.output.sessions.closed_sessions:
+            ts = session.closed_ts.to_datetime()
+
+            if session.stop_loss:
+                self.output.df.at[ts, "bracket_sl"] = float(session.stop_loss)
+            if session.take_profit:
+                self.output.df.at[ts, "bracket_tp"] = float(session.take_profit)
+
+        finplot.plot(
+            self.output.df["bracket_tp"],
+            ax=ax,
+            style="+",
+            legend="Take profit",
+            color="green",
+        )
+
+        finplot.plot(
+            self.output.df["bracket_sl"],
+            ax=ax,
+            style="+",
+            legend="Stop loss",
+            color="red",
         )
