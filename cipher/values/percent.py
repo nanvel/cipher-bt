@@ -10,5 +10,5 @@ class Percent(BaseModel):
     value: Decimal
 
 
-def percent(value: Union[int, str, Decimal]):
+def percent(value: Union[int, str, float, Decimal]):
     return Percent(value=to_decimal(value))

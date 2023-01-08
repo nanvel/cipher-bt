@@ -10,5 +10,5 @@ class Quote(BaseModel):
     value: Decimal
 
 
-def quote(value: Union[int, str, Decimal]):
+def quote(value: Union[int, str, float, Decimal]):
     return Quote(value=to_decimal(value))

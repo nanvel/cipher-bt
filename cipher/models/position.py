@@ -16,19 +16,19 @@ class Position:
         self._wallet = wallet
         self.value = Decimal(0)
 
-    def __iadd__(self, other: Union[Base, Quote, Percent, Decimal, int, str]):
+    def __iadd__(self, other: Union[Base, Quote, Percent, Decimal, int, str, float]):
         to_add = self._parse_quantity(other)
         return self._add(to_add)
 
-    def __isub__(self, other: Union[Base, Quote, Percent, Decimal, int, str]):
+    def __isub__(self, other: Union[Base, Quote, Percent, Decimal, int, str, float]):
         to_sub = self._parse_quantity(other)
         return self._add(-to_sub)
 
-    def __imul__(self, other: Union[Decimal, int, str]):
+    def __imul__(self, other: Union[Decimal, int, str, float]):
         mul = self._parse_quantity(other)
         return self._add((self.value * mul) - self.value)
 
-    def set(self, value: Union[Base, Quote, Percent, Decimal, int, str]):
+    def set(self, value: Union[Base, Quote, Percent, Decimal, int, str, float]):
         new_value = self._parse_quantity(value)
         self._add(new_value - self.value)
 

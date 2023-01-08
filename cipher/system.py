@@ -63,4 +63,4 @@ class Cipher:
         assert self.output
 
         plotter = FinplotPlotter(output=self.output)
-        plotter.run()
+        plotter.run(**kwargs)

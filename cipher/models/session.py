@@ -21,7 +21,7 @@ class Session:
             cursor=cursor, transactions=self.transactions, wallet=wallet
         )
 
-    def _parse_price(self, price: Union[Percent, Decimal, int, str]) -> Decimal:
+    def _parse_price(self, price: Union[Percent, Decimal, int, str, float]) -> Decimal:
         if isinstance(price, Percent):
             return (price.value / Decimal(100) + Decimal(1)) * self._cursor.price
         else:
@@ -32,7 +32,7 @@ class Session:
         return self._take_profit
 
     @take_profit.setter
-    def take_profit(self, value: Union[Percent, Decimal, int, str]):
+    def take_profit(self, value: Union[Percent, Decimal, int, str, float]):
         price = self._parse_price(value)
         if self._take_profit == price:
             return
@@ -49,7 +49,7 @@ class Session:
         return self._stop_loss
 
     @stop_loss.setter
-    def stop_loss(self, value: Union[Percent, Decimal, int, str]):
+    def stop_loss(self, value: Union[Percent, Decimal, int, str, float]):
         price = self._parse_price(value)
         if self._stop_loss == price:
             return
@@ -66,7 +66,9 @@ class Session:
         return self._position
 
     @position.setter
-    def position(self, value: Union[Base, Quote, Percent, Decimal, int, str, Position]):
+    def position(
+        self, value: Union[Base, Quote, Percent, Decimal, int, str, float, Position]
+    ):
         if isinstance(value, Position):
             self._position = value
         else:

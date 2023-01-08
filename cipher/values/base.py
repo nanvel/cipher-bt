@@ -10,5 +10,5 @@ class Base(BaseModel):
     value: Decimal
 
 
-def base(value: Union[int, str, Decimal]):
+def base(value: Union[int, str, float, Decimal]):
     return Base(value=to_decimal(value))

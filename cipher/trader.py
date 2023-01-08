@@ -1,6 +1,6 @@
 import inspect
 from re import finditer
-from typing import List
+from typing import List, Optional
 
 from .models import Cursor, Datas, Output, Session, Sessions, Time, Wallet
 from .strategy import Strategy
@@ -24,8 +24,8 @@ class Trader:
         row_dict = {}
         for ts, row in df.iterrows():
             row_dict = dict(row)
-            cursor.ts = row_dict["ts"] = Time.from_datetime(ts)
-            cursor.price = row["close"]
+
+            cursor.set(ts=ts, price=row_dict["close"])
 
             lower_price, upper_price = sessions.closest_sl_tp()
             if (lower_price and row["low"] < lower_price) or (
@@ -87,5 +87,5 @@ class Trader:
 
         return lines[0]
 
-    def _extract_strategy_description(self) -> str:
+    def _extract_strategy_description(self) -> Optional[str]:
         return "\n".join((self.strategy.__doc__ or "").split("\n")[1:]).strip() or None
