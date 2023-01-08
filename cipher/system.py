@@ -58,9 +58,9 @@ class Cipher:
     def stats(self):
         return None
 
-    def plot(self, plotter=None, **kwargs):
+    def plot(self, plotter=None, start=None, limit=None, **kwargs):
         """TODO: default plotter by env and what is installed."""
         assert self.output
 
-        plotter = FinplotPlotter(output=self.output)
+        plotter = FinplotPlotter(output=self.output, start=start, limit=limit)
         plotter.run(**kwargs)
