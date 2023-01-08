@@ -4,7 +4,7 @@ from typing import Optional, Union
 
 import pandas as pd
 
-from ..models import Output, Sessions, Wallet
+from ..models import Commission, Output, Sessions, Wallet
 
 
 class Plotter(ABC):
@@ -23,6 +23,7 @@ class Plotter(ABC):
         output: Output,
         start: Union[int, datetime.datetime, None] = None,
         limit: Optional[int] = None,
+        commission: Optional[Commission] = None,
     ):
         limit = limit or self.default_limit
 
@@ -53,6 +54,7 @@ class Plotter(ABC):
                 and s.closed_ts.to_datetime() <= self.stop_ts
             ]
         )
+        self.commission = commission
 
         self.title = output.title
 
@@ -75,7 +77,7 @@ class Plotter(ABC):
         wallet = Wallet()
 
         for transaction in self.sessions.transactions:
-            wallet.apply(transaction)
+            wallet.apply(transaction, commission=self.commission)
             self.df.at[transaction.ts.to_datetime(), col] = float(wallet.base)
 
         self.df[col] = self.df[col].fillna(method="ffill")
@@ -94,7 +96,7 @@ class Plotter(ABC):
         wallet = Wallet()
 
         for transaction in self.sessions.transactions:
-            wallet.apply(transaction)
+            wallet.apply(transaction, commission=self.commission)
             self.df.at[transaction.ts.to_datetime(), col] = float(wallet.quote)
 
         self.df[col] = self.df[col].fillna(method="ffill")

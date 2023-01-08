@@ -22,4 +22,4 @@ class SimpleCommission(Commission):
             self.value = Decimal(value)
 
     def for_transaction(self, transaction: Transaction) -> Decimal:
-        return transaction.quote * self.value
+        return abs(transaction.quote) * self.value

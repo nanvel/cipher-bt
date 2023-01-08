@@ -32,7 +32,7 @@ class Cipher:
         else:
             self.sources.append(SOURCES[source](**kwargs))
 
-    def add_commission(self, value: Union[Commission, Decimal, str, Percent]):
+    def set_commission(self, value: Union[Commission, Decimal, str, Percent]):
         if isinstance(value, Commission):
             self.commission = value
         else:
@@ -74,4 +74,6 @@ class Cipher:
         else:
             plotter_cls = PLOTTERS["finplot"]
 
-        plotter_cls(output=self.output, start=start, limit=limit).run(**kwargs)
+        plotter_cls(
+            output=self.output, start=start, limit=limit, commission=self.commission
+        ).run(**kwargs)

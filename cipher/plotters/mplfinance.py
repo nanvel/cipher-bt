@@ -20,6 +20,7 @@ class MPLFinancePlotter(Plotter):
         rows = self._filter_rows(
             rows or [["ohlc", "sessions"], ["balance", "position"]]
         )
+        show_volume = "ohlcv" in rows[0] and self._ohlcv_supported()
 
         ap = []
 
@@ -33,7 +34,7 @@ class MPLFinancePlotter(Plotter):
                         marker="o",
                         panel=1,
                         color=palette[n],
-                        secondary_y=False,
+                        secondary_y=show_volume,
                     )  # markersize=200
                 )
 
@@ -41,12 +42,22 @@ class MPLFinancePlotter(Plotter):
 
         if self._position_supported() and len(rows) > 1 and "position" in rows[1]:
             ap.append(
-                mpf.make_addplot(self.build_position_df(), panel=1, color=next(palette))
+                mpf.make_addplot(
+                    self.build_position_df(),
+                    panel=1,
+                    color=next(palette),
+                    secondary_y=show_volume,
+                )
             )
 
         if self._balance_supported() and len(rows) > 1 and "balance" in rows[1]:
             ap.append(
-                mpf.make_addplot(self.build_balance_df(), panel=1, color=next(palette))
+                mpf.make_addplot(
+                    self.build_balance_df(),
+                    panel=1,
+                    color=next(palette),
+                    secondary_y=True,
+                )
             )
 
         if self._sessions_supported() and "sessions" in rows[0]:
@@ -112,10 +123,14 @@ class MPLFinancePlotter(Plotter):
                     )
                 )
 
-        if "ohlcv" in rows[0] and self._ohlcv_supported():
-            mpf.plot(self.df, type="candle", volume=True, addplot=ap)
-        else:
-            mpf.plot(self.df, type="candle", volume=False, addplot=ap)
+        mpf.plot(
+            self.df,
+            type="candle",
+            volume=show_volume,
+            addplot=ap,
+            title=self.title,
+            tight_layout=True,
+        )
 
     def _filter_rows(self, rows: list) -> list:
         columns = set(self.df.columns)
