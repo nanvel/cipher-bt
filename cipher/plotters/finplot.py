@@ -4,7 +4,7 @@ from typing import Optional
 
 import finplot
 
-from ..models import Output
+from ..models import Output, Wallet
 from .base import Plotter
 
 
@@ -82,5 +82,19 @@ class FinplotPlotter(Plotter):
             )
 
     def _position(self, ax):
+        self.output.df["position"] = None
+        wallet = Wallet()
+
+        self.output.df.at[self.output.df.index.min(), "position"] = 0
         for transaction in self.output.sessions.transactions:
-            pass
+            wallet.apply(transaction)
+            self.output.df.at[transaction.ts.to_datetime(), "position"] = float(
+                wallet.base
+            )
+        self.output.df["position"] = self.output.df["position"].fillna(method="ffill")
+
+        finplot.plot(
+            self.output.df["position"],
+            ax=ax,
+            legend="Position",
+        )
