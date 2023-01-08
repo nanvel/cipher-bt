@@ -18,7 +18,11 @@ class MPLFinancePlotter(Plotter):
             return
 
         rows = self._filter_rows(
-            rows or [["ohlc", "sessions"], ["balance", "position"]]
+            rows
+            or [
+                ["ohlc", "sessions"] + self.suggest_indicators(),
+                ["balance", "position"],
+            ]
         )
         show_volume = "ohlcv" in rows[0] and self._ohlcv_supported()
 
@@ -38,7 +42,11 @@ class MPLFinancePlotter(Plotter):
                     )  # markersize=200
                 )
 
-        palette = iter(create_palette(1 if len(rows) == 1 else len(rows[1])))
+        palette = iter(
+            create_palette(
+                len(rows[0]) if len(rows) == 1 else len(rows[0]) + len(rows[1])
+            )
+        )
 
         if self._position_supported() and len(rows) > 1 and "position" in rows[1]:
             ap.append(
@@ -122,6 +130,28 @@ class MPLFinancePlotter(Plotter):
                         color="green",
                     )
                 )
+
+        for row in rows[0]:
+            if row not in self.OPTIONS and row in self.df.columns:
+                ap.append(
+                    mpf.make_addplot(
+                        self.df[row],
+                        panel=0,
+                        color=next(palette),
+                    )
+                )
+
+        if len(rows) > 1:
+            for row in rows[1]:
+                if row not in self.OPTIONS and row in self.df.columns:
+                    ap.append(
+                        mpf.make_addplot(
+                            self.df[row],
+                            panel=1,
+                            color=next(palette),
+                            secondary_y=show_volume,
+                        )
+                    )
 
         mpf.plot(
             self.df,

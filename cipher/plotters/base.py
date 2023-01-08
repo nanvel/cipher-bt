@@ -1,6 +1,6 @@
 import datetime
 from abc import ABC, abstractmethod
-from typing import Optional, Union
+from typing import List, Optional, Union
 
 import pandas as pd
 
@@ -65,6 +65,26 @@ class Plotter(ABC):
     @property
     def default_limit(self) -> int:
         return 500
+
+    def suggest_indicators(self) -> List[str]:
+        """Float columns where median value falls into proces range."""
+        exclude = {"open", "close", "high", "low", "volume"}
+
+        min_low = self.df["low"].min()
+        max_high = self.df["high"].max()
+
+        result = []
+        for column in self.df.columns:
+            if column in exclude:
+                continue
+
+            if self.df.dtypes[column] != "float64":
+                continue
+
+            if min_low < self.df[column].median() < max_high:
+                result.append(column)
+
+        return result
 
     def build_signal_df(self, signal, value=1):
         return self.df[signal].replace({True: value, False: None})

@@ -18,7 +18,7 @@ class FinplotPlotter(Plotter):
         rows = self._filter_rows(
             rows
             or [
-                ["ohlc", "sessions"],
+                ["ohlc", "sessions"] + self.suggest_indicators(),
                 ["signals"],
                 ["position"],
                 ["balance"],
