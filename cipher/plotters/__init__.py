@@ -1,4 +1,12 @@
+from .base import Plotter
 from .finplot import FinplotPlotter
+from .mplfinance import MPLFinancePlotter
 
 
-__all__ = ("FinplotPlotter",)
+PLOTTERS = {
+    "finplot": FinplotPlotter,
+    "mplfinance": MPLFinancePlotter,
+}
+
+
+__all__ = ("Plotter", "PLOTTERS")

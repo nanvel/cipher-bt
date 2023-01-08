@@ -1,9 +1,9 @@
 from decimal import Decimal
-from typing import List, Optional, Union
+from typing import List, Optional, Type, Union
 
 from .container import Container
 from .models import Commission, Datas, Output, SimpleCommission, Time
-from .plotters import FinplotPlotter
+from .plotters import Plotter, PLOTTERS
 from .sources import Source, SOURCES
 from .strategy import Strategy
 from .trader import Trader
@@ -58,9 +58,20 @@ class Cipher:
     def stats(self):
         return None
 
-    def plot(self, plotter=None, start=None, limit=None, **kwargs):
-        """TODO: default plotter by env and what is installed."""
+    def plot(
+        self,
+        plotter: Union[None, Type[Plotter], str] = None,
+        start: Union[str, int, None] = None,
+        limit: Optional[int] = None,
+        **kwargs
+    ):
         assert self.output
 
-        plotter = FinplotPlotter(output=self.output, start=start, limit=limit)
-        plotter.run(**kwargs)
+        if isinstance(plotter, str):
+            plotter_cls = PLOTTERS[plotter]
+        elif isinstance(plotter, type) and issubclass(plotter, Plotter):
+            plotter_cls = plotter
+        else:
+            plotter_cls = PLOTTERS["finplot"]
+
+        plotter_cls(output=self.output, start=start, limit=limit).run(**kwargs)
