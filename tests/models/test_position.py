@@ -33,9 +33,9 @@ def test_add_sub_mul(position):
     assert len(position._transactions) == 5
     last_transaction = position._transactions[-1]
     assert last_transaction.base == Decimal("2.4")
-    assert last_transaction.quote == 48
+    assert last_transaction.quote == -48
     assert position._wallet.base == Decimal(3)
-    assert position._wallet.quote == Decimal(-60)
+    assert position._wallet.quote == Decimal("-60")
 
 
 def test_liquidate(position):

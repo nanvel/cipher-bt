@@ -33,7 +33,7 @@ def test_properties(session):
     session.position += percent(50)
 
     assert session.position.value == Decimal("1.5")
-    assert session.quote == 30
+    assert session.quote == -30
     assert session.is_long
     assert session.is_open
     assert session.opened_ts

@@ -1,9 +1,9 @@
 from decimal import Decimal
-from typing import List, Optional, Union
+from typing import List, Optional, Type, Union
 
 from .container import Container
 from .models import Commission, Datas, Output, SimpleCommission, Time
-from .plotters import FinplotPlotter
+from .plotters import Plotter, PLOTTERS
 from .sources import Source, SOURCES
 from .strategy import Strategy
 from .trader import Trader
@@ -32,7 +32,7 @@ class Cipher:
         else:
             self.sources.append(SOURCES[source](**kwargs))
 
-    def add_commission(self, value: Union[Commission, Decimal, str, Percent]):
+    def set_commission(self, value: Union[Commission, Decimal, str, Percent]):
         if isinstance(value, Commission):
             self.commission = value
         else:
@@ -58,9 +58,22 @@ class Cipher:
     def stats(self):
         return None
 
-    def plot(self, plotter=None, **kwargs):
-        """TODO: default plotter by env and what is installed."""
+    def plot(
+        self,
+        plotter: Union[None, Type[Plotter], str] = None,
+        start: Union[str, int, None] = None,
+        limit: Optional[int] = None,
+        **kwargs
+    ):
         assert self.output
 
-        plotter = FinplotPlotter(output=self.output)
-        plotter.run(**kwargs)
+        if isinstance(plotter, str):
+            plotter_cls = PLOTTERS[plotter]
+        elif isinstance(plotter, type) and issubclass(plotter, Plotter):
+            plotter_cls = plotter
+        else:
+            plotter_cls = PLOTTERS["finplot"]
+
+        plotter_cls(
+            output=self.output, start=start, limit=limit, commission=self.commission
+        ).run(**kwargs)

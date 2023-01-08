@@ -1,6 +1,9 @@
 from decimal import Decimal
+from functools import reduce
 from operator import attrgetter
-from typing import Optional
+from typing import List, Optional
+
+from .transaction import Transaction
 
 
 class Sessions(list):
@@ -8,7 +11,11 @@ class Sessions(list):
     def open_sessions(self):
         return list(filter(attrgetter("is_open"), self))
 
-    def closest_sl_tp(self) -> (Optional[Decimal], Optional[Decimal]):
+    @property
+    def closed_sessions(self):
+        return list(filter(attrgetter("is_closed"), self))
+
+    def find_closest_sl_tp(self) -> (Optional[Decimal], Optional[Decimal]):
         """Find the closest prices at which we will need to check stop_loss/take_profit."""
         ups = []
         downs = []
@@ -25,3 +32,17 @@ class Sessions(list):
                     ups.append(session.stop_loss)
 
         return max(downs) if downs else None, min(ups) if ups else None
+
+    @property
+    def transactions(self) -> List[Transaction]:
+        """Sorted chained transactions from closed sessions."""
+        return list(
+            sorted(
+                reduce(
+                    lambda a, b: a + b,
+                    map(attrgetter("transactions"), self.closed_sessions),
+                    [],
+                ),
+                key=attrgetter("ts"),
+            )
+        )
