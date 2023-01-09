@@ -42,14 +42,15 @@ class Trader:
                         with cursor.patch_price(stop_loss):
                             self.strategy.on_stop_loss(row=row_dict, session=session)
 
-            if row_dict["entry"]:
-                new_session = Session(cursor=cursor, wallet=self.strategy.wallet)
-                self.strategy.on_entry(row=row_dict, session=new_session)
-                if new_session.position != 0:
-                    sessions.append(new_session)
-
             for signal in signals:
-                if row[signal]:
+                if not row[signal]:
+                    continue
+                if signal == "entry":
+                    new_session = Session(cursor=cursor, wallet=self.strategy.wallet)
+                    self.strategy.on_entry(row=row_dict, session=new_session)
+                    if new_session.position != 0:
+                        sessions.append(new_session)
+                else:
                     for session in sessions.open_sessions:
                         getattr(self.strategy, f"on_{signal}")(row=row, session=session)
 
@@ -58,7 +59,7 @@ class Trader:
 
         return Output(
             df=df,
-            sessions=sessions,
+            sessions=sessions.to_base(),
             signals=signals,
             title=self._extract_strategy_title(),
             description=self._extract_strategy_description(),

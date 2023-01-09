@@ -4,7 +4,7 @@ from .datas import Datas
 from .interval import Interval
 from .output import Output
 from .position import Position
-from .session import Session
+from .session import BaseSession, Session
 from .sessions import Sessions
 from .stats import Stats
 from .time import Time
@@ -15,6 +15,7 @@ from .wallet import Wallet
 
 
 __all__ = (
+    "BaseSession",
     "Commission",
     "Cursor",
     "Datas",

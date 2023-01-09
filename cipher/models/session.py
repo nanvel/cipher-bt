@@ -10,13 +10,61 @@ from .transactions import Transactions
 from .wallet import Wallet
 
 
-class Session:
-    def __init__(self, cursor: Cursor, wallet: Wallet):
-        self._cursor = cursor
-        self._take_profit: Optional[Decimal] = None
-        self._stop_loss: Optional[Decimal] = None
+class BaseSession:
+    def __init__(
+        self,
+        transactions: Transactions,
+        take_profit: Optional[Decimal] = None,
+        stop_loss: Optional[Decimal] = None,
+    ):
+        self.transactions = transactions
+        self._take_profit = take_profit
+        self._stop_loss = stop_loss
 
-        self.transactions = Transactions()
+    @property
+    def take_profit(self) -> Optional[Decimal]:
+        return self._take_profit
+
+    @property
+    def stop_loss(self) -> Optional[Decimal]:
+        return self._stop_loss
+
+    @property
+    def base(self):
+        return sum(t.base for t in self.transactions)
+
+    @property
+    def quote(self) -> Decimal:
+        return sum(t.quote for t in self.transactions)
+
+    @property
+    def is_long(self) -> bool:
+        return self.transactions[0].base > 0
+
+    @property
+    def is_open(self) -> bool:
+        return self.base != 0
+
+    @property
+    def is_closed(self) -> bool:
+        return not self.is_open
+
+    @property
+    def opened_ts(self) -> Time:
+        return self.transactions[0].ts
+
+    @property
+    def closed_ts(self) -> Optional[Time]:
+        if self.is_open:
+            return None
+        return self.transactions[-1].ts
+
+
+class Session(BaseSession):
+    def __init__(self, cursor: Cursor, wallet: Wallet):
+        super().__init__(Transactions())
+        self._cursor = cursor
+
         self._position = Position(
             cursor=cursor, transactions=self.transactions, wallet=wallet
         )
@@ -74,32 +122,6 @@ class Session:
         else:
             self._position.set(value)
 
-    @property
-    def quote(self) -> Decimal:
-        return sum([t.quote for t in self.transactions])
-
-    @property
-    def is_long(self) -> bool:
-        return self.transactions[0].base > 0
-
-    @property
-    def is_open(self) -> bool:
-        return self._position.value != 0
-
-    @property
-    def is_closed(self) -> bool:
-        return not self.is_open
-
-    @property
-    def opened_ts(self) -> Time:
-        return self.transactions[0].ts
-
-    @property
-    def closed_ts(self) -> Optional[Time]:
-        if self.is_open:
-            return None
-        return self.transactions[-1].ts
-
     def should_tp_sl(
         self, low: Decimal, high: Decimal
     ) -> (Optional[Decimal], Optional[Decimal]):  # take_profit, stop_loss
@@ -118,3 +140,8 @@ class Session:
                 take_profit = self.take_profit
 
         return take_profit, stop_loss
+
+    def to_base(self):
+        return BaseSession(
+            self.transactions, take_profit=self.take_profit, stop_loss=self.stop_loss
+        )

@@ -26,6 +26,7 @@ def test_closed(session):
 
     assert session.is_open is False
     assert session.closed_ts
+    assert len(session.transactions) == 2
 
 
 def test_properties(session):
