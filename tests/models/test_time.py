@@ -59,3 +59,10 @@ def test_block_start():
     result = Time(ts=ts).block_ts(interval=Interval(seconds=3600))
 
     assert result.to_timestamp() == 939_999_600_000
+
+
+def test_str():
+    dt = datetime.datetime(2000, 1, 2, 3, 4)
+    result = Time.from_datetime(dt)
+
+    assert str(result) == "2000-01-02 03:04"

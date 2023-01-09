@@ -20,6 +20,9 @@ class TimeDelta(BaseModel):
         return self.__class__(seconds=self.seconds // other)
 
     def __str__(self):
+        if not self.seconds:
+            return "0s"
+
         minutes = self.seconds // 60
         hours = minutes // 60
         days = hours // 24
@@ -38,4 +41,4 @@ class TimeDelta(BaseModel):
                 ),
             ),
             "",
-        )
+        ).strip()
