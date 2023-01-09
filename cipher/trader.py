@@ -2,7 +2,7 @@ import inspect
 from re import finditer
 from typing import List, Optional
 
-from .models import Cursor, Datas, Output, Session, Sessions, Time, Wallet
+from .models import Cursor, Datas, Output, Session, Sessions, Wallet
 from .strategy import Strategy
 
 

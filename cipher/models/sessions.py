@@ -7,13 +7,16 @@ from .transaction import Transaction
 
 
 class Sessions(list):
+    def filter(self, condition):
+        return self.__class__(filter(condition, self))
+
     @property
     def open_sessions(self):
-        return list(filter(attrgetter("is_open"), self))
+        return self.filter(attrgetter("is_open"))
 
     @property
     def closed_sessions(self):
-        return list(filter(attrgetter("is_closed"), self))
+        return self.filter(attrgetter("is_closed"))
 
     def find_closest_sl_tp(self) -> (Optional[Decimal], Optional[Decimal]):
         """Find the closest prices at which we will need to check stop_loss/take_profit."""

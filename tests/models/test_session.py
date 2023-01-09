@@ -45,10 +45,10 @@ def test_should_tp_sl(session):
     session.take_profit = 25
     session.stop_loss = 15
 
-    assert session.should_tp_sl(low=Decimal(19), high=Decimal(21)) == (False, False)
-    assert session.should_tp_sl(low=Decimal(14), high=Decimal(21)) == (False, True)
-    assert session.should_tp_sl(low=Decimal(19), high=Decimal(30)) == (True, False)
-    assert session.should_tp_sl(low=Decimal(14), high=Decimal(30)) == (False, True)
+    assert session.should_tp_sl(low=Decimal(19), high=Decimal(21)) == (None, None)
+    assert session.should_tp_sl(low=Decimal(14), high=Decimal(21)) == (None, 15)
+    assert session.should_tp_sl(low=Decimal(19), high=Decimal(30)) == (25, None)
+    assert session.should_tp_sl(low=Decimal(14), high=Decimal(30)) == (None, 15)
 
 
 def test_take_profit_long(session):
