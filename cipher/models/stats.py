@@ -1,4 +1,11 @@
-class Stats:
+from pydantic import BaseModel
+from tabulate import tabulate
+
+from .time import Time
+from .time_delta import TimeDelta
+
+
+class Stats(BaseModel):
     """https://github.com/ranaroussi/quantstats
     period - dataframe size
     pnl - profit and loss
@@ -28,4 +35,15 @@ class Stats:
     sortino_ratio
     """
 
-    pass
+    start_ts: Time
+    stop_ts: Time
+    period: TimeDelta
+
+    def __str__(self):
+        return tabulate(
+            [
+                ["start", str(self.start_ts)],
+                ["stop", str(self.stop_ts)],
+                ["period", str(self.period)],
+            ],
+        )

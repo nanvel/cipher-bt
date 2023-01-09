@@ -2,6 +2,7 @@ from decimal import Decimal
 from typing import List, Optional, Type, Union
 
 from .container import Container
+from .factories import StatsFactory
 from .models import Commission, Datas, Output, SimpleCommission, Time
 from .plotters import Plotter, PLOTTERS
 from .sources import Source, SOURCES
@@ -56,7 +57,9 @@ class Cipher:
 
     @property
     def stats(self):
-        return None
+        assert self.output
+
+        return StatsFactory().from_output(self.output)
 
     def plot(
         self,

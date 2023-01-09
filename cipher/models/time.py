@@ -71,3 +71,6 @@ class Time(BaseModel):
 
     def __ne__(self, other):
         return self.ts != other.ts
+
+    def __str__(self):
+        return self.to_datetime().strftime("%Y-%m-%d %H:%M")
