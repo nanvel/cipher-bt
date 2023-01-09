@@ -59,7 +59,7 @@ class Cipher:
     def stats(self):
         assert self.output
 
-        return StatsFactory().from_output(self.output)
+        return StatsFactory(commission=self.commission).from_output(self.output)
 
     def plot(
         self,

@@ -1,3 +1,5 @@
+from decimal import Decimal
+
 from pydantic import BaseModel
 from tabulate import tabulate
 
@@ -7,15 +9,12 @@ from .time_delta import TimeDelta
 
 class Stats(BaseModel):
     """https://github.com/ranaroussi/quantstats
-    period - dataframe size
-    pnl - profit and loss
-    trades_count - sessions count
     success_count
     failure_count
     success_pnl_med - success pnl median
     failure_pnl_med
-    pnl_max
-    pnl_min
+    sessions_pnl_max
+    sessions_pnl_min
     failure_row_max - max failures in row
     success_row_max
     drawdown_max
@@ -37,7 +36,9 @@ class Stats(BaseModel):
 
     start_ts: Time
     stop_ts: Time
-    period: TimeDelta
+    period: TimeDelta  # dataframe size
+    sessions_n: int
+    pnl: Decimal  # profit and loss
 
     def __str__(self):
         return tabulate(
@@ -45,5 +46,7 @@ class Stats(BaseModel):
                 ["start", str(self.start_ts)],
                 ["stop", str(self.stop_ts)],
                 ["period", str(self.period)],
+                ["trades", str(self.sessions_n)],
+                ["pnl", str(self.pnl)],
             ],
         )

@@ -11,18 +11,16 @@ def output(df):
             BaseSession(
                 transactions=Transactions(
                     [
-                        [
-                            Transaction(
-                                ts=Time(ts=1643400000000),
-                                base=Decimal("0.0026503981693169764894"),
-                                quote=Decimal("-100.00000000000000000"),
-                            ),
-                            Transaction(
-                                ts=Time(ts=1643886000000),
-                                base=Decimal("-0.0026503981693169764894"),
-                                quote=Decimal("97.415358209263777698"),
-                            ),
-                        ]
+                        Transaction(
+                            ts=Time(ts=1643400000000),
+                            base=Decimal("0.0026503981693169764894"),
+                            quote=Decimal("-100.00000000000000000"),
+                        ),
+                        Transaction(
+                            ts=Time(ts=1643886000000),
+                            base=Decimal("-0.0026503981693169764894"),
+                            quote=Decimal("97.415358209263777698"),
+                        ),
                     ]
                 ),
                 stop_loss=Decimal("35843.6710"),
