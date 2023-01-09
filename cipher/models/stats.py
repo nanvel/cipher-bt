@@ -9,6 +9,7 @@ from .time_delta import TimeDelta
 
 class Stats(BaseModel):
     """https://github.com/ranaroussi/quantstats
+    max quote used
     success_count
     failure_count
     success_pnl_med - success pnl median

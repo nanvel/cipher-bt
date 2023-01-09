@@ -129,14 +129,14 @@ class Session(BaseSession):
         stop_loss = None
 
         if self.is_long:
-            if low < self.stop_loss:
+            if self.stop_loss and low < self.stop_loss:
                 stop_loss = self.stop_loss
-            elif high > self.take_profit:
+            elif self.take_profit and high > self.take_profit:
                 take_profit = self.take_profit
         else:
-            if high > self.stop_loss:
+            if self.stop_loss and high > self.stop_loss:
                 stop_loss = self.stop_loss
-            elif low < self.take_profit:
+            elif self.take_profit and low < self.take_profit:
                 take_profit = self.take_profit
 
         return take_profit, stop_loss
