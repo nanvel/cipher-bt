@@ -1,7 +1,6 @@
-from decimal import Decimal
 from functools import reduce
 from operator import attrgetter
-from typing import List, Optional, Iterator
+from typing import List, Iterator
 
 from .session import Session
 from .transaction import Transaction
