@@ -27,20 +27,16 @@ class Trader:
 
             cursor.set(ts=ts, price=row_dict["close"])
 
-            lower_price, upper_price = sessions.find_closest_sl_tp()
-            if (lower_price and row_dict["low"] < lower_price) or (
-                upper_price and row_dict["high"] > upper_price
-            ):
-                for session in sessions.open_sessions:
-                    take_profit, stop_loss = session.should_tp_sl(
-                        low=row_dict["low"], high=row_dict["high"]
-                    )
-                    if take_profit:
-                        with cursor.patch_price(take_profit):
-                            self.strategy.on_take_profit(row=row_dict, session=session)
-                    if stop_loss:
-                        with cursor.patch_price(stop_loss):
-                            self.strategy.on_stop_loss(row=row_dict, session=session)
+            for session in sessions.open_sessions:
+                take_profit, stop_loss = session.should_tp_sl(
+                    low=row_dict["low"], high=row_dict["high"]
+                )
+                if take_profit:
+                    with cursor.patch_price(take_profit):
+                        self.strategy.on_take_profit(row=row_dict, session=session)
+                if stop_loss:
+                    with cursor.patch_price(stop_loss):
+                        self.strategy.on_stop_loss(row=row_dict, session=session)
 
             for signal in signals:
                 if not row[signal]:
