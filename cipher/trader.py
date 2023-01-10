@@ -1,5 +1,5 @@
 import inspect
-from re import finditer
+import re
 from typing import List, Optional
 
 from .models import Cursor, Datas, Output, Session, Sessions, Wallet
@@ -86,7 +86,7 @@ class Trader:
         )
 
         if not lines:
-            matches = finditer(
+            matches = re.finditer(
                 r".+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)",
                 self.strategy.__class__.__name__,
             )
@@ -95,4 +95,11 @@ class Trader:
         return lines[0]
 
     def _extract_strategy_description(self) -> Optional[str]:
-        return "\n".join((self.strategy.__doc__ or "").split("\n")[1:]).strip() or None
+        spaces_re = re.compile(r"\s+")
+        description = "\n".join(
+            map(
+                lambda i: spaces_re.sub(" ", i).strip(),
+                (self.strategy.__doc__ or "").split("\n")[1:],
+            )
+        )
+        return description.strip() or None
