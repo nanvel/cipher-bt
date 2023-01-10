@@ -1,14 +1,14 @@
 import pytest
 from decimal import Decimal
 
-from cipher.models import BaseSession, Output, Sessions, Time, Transaction, Transactions
+from cipher.models import Session, Output, Sessions, Time, Transaction, Transactions
 
 
 @pytest.fixture
 def output(df):
     sessions = Sessions(
         [
-            BaseSession(
+            Session(
                 transactions=Transactions(
                     [
                         Transaction(
@@ -25,7 +25,7 @@ def output(df):
                 ),
                 stop_loss=Decimal("35843.6710"),
             ),
-            BaseSession(
+            Session(
                 transactions=Transactions(
                     [
                         Transaction(
@@ -42,7 +42,7 @@ def output(df):
                 ),
                 stop_loss=Decimal("38236.5975"),
             ),
-            BaseSession(
+            Session(
                 transactions=Transactions(
                     [
                         Transaction(
@@ -59,7 +59,7 @@ def output(df):
                 ),
                 stop_loss=Decimal("41776.2500"),
             ),
-            BaseSession(
+            Session(
                 transactions=Transactions(
                     [
                         Transaction(

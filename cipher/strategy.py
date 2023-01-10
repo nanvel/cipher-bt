@@ -1,6 +1,7 @@
 from pandas import DataFrame
 
-from .models import Datas, Session, Wallet
+from .models import Datas, Wallet
+from .proxies import SessionProxy as Session
 
 
 class Strategy:

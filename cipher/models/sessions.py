@@ -31,6 +31,3 @@ class Sessions(list):
                 key=attrgetter("ts"),
             )
         )
-
-    def to_base(self):
-        return self.__class__((s.to_base() for s in self if isinstance(s, Session)))

@@ -1,4 +1,5 @@
 from cipher.models import Cursor, Session, Sessions, Time, Wallet
+from cipher.proxies import SessionProxy
 
 
 def create_session():
@@ -8,7 +9,7 @@ def create_session():
     cursor.ts = Time.from_string("2020-01-01T01:01")
     cursor.price = 20
 
-    return Session(cursor=cursor, wallet=wallet)
+    return SessionProxy(Session(), cursor=cursor, wallet=wallet)
 
 
 def test_sessions():

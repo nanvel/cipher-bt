@@ -3,6 +3,7 @@ from re import finditer
 from typing import List, Optional
 
 from .models import Cursor, Datas, Output, Session, Sessions, Wallet
+from .proxies import SessionProxy
 from .strategy import Strategy
 
 
@@ -42,8 +43,15 @@ class Trader:
                 if not row[signal]:
                     continue
                 if signal == "entry":
-                    new_session = Session(cursor=cursor, wallet=self.strategy.wallet)
-                    self.strategy.on_entry(row=row_dict, session=new_session)
+                    new_session = SessionProxy(
+                        Session(cursor=cursor, wallet=self.strategy.wallet),
+                        wallet=self.strategy.wallet,
+                        cursor=cursor,
+                    )
+                    self.strategy.on_entry(
+                        row=row_dict,
+                        session=new_session,
+                    )
                     if new_session.position != 0:
                         sessions.append(new_session)
                 else:
@@ -55,7 +63,7 @@ class Trader:
 
         return Output(
             df=df,
-            sessions=sessions.to_base(),
+            sessions=Sessions(s.session for s in sessions),
             signals=signals,
             title=self._extract_strategy_title(),
             description=self._extract_strategy_description(),
