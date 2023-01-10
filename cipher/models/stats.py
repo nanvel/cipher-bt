@@ -40,7 +40,7 @@ class Stats(BaseModel):
     romad: Optional[Decimal]
     overperform: Optional[Decimal]
 
-    def __str__(self):
+    def to_table(self):
         return tabulate(
             [
                 ["start", str(self.start_ts)],
@@ -68,3 +68,6 @@ class Stats(BaseModel):
                 ["romad", str(self.romad)],
             ],
         )
+
+    def __str__(self):
+        return self.to_table()

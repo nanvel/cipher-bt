@@ -3,7 +3,7 @@ from typing import List, Optional, Type, Union
 
 from .container import Container
 from .factories import StatsFactory
-from .models import Commission, Datas, Output, SimpleCommission, Time
+from .models import Commission, Datas, Output, SimpleCommission, Stats, Time
 from .plotters import Plotter, PLOTTERS
 from .sources import Source, SOURCES
 from .strategy import Strategy
@@ -56,10 +56,14 @@ class Cipher:
         ).run()
 
     @property
-    def stats(self):
+    def stats(self) -> Stats:
         assert self.output
 
         return StatsFactory(commission=self.commission).from_output(self.output)
+
+    @property
+    def sessions(self):
+        return self.output.sessions.to_table(commission=self.commission)
 
     def plot(
         self,
