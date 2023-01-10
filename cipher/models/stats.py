@@ -9,16 +9,7 @@ from .time_delta import TimeDelta
 
 
 class Stats(BaseModel):
-    """https://github.com/ranaroussi/quantstats
-    drawdown_max
-    drawdown_duration_max
-    balance_highest
-    balance_lowest
-    romad - return over maximum drawdown
-
-    overperform - pnl/(last - start price change abs)
-    spf - success per failure
-    """
+    """https://github.com/ranaroussi/quantstats"""
 
     # general
     start_ts: Time
@@ -43,6 +34,11 @@ class Stats(BaseModel):
     failure_pnl_max: Optional[Decimal]
     success_row_max: int
     failure_row_max: int
+    balance_min: Decimal
+    balance_max: Decimal
+    balance_drawdown_max: Decimal
+    romad: Optional[Decimal]
+    overperform: Optional[Decimal]
 
     def __str__(self):
         return tabulate(
@@ -63,7 +59,12 @@ class Stats(BaseModel):
                 ["failure median", str(self.failure_pnl_med)],
                 ["failure max", str(self.failure_pnl_max)],
                 ["failure row", str(self.failure_row_max)],
+                ["spf", str(self.success_n / self.failure_n)],
                 ["pnl", str(self.pnl)],
                 ['commission', str(self.commission)],
+                ["balance min", str(self.balance_min)],
+                ["balance max", str(self.balance_max)],
+                ["balance drawdown", str(self.balance_drawdown_max)],
+                ["romad", str(self.romad)],
             ],
         )

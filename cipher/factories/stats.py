@@ -1,5 +1,8 @@
+from decimal import Decimal
 from statistics import median
 from typing import Optional
+
+import pandas as pd
 
 from ..models import Commission, Output, Stats, Time, Wallet
 
@@ -62,6 +65,18 @@ class StatsFactory:
 
         assert wallet.base == 0
 
+        if output.sessions:
+            balance_df = self._balance_df(output=output)
+            balance_min = balance_df.min()
+            balance_max = balance_df.max()
+            balance_drawdown_max = -(balance_df - balance_df.cummax()).min()
+            romad = balance_df.iat[-1] / balance_drawdown_max
+        else:
+            balance_min = Decimal(0)
+            balance_max = Decimal(0)
+            balance_drawdown_max = Decimal(0)
+            romad = None
+
         return Stats(
             start_ts=start_ts,
             stop_ts=stop_ts,
@@ -81,4 +96,37 @@ class StatsFactory:
             commission=wallet_no_commission.quote - wallet.quote,
             session_period_max=max(periods) if periods else None,
             session_period_median=median(periods) if periods else None,
+            balance_min=balance_min,
+            balance_max=balance_max,
+            balance_drawdown_max=balance_drawdown_max,
+            romad=romad,
         )
+
+    def _balance_df(self, output: Output) -> pd.DataFrame:
+        df = output.df
+
+        position_col = "_position"
+        quote_col = "_quote"
+
+        df[position_col] = pd.Series(dtype="float64")
+        df[quote_col] = pd.Series(dtype="float64")
+
+        df.at[df.index[0], position_col] = 0
+        df.at[df.index[0], quote_col] = 0
+
+        wallet = Wallet()
+
+        for transaction in output.sessions.transactions:
+            wallet.apply(transaction, commission=self.commission)
+            ts = transaction.ts.to_datetime()
+            df.at[ts, position_col] = float(wallet.base)
+            df.at[ts, quote_col] = float(wallet.quote)
+
+        df[position_col] = df[position_col].fillna(method="ffill")
+        df[quote_col] = df[quote_col].fillna(method="ffill")
+
+        _df = df[position_col] * df['close'] + df[quote_col]
+
+        output.df = df.drop([position_col, quote_col], axis=1)
+
+        return _df
