@@ -4,7 +4,7 @@ from typing import List, Optional, Union
 
 import pandas as pd
 
-from ..models import Commission, Output, Sessions, Wallet
+from ..models import Commission, Output, Wallet
 
 
 class Plotter(ABC):
@@ -46,13 +46,9 @@ class Plotter(ABC):
         self.stop_ts = self.df.index[-1]
 
         self.signals = output.signals
-        self.sessions = Sessions(
-            [
-                s
-                for s in output.sessions.closed_sessions
-                if s.opened_ts.to_datetime() >= self.start_ts
-                and s.closed_ts.to_datetime() <= self.stop_ts
-            ]
+        self.sessions = output.sessions.closed_sessions.filter(
+            lambda s: s.opened_ts.to_datetime() >= self.start_ts
+            and s.closed_ts.to_datetime() <= self.stop_ts
         )
         self.commission = commission
 

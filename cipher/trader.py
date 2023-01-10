@@ -1,8 +1,9 @@
 import inspect
-from re import finditer
+import re
 from typing import List, Optional
 
-from .models import Cursor, Datas, Output, Session, Sessions, Time, Wallet
+from .models import Cursor, Datas, Output, Session, Sessions, Wallet
+from .proxies import SessionProxy
 from .strategy import Strategy
 
 
@@ -27,29 +28,33 @@ class Trader:
 
             cursor.set(ts=ts, price=row_dict["close"])
 
-            lower_price, upper_price = sessions.find_closest_sl_tp()
-            if (lower_price and row_dict["low"] < lower_price) or (
-                upper_price and row_dict["high"] > upper_price
-            ):
-                for session in sessions.open_sessions:
-                    take_profit, stop_loss = session.should_tp_sl(
-                        low=row_dict["low"], high=row_dict["high"]
-                    )
-                    if take_profit:
-                        with cursor.patch_price(take_profit):
-                            self.strategy.on_take_profit(row=row_dict, session=session)
-                    if stop_loss:
-                        with cursor.patch_price(stop_loss):
-                            self.strategy.on_stop_loss(row=row_dict, session=session)
-
-            if row_dict["entry"]:
-                new_session = Session(cursor=cursor, wallet=self.strategy.wallet)
-                self.strategy.on_entry(row=row_dict, session=new_session)
-                if new_session.position != 0:
-                    sessions.append(new_session)
+            for session in sessions.open_sessions:
+                take_profit, stop_loss = session.should_tp_sl(
+                    low=row_dict["low"], high=row_dict["high"]
+                )
+                if take_profit:
+                    with cursor.patch_price(take_profit):
+                        self.strategy.on_take_profit(row=row_dict, session=session)
+                if stop_loss:
+                    with cursor.patch_price(stop_loss):
+                        self.strategy.on_stop_loss(row=row_dict, session=session)
 
             for signal in signals:
-                if row[signal]:
+                if not row[signal]:
+                    continue
+                if signal == "entry":
+                    new_session = SessionProxy(
+                        Session(cursor=cursor, wallet=self.strategy.wallet),
+                        wallet=self.strategy.wallet,
+                        cursor=cursor,
+                    )
+                    self.strategy.on_entry(
+                        row=row_dict,
+                        session=new_session,
+                    )
+                    if new_session.position != 0:
+                        sessions.append(new_session)
+                else:
                     for session in sessions.open_sessions:
                         getattr(self.strategy, f"on_{signal}")(row=row, session=session)
 
@@ -58,7 +63,7 @@ class Trader:
 
         return Output(
             df=df,
-            sessions=sessions,
+            sessions=Sessions(s.session for s in sessions),
             signals=signals,
             title=self._extract_strategy_title(),
             description=self._extract_strategy_description(),
@@ -81,7 +86,7 @@ class Trader:
         )
 
         if not lines:
-            matches = finditer(
+            matches = re.finditer(
                 r".+?(?:(?<=[a-z])(?=[A-Z])|(?<=[A-Z])(?=[A-Z][a-z])|$)",
                 self.strategy.__class__.__name__,
             )
@@ -90,4 +95,11 @@ class Trader:
         return lines[0]
 
     def _extract_strategy_description(self) -> Optional[str]:
-        return "\n".join((self.strategy.__doc__ or "").split("\n")[1:]).strip() or None
+        spaces_re = re.compile(r"\s+")
+        description = "\n".join(
+            map(
+                lambda i: spaces_re.sub(" ", i).strip(),
+                (self.strategy.__doc__ or "").split("\n")[1:],
+            )
+        )
+        return description.strip() or None

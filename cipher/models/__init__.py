@@ -6,6 +6,7 @@ from .output import Output
 from .position import Position
 from .session import Session
 from .sessions import Sessions
+from .stats import Stats
 from .time import Time
 from .time_delta import TimeDelta
 from .transaction import Transaction
@@ -23,6 +24,7 @@ __all__ = (
     "Session",
     "Sessions",
     "SimpleCommission",
+    "Stats",
     "Time",
     "TimeDelta",
     "Transaction",

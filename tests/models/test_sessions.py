@@ -1,4 +1,5 @@
 from cipher.models import Cursor, Session, Sessions, Time, Wallet
+from cipher.proxies import SessionProxy
 
 
 def create_session():
@@ -8,7 +9,7 @@ def create_session():
     cursor.ts = Time.from_string("2020-01-01T01:01")
     cursor.price = 20
 
-    return Session(cursor=cursor, wallet=wallet)
+    return SessionProxy(Session(), cursor=cursor, wallet=wallet)
 
 
 def test_sessions():
@@ -24,27 +25,6 @@ def test_sessions():
     sessions.append(session2)
 
     assert sessions.open_sessions == [session2]
-
-
-def test_find_closest_sl_tp():
-    session1 = create_session()
-    session1.position += 1
-    session1.take_profit = 21
-    session1.stop_loss = 18
-
-    session2 = create_session()
-    session2.position -= 1
-    session2.take_profit = 19
-    session2.stop_loss = 22
-
-    session3 = create_session()
-    session3.position += 1
-
-    sessions = Sessions([session1, session2, session3])
-
-    lower, upper = sessions.find_closest_sl_tp()
-    assert lower == 19
-    assert upper == 21
 
 
 def test_transactions():
