@@ -3,7 +3,7 @@ from typing import List, Optional, Type, Union
 
 from .container import Container
 from .factories import StatsFactory
-from .models import Commission, Datas, Output, SimpleCommission, Stats, Time
+from .models import Commission, Datas, Output, Sessions, SimpleCommission, Stats, Time
 from .plotters import Plotter, PLOTTERS
 from .sources import Source, SOURCES
 from .strategy import Strategy
@@ -63,7 +63,7 @@ class Cipher:
 
     @property
     def sessions(self):
-        return self.output.sessions.to_table(commission=self.commission)
+        return Sessions(self.output.sessions, commission=self.commission)
 
     def plot(
         self,

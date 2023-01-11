@@ -4,13 +4,16 @@ from typing import List, Iterator
 
 from tabulate import tabulate
 
-from .commission import Commission
 from .session import Session
 from .transaction import Transaction
 from .wallet import Wallet
 
 
 class Sessions(list):
+    def __init__(self, *args, **kwargs):
+        self._commission = kwargs.pop("commission", None)
+        super().__init__(*args, **kwargs)
+
     def filter(self, condition) -> Iterator[Session]:
         return self.__class__(filter(condition, self))
 
@@ -36,13 +39,13 @@ class Sessions(list):
             )
         )
 
-    def to_table(self, commission: Commission):
+    def to_table(self):
         rows = []
 
         for session in self.closed_sessions:
             wallet = Wallet()
             for transaction in session.transactions:
-                wallet.apply(transaction, commission=commission)
+                wallet.apply(transaction, commission=self._commission)
 
             rows.append(
                 [
@@ -53,3 +56,6 @@ class Sessions(list):
             )
 
         return tabulate(rows, headers=["Session", "Period", "PnL"])
+
+    def __str__(self):
+        return self.to_table()
