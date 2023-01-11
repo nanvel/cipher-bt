@@ -1,4 +1,5 @@
 import csv
+import time
 from pathlib import Path
 from typing import Union
 from urllib.parse import urlencode, urljoin
@@ -34,12 +35,18 @@ class BinanceFuturesOHLCSource(Source):
 
         self.symbol = symbol
 
+        self._latest_request_time_ms = None
+
     @property
     def slug(self):
         return f"binance_futures_ohlc/{self.symbol.lower()}_{self.interval.to_binance_slug()}"
 
     def load(self, ts: Time, path: Path) -> (Time, Time, bool):
         """query: start_ts, interval, symbol"""
+        time_ms = int(time.monotonic() * 1000)
+        if time_ms - self._latest_request_time_ms < 200:
+            time.sleep(0.2)
+
         start_ts = ts.block_ts(self.interval * self.limit)
 
         rows = self._request(
@@ -53,6 +60,8 @@ class BinanceFuturesOHLCSource(Source):
         )
 
         self._write(rows, path=path)
+
+        self._latest_request_time_ms = time_ms
 
         return (
             Time.from_timestamp(rows[0][0]),
