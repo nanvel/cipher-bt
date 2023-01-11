@@ -1,6 +1,11 @@
 from typing import Optional
 
-import mplfinance as mpf
+try:
+    import mplfinance as mpf
+
+    MPLFINANCE_INSTALLED = True
+except ImportError:
+    MPLFINANCE_INSTALLED = False
 
 from ..utils import create_palette
 from .base import Plotter
@@ -14,6 +19,8 @@ class MPLFinancePlotter(Plotter):
         return 200
 
     def run(self, rows: Optional[list] = None):
+        assert MPLFINANCE_INSTALLED, "mplfinance is not installed"
+
         if not self._ohlc_supported():
             return
 

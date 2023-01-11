@@ -1,7 +1,12 @@
 import datetime
 from typing import Optional
 
-import finplot
+try:
+    import finplot
+
+    FINPLOT_INSTALLED = True
+except ImportError:
+    FINPLOT_INSTALLED = False
 
 from ..utils import create_palette
 from .base import Plotter
@@ -15,6 +20,8 @@ class FinplotPlotter(Plotter):
         return 2000
 
     def run(self, rows: Optional[list] = None):
+        assert FINPLOT_INSTALLED, "finplot is not installed"
+
         rows = self._filter_rows(
             rows
             or [

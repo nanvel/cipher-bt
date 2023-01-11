@@ -44,7 +44,10 @@ class BinanceFuturesOHLCSource(Source):
     def load(self, ts: Time, path: Path) -> (Time, Time, bool):
         """query: start_ts, interval, symbol"""
         time_ms = int(time.monotonic() * 1000)
-        if time_ms - self._latest_request_time_ms < 200:
+        if (
+            self._latest_request_time_ms
+            and time_ms - self._latest_request_time_ms < 200
+        ):
             time.sleep(0.2)
 
         start_ts = ts.block_ts(self.interval * self.limit)

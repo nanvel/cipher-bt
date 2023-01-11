@@ -8,6 +8,7 @@ from .plotters import Plotter, PLOTTERS
 from .sources import Source, SOURCES
 from .strategy import Strategy
 from .trader import Trader
+from .utils import in_notebook
 from .values import Percent
 
 
@@ -79,7 +80,7 @@ class Cipher:
         elif isinstance(plotter, type) and issubclass(plotter, Plotter):
             plotter_cls = plotter
         else:
-            plotter_cls = PLOTTERS["finplot"]
+            plotter_cls = PLOTTERS["mplfinance" if in_notebook else "finplot"]
 
         plotter_cls(
             output=self.output, start=start, limit=limit, commission=self.commission
