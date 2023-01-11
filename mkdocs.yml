@@ -1,0 +1,11 @@
+site_name: Cipher BT
+site_url: https://cipher.nanvel.com/
+nav:
+    - Home: index.md
+theme:
+    name: readthedocs
+    hljs_languages:
+        - yaml
+        - json
+        - csv
+        - python
