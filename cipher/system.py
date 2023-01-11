@@ -3,11 +3,12 @@ from typing import List, Optional, Type, Union
 
 from .container import Container
 from .factories import StatsFactory
-from .models import Commission, Datas, Output, SimpleCommission, Time
+from .models import Commission, Datas, Output, Sessions, SimpleCommission, Stats, Time
 from .plotters import Plotter, PLOTTERS
 from .sources import Source, SOURCES
 from .strategy import Strategy
 from .trader import Trader
+from .utils import in_notebook
 from .values import Percent
 
 
@@ -56,10 +57,14 @@ class Cipher:
         ).run()
 
     @property
-    def stats(self):
+    def stats(self) -> Stats:
         assert self.output
 
         return StatsFactory(commission=self.commission).from_output(self.output)
+
+    @property
+    def sessions(self):
+        return Sessions(self.output.sessions, commission=self.commission)
 
     def plot(
         self,
@@ -75,7 +80,7 @@ class Cipher:
         elif isinstance(plotter, type) and issubclass(plotter, Plotter):
             plotter_cls = plotter
         else:
-            plotter_cls = PLOTTERS["finplot"]
+            plotter_cls = PLOTTERS["mplfinance" if in_notebook else "finplot"]
 
         plotter_cls(
             output=self.output, start=start, limit=limit, commission=self.commission

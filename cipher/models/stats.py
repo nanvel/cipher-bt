@@ -40,31 +40,59 @@ class Stats(BaseModel):
     romad: Optional[Decimal]
     overperform: Optional[Decimal]
 
-    def __str__(self):
+    def to_table(self):
         return tabulate(
             [
-                ["start", str(self.start_ts)],
-                ["stop", str(self.stop_ts)],
-                ["period", str(self.period)],
-                ["trades", str(self.sessions_n)],
-                ["longs", str(self.longs_n)],
-                ["shorts", str(self.shorts_n)],
-                ["period median", str(self.session_period_median)],
-                ["period max", str(self.session_period_max)],
-                ["success", str(self.success_n)],
-                ["success median", str(self.success_pnl_med)],
-                ["success max", str(self.success_pnl_max)],
-                ["success row", str(self.success_row_max)],
-                ["failure", str(self.failure_n)],
-                ["failure median", str(self.failure_pnl_med)],
-                ["failure max", str(self.failure_pnl_max)],
-                ["failure row", str(self.failure_row_max)],
-                ["spf", str(self.success_n / self.failure_n)],
-                ["pnl", str(self.pnl)],
-                ['commission', str(self.commission)],
-                ["balance min", str(self.balance_min)],
-                ["balance max", str(self.balance_max)],
-                ["balance drawdown", str(self.balance_drawdown_max)],
-                ["romad", str(self.romad)],
+                ["start", str(self.start_ts), ""],
+                ["stop", str(self.stop_ts), ""],
+                ["period", str(self.period), ""],
+                ["trades", str(self.sessions_n), ""],
+                [
+                    "longs",
+                    str(self.longs_n),
+                    self._to_percent(self.longs_n, self.sessions_n),
+                ],
+                [
+                    "shorts",
+                    str(self.shorts_n),
+                    self._to_percent(self.shorts_n, self.sessions_n),
+                ],
+                ["period median", str(self.session_period_median), ""],
+                ["period max", str(self.session_period_max), ""],
+                [
+                    "success",
+                    str(self.success_n),
+                    self._to_percent(self.success_n, self.sessions_n),
+                ],
+                ["success median", str(self.success_pnl_med), ""],
+                ["success max", str(self.success_pnl_max), ""],
+                ["success row", str(self.success_row_max), ""],
+                [
+                    "failure",
+                    str(self.failure_n),
+                    self._to_percent(self.failure_n, self.sessions_n),
+                ],
+                ["failure median", str(self.failure_pnl_med), ""],
+                ["failure max", str(self.failure_pnl_max), ""],
+                ["failure row", str(self.failure_row_max), ""],
+                ["spf", str(self.success_n / self.failure_n), ""],
+                ["pnl", str(self.pnl), ""],
+                [
+                    "commission",
+                    str(self.commission),
+                    self._to_percent(self.commission, self.pnl) if self.pnl > 0 else "",
+                ],
+                ["balance min", str(self.balance_min), ""],
+                ["balance max", str(self.balance_max), ""],
+                ["balance drawdown", str(self.balance_drawdown_max), ""],
+                ["romad", str(self.romad), ""],
             ],
         )
+
+    def __str__(self):
+        return self.to_table()
+
+    def _to_percent(self, numerator, denominator):
+        if numerator and denominator:
+            return f"{Decimal(numerator * 100 / denominator).quantize(Decimal('0.1'))}%"
+        return ""

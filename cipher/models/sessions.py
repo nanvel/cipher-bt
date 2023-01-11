@@ -2,11 +2,18 @@ from functools import reduce
 from operator import attrgetter
 from typing import List, Iterator
 
+from tabulate import tabulate
+
 from .session import Session
 from .transaction import Transaction
+from .wallet import Wallet
 
 
 class Sessions(list):
+    def __init__(self, *args, **kwargs):
+        self._commission = kwargs.pop("commission", None)
+        super().__init__(*args, **kwargs)
+
     def filter(self, condition) -> Iterator[Session]:
         return self.__class__(filter(condition, self))
 
@@ -31,3 +38,24 @@ class Sessions(list):
                 key=attrgetter("ts"),
             )
         )
+
+    def to_table(self):
+        rows = []
+
+        for session in self.closed_sessions:
+            wallet = Wallet()
+            for transaction in session.transactions:
+                wallet.apply(transaction, commission=self._commission)
+
+            rows.append(
+                [
+                    f"{'long' if session.is_long else 'short'} {session.opened_ts}",
+                    str(session.closed_ts - session.opened_ts),
+                    str(wallet.quote),
+                ]
+            )
+
+        return tabulate(rows, headers=["Session", "Period", "PnL"])
+
+    def __str__(self):
+        return self.to_table()
