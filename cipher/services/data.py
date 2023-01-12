@@ -9,6 +9,12 @@ from ..sources import Source
 
 class DataService:
     def __init__(self, cache_root: Path):
+        if cache_root.exists():
+            assert cache_root.is_dir()
+        else:
+            assert cache_root.parent.exists()
+            cache_root.mkdir()
+
         self.cache_root = cache_root
 
     def load_df(self, source: Source, start_ts: Time, stop_ts: Time):

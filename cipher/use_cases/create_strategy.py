@@ -1,7 +1,7 @@
 from pathlib import Path
 
 
-class CreateRepository:
+class CreateStrategy:
     """Create a new repository with:
     - .env
     - strategies/
