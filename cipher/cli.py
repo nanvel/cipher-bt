@@ -25,4 +25,7 @@ def init(path: Path = typer.Argument(default=".", file_okay=False, resolve_path=
 @app.command()
 def new(name: str, template: Template = Template.default):
     """Create a new strategy file from template."""
-    pass
+    container = Container()
+    use_case = container.create_strategy()
+
+    use_case.call(name=name, template=template)
