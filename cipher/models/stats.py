@@ -89,10 +89,10 @@ class Stats(BaseModel):
             ],
         )
 
-    def __str__(self):
+    def __repr__(self):
         return self.to_table()
 
-    def _to_percent(self, numerator, denominator):
+    def _to_percent(self, numerator, denominator) -> str:
         if numerator and denominator:
             return f"{Decimal(numerator * 100 / denominator).quantize(Decimal('0.1'))}%"
         return ""

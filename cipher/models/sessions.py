@@ -57,5 +57,5 @@ class Sessions(list):
 
         return tabulate(rows, headers=["Session", "Period", "PnL"])
 
-    def __str__(self):
+    def __repr__(self):
         return self.to_table()
