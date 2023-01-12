@@ -4,7 +4,7 @@ from dependency_injector import containers, providers
 
 from .services import DataService
 from .settings import Settings
-from .use_cases import CreateRepository
+from .use_cases import CreateStrategy, InitRepository
 
 
 class Container(containers.DeclarativeContainer):
@@ -14,6 +14,5 @@ class Container(containers.DeclarativeContainer):
 
     data_service = providers.Singleton(DataService, cache_root=config.cache_root)
 
-    create_repository = providers.Factory(
-        CreateRepository, templates_root=templates_root
-    )
+    init_repository = providers.Factory(InitRepository, templates_root=templates_root)
+    create_strategy = providers.Factory(CreateStrategy, templates_root=templates_root)

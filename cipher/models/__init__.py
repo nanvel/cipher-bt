@@ -7,6 +7,7 @@ from .position import Position
 from .session import Session
 from .sessions import Sessions
 from .stats import Stats
+from .template import Template
 from .time import Time
 from .time_delta import TimeDelta
 from .transaction import Transaction
@@ -25,6 +26,7 @@ __all__ = (
     "Sessions",
     "SimpleCommission",
     "Stats",
+    "Template",
     "Time",
     "TimeDelta",
     "Transaction",

@@ -1,17 +1,10 @@
 from pathlib import Path
 
-from pydantic import BaseSettings, DirectoryPath, Field
-
-
-def default_cache_root():
-    path = Path() / ".cache"
-    if not path.exists():
-        path.mkdir()
-    return path
+from pydantic import BaseSettings, Field
 
 
 class Settings(BaseSettings):
-    cache_root: DirectoryPath = Field(default_factory=default_cache_root)
+    cache_root: Path = Field(default=".cache")
 
     class Config:
         env_file = ".env"
