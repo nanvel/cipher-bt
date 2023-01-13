@@ -75,7 +75,11 @@ class Stats(BaseModel):
                 ["failure median", str(self.failure_pnl_med), ""],
                 ["failure max", str(self.failure_pnl_max), ""],
                 ["failure row", str(self.failure_row_max), ""],
-                ["spf", str(self.success_n / self.failure_n), ""],
+                [
+                    "spf",
+                    str(self.success_n / self.failure_n if self.failure_n else None),
+                    "",
+                ],
                 ["pnl", str(self.pnl), ""],
                 [
                     "commission",
@@ -90,6 +94,9 @@ class Stats(BaseModel):
         )
 
     def __repr__(self):
+        return self.to_table()
+
+    def __str__(self):
         return self.to_table()
 
     def _to_percent(self, numerator, denominator) -> str:

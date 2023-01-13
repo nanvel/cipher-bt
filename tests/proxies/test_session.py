@@ -97,3 +97,9 @@ def test_stop_loss_short(session):
 
     session.stop_loss = "25"
     assert session.stop_loss == 25
+
+
+def test_meta(session):
+    session.meta["a"] = 1
+
+    assert session.meta.a == 1

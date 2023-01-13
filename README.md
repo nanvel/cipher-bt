@@ -1,16 +1,22 @@
-# Cipher - backtesting framework
+# Cipher - trading strategy backtesting framework
 
-```mermaid
-graph TD;
-    Log-->Broker;
-    Log-->Visualize;
-    Log-->Stats;
-    Wallet-->Broker;
-    Trade-->Broker;
-    Broker-->Engine;
-    Strategy-->Engine;
-    Data-->Engine;
-    Source-->Data;
-    Data-->Stats;
-    Data-->Visualize;
+Development:
+```shell
+brew install poetry
+poetry init
+poetry shell
+
+pytest tests
+
+cipher --help
+```
+
+Initialize a new strategies folder and create a strategy:
+```bash
+mkdir my_strategies
+cd my_strategies
+
+cipher init
+cipher new my_strategy
+python my_strategy.py
 ```
