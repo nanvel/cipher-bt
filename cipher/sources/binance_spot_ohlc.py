@@ -10,8 +10,8 @@ from ..models import Interval, Time
 from .base import Source
 
 
-class BinanceFuturesOHLCSource(Source):
-    base_url = "https://fapi.binance.com/fapi/"
+class BinanceSpotOHLCSource(Source):
+    base_url = "https://api.binance.com/api/"
     limit = 500
     field_names = [
         "ts",
@@ -39,7 +39,9 @@ class BinanceFuturesOHLCSource(Source):
 
     @property
     def slug(self):
-        return f"binance_futures_ohlc/{self.symbol.lower()}_{self.interval.to_binance_slug()}"
+        return (
+            f"binance_spot_ohlc/{self.symbol.lower()}_{self.interval.to_binance_slug()}"
+        )
 
     def load(self, ts: Time, path: Path) -> (Time, Time, bool):
         """query: start_ts, interval, symbol"""
@@ -53,7 +55,7 @@ class BinanceFuturesOHLCSource(Source):
         start_ts = ts.block_ts(self.interval * self.limit)
 
         rows = self._request(
-            uri="/fapi/v1/klines",
+            uri="/api/v3/klines",
             data={
                 "symbol": self.symbol,
                 "interval": self.interval.to_binance_slug(),
