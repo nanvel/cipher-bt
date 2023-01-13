@@ -3,6 +3,7 @@ from typing import Optional
 
 from pydantic import BaseModel, Field
 
+from .meta import Meta
 from .time import Time
 from .transactions import Transactions
 
@@ -11,6 +12,7 @@ class Session(BaseModel):
     transactions: Transactions = Field(default_factory=Transactions)
     take_profit: Optional[Decimal] = None
     stop_loss: Optional[Decimal] = None
+    meta: Meta = Field(default_factory=Meta)
 
     @property
     def base(self):

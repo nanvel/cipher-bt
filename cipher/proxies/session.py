@@ -13,6 +13,7 @@ class SessionProxy:
         self._position = Position(
             cursor=cursor, transactions=self._session.transactions, wallet=wallet
         )
+        self.meta = session.meta
 
     def _parse_price(self, price: Union[Percent, Decimal, int, str, float]) -> Decimal:
         if isinstance(price, Percent):
