@@ -11,7 +11,7 @@ class StatsFactory:
     def __init__(self, commission: Optional[Commission]):
         self.commission = commission
 
-    def from_output(self, output: Output):
+    def from_output(self, output: Output) -> Stats:
         start_ts = Time.from_datetime(output.df.index[0])
         stop_ts = Time.from_datetime(output.df.index[-1])
 
@@ -34,9 +34,7 @@ class StatsFactory:
         periods = []
 
         for session in sessions:
-            periods.append(
-                session.transactions[-1].ts - session.transactions[0].ts
-            )
+            periods.append(session.transactions[-1].ts - session.transactions[0].ts)
 
             session_wallet = Wallet()
             for transaction in session.transactions:
@@ -125,7 +123,7 @@ class StatsFactory:
         df[position_col] = df[position_col].fillna(method="ffill")
         df[quote_col] = df[quote_col].fillna(method="ffill")
 
-        _df = df[position_col] * df['close'] + df[quote_col]
+        _df = df[position_col] * df["close"] + df[quote_col]
 
         output.df = df.drop([position_col, quote_col], axis=1)
 

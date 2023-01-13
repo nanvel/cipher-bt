@@ -25,21 +25,21 @@ class Interval(BaseModel):
     class Config:
         frozen = True
 
-    def to_seconds(self):
+    def to_seconds(self) -> int:
         return self.seconds
 
-    def to_binance_slug(self):
+    def to_binance_slug(self) -> str:
         return {v: k for k, v in BINANCE_INTERVALS.items()}[self.seconds]
 
-    def to_slug(self):
+    def to_slug(self) -> str:
         return self.to_binance_slug()
 
     @classmethod
-    def from_binance_slug(cls, slug):
+    def from_binance_slug(cls, slug: str):
         return cls(seconds=BINANCE_INTERVALS[slug])
 
     @classmethod
-    def from_seconds(cls, seconds):
+    def from_seconds(cls, seconds: int):
         return cls(seconds=seconds)
 
     def __mul__(self, other: int) -> "Interval":

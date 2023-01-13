@@ -2,6 +2,7 @@ from decimal import Decimal
 from typing import Optional
 
 from .commission import Commission
+from .transaction import Transaction
 
 
 class Wallet:
@@ -9,7 +10,7 @@ class Wallet:
         self._base = Decimal(0)
         self._quote = Decimal(0)
 
-    def apply(self, transaction, commission: Optional[Commission] = None):
+    def apply(self, transaction: Transaction, commission: Optional[Commission] = None):
         self._base += transaction.base
         self._quote += transaction.quote
 
@@ -17,9 +18,9 @@ class Wallet:
             self._quote -= commission.for_transaction(transaction)
 
     @property
-    def base(self):
+    def base(self) -> Decimal:
         return self._base
 
     @property
-    def quote(self):
+    def quote(self) -> Decimal:
         return self._quote
