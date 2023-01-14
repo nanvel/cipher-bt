@@ -88,4 +88,7 @@ class BinanceFuturesOHLCSource(Source):
             url = "?".join([url, data_str])
 
         response = requests.get(url)
+
+        assert response.status_code == 200, response.content
+
         return response.json()
