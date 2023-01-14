@@ -34,6 +34,20 @@ YFINANCE_INTERVALS = {
     "3mo": 3600 * 24 * 90,
 }
 
+GATEIO_INTERVALS = {
+    "10s": 10,
+    "1m": 60,
+    "5m": 60 * 5,
+    "15m": 60 * 15,
+    "30m": 60 * 30,
+    "1h": 3600,
+    "4h": 3600 * 4,
+    "8h": 3600 * 8,
+    "1d": 3600 * 24,
+    "7d": 3600 * 24 * 7,
+    "30d": 3600 * 24 * 30,
+}
+
 
 class Interval(BaseModel):
     seconds: int
@@ -50,6 +64,9 @@ class Interval(BaseModel):
     def to_yfinance_slug(self) -> str:
         return {v: k for k, v in YFINANCE_INTERVALS.items()}[self.seconds]
 
+    def to_gateio_slug(self):
+        return {v: k for k, v in GATEIO_INTERVALS.items()}[self.seconds]
+
     def to_slug(self) -> str:
         return self.to_binance_slug()
 
@@ -60,6 +77,10 @@ class Interval(BaseModel):
     @classmethod
     def from_yfinance_slug(cls, slug: str):
         return cls(seconds=YFINANCE_INTERVALS[slug])
+
+    @classmethod
+    def from_gateio_slug(cls, slug: str):
+        return cls(seconds=GATEIO_INTERVALS[slug])
 
     @classmethod
     def from_seconds(cls, seconds: int):
