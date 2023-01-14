@@ -10,26 +10,22 @@ from ..models import Interval, Time
 from .base import Source
 
 
-class BinanceFuturesOHLCSource(Source):
-    base_url = "https://fapi.binance.com/fapi/"
+class GateioSpotOHLCSource(Source):
+    base_url = "https://api.gateio.ws/api/v4/"
     limit = 500
     field_names = [
         "ts",
+        "volume_quote",
         "open",
         "high",
         "low",
         "close",
         "volume",
-        "close_time",
-        "quote_volume",
-        "trades_number",
-        "taker_buy_base_volume",
-        "taker_buy_quote_volume",
     ]
 
     def __init__(self, symbol: str, interval: Union[Interval, str]):
         if isinstance(interval, str):
-            self.interval = Interval.from_binance_slug(interval)
+            self.interval = Interval.from_gateio_slug(interval)
         else:
             self.interval = interval
 
@@ -39,10 +35,11 @@ class BinanceFuturesOHLCSource(Source):
 
     @property
     def slug(self):
-        return f"binance_futures_ohlc/{self.symbol.lower()}_{self.interval.to_binance_slug()}"
+        return (
+            f"gateio_spot_ohlc/{self.symbol.lower()}_{self.interval.to_gateio_slug()}"
+        )
 
     def load(self, ts: Time, path: Path) -> (Time, Time, bool):
-        """query: start_ts, interval, symbol"""
         time_ms = int(time.monotonic() * 1000)
         if (
             self._latest_request_time_ms
@@ -53,22 +50,23 @@ class BinanceFuturesOHLCSource(Source):
         start_ts = ts.block_ts(self.interval * self.limit)
 
         rows = self._request(
-            uri="/fapi/v1/klines",
+            uri="spot/candlesticks",
             data={
-                "symbol": self.symbol,
+                "currency_pair": self.symbol,
                 "interval": self.interval.to_binance_slug(),
                 "limit": self.limit,
-                "startTime": start_ts.to_timestamp(),
+                "from": start_ts.to_timestamp() // 1000,
             },
         )
+        assert isinstance(rows, list), rows
 
         self._write(rows, path=path)
 
         self._latest_request_time_ms = time_ms
 
         return (
-            Time.from_timestamp(rows[0][0]),
-            Time.from_timestamp(rows[-1][0]),
+            Time.from_timestamp(int(rows[0][0]) * 1000),
+            Time.from_timestamp(int(rows[-1][0]) * 1000),
             len(rows) == self.limit,
         )
 
@@ -77,7 +75,9 @@ class BinanceFuturesOHLCSource(Source):
             writer = csv.writer(f)
             writer.writerow(self.field_names)
             for row in rows:
-                writer.writerow(row[: len(self.field_names)])
+                writer.writerow(
+                    [str(int(row[0]) * 1000)] + row[1 : len(self.field_names)]
+                )
 
     def _request(self, uri, data=None):
         data = data or {}
@@ -87,7 +87,10 @@ class BinanceFuturesOHLCSource(Source):
         if data_str:
             url = "?".join([url, data_str])
 
-        response = requests.get(url)
+        response = requests.get(
+            url,
+            headers={"Accept": "application/json", "Content-Type": "application/json"},
+        )
 
         assert response.status_code == 200, response.content
 
