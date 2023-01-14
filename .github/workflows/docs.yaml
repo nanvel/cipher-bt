@@ -1,4 +1,4 @@
-name: cipher-docs
+name: publish-docs
 
 on:
   push:
