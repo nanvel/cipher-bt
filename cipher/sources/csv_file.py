@@ -44,6 +44,9 @@ class CsvFileSource(Source):
                     last_ts = ts
                     writer.writerow([str(ts)] + row[1:])
 
+        if ts.to_timestamp() < first_ts or ts.to_timestamp() > last_ts:
+            raise AssertionError("No data for the specified time.")
+
         return (
             Time.from_timestamp(first_ts),
             Time.from_timestamp(last_ts),
