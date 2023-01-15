@@ -19,7 +19,7 @@ class Trader:
         sessions = Sessions()
         cursor = Cursor()
 
-        df = self.strategy.process()
+        df = self.strategy.compose()
         signals = self._extract_strategy_signal_handlers()
 
         row_dict = {}

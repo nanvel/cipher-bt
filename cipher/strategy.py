@@ -12,7 +12,7 @@ class Strategy:
     #     self.param1 = param1
     #     self.param2 = param2
 
-    def process(self) -> DataFrame:
+    def compose(self) -> DataFrame:
         self.datas.df["entry"] = False
         return self.datas.df
 
