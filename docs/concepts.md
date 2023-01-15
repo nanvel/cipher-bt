@@ -9,11 +9,12 @@ Session starts from adding or reducing position inside `on_entry` method.
 
 Session is considered closed when position is adjusted to zero.
 
-Long sessions is a session that starts from adding position, and short session - starts from reducing position.
+Long session is a session that starts from adding position, and short session - starts from reducing position.
 
 Multiple open sessions can coexist at the same time.
 
 Each session carries these attributes:
+
 - `position`
 - `transactions` (read only)
 - `take_profit`
@@ -40,6 +41,7 @@ There are multiple ways to adjust position:
 ```python
 from cipher import base, percent, quote
 
+
 session.position = 1
 session.position = base(1)  # same as the previous one
 session.position = '1'  # int, str, float is being converted to Decimal
@@ -63,6 +65,8 @@ on_entry is called only once for a new session.
 `on_<signal>` is being called for each open session.
 
 ## Datas
+
+![data flow](data_flow.png)
 
 Cipher supports multiple time series as input, they have to be combined into a single dataframe in the `compose` method.
 

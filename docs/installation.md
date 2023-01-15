@@ -1,6 +1,6 @@
-# Install locally
+# Installation
 
-Requirement: Python 3.10+
+Requirement: Python 3.8+
 
 ```shell
 python --version
