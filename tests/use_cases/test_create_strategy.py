@@ -9,3 +9,4 @@ def test_name_to_class_name():
     assert use_case._name_to_class_name("strategy") == "Strategy"
     assert use_case._name_to_class_name("my_strategy") == "MyStrategy"
     assert use_case._name_to_class_name("AStrategy") == "AStrategy"
+    assert use_case._name_to_class_name("another") == "AnotherStrategy"

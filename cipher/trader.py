@@ -52,7 +52,7 @@ class Trader:
                         row=row_dict,
                         session=new_session,
                     )
-                    if new_session.position != 0:
+                    if new_session.position.value != 0:
                         sessions.append(new_session)
                 else:
                     for session in sessions.open_sessions:

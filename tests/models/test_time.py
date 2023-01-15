@@ -60,6 +60,11 @@ def test_block_start():
 
     assert result.to_timestamp() == 939_999_600_000
 
+    interval = Interval(seconds=3600) * 500
+
+    ts = Time.from_string("2020-01-01 00:00")
+    assert ts.block_ts(interval=interval) == Time.from_string("2019-12-20 00:00")
+
 
 def test_str():
     dt = datetime.datetime(2000, 1, 2, 3, 4)

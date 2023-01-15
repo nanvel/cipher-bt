@@ -143,15 +143,17 @@ class Plotter(ABC):
         for session in self.sessions:
             opened_ts = session.opened_ts.to_datetime()
             if session.is_long:
-                self.df.at[opened_ts, long_open] = self.df.at[opened_ts, "close"]
+                self.df.at[opened_ts, long_open] = float(session.transactions[0].price)
             else:
-                self.df.at[opened_ts, short_open] = self.df.at[opened_ts, "close"]
+                self.df.at[opened_ts, short_open] = float(session.transactions[0].price)
 
             close_ts = session.closed_ts.to_datetime()
             if session.is_long:
-                self.df.at[close_ts, long_close] = self.df.at[close_ts, "close"]
+                self.df.at[close_ts, long_close] = float(session.transactions[-1].price)
             else:
-                self.df.at[close_ts, short_close] = self.df.at[close_ts, "close"]
+                self.df.at[close_ts, short_close] = float(
+                    session.transactions[-1].price
+                )
 
         result = (
             self.df[long_open],

@@ -12,7 +12,7 @@ class Transaction(BaseModel):
 
     @property
     def price(self) -> Decimal:
-        return self.quote / self.base
+        return abs(self.quote / self.base)
 
     class Config:
         frozen = True
