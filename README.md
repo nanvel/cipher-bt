@@ -107,5 +107,3 @@ pytest tests
 
 cipher --help
 ```
-
-

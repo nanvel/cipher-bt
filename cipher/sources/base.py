@@ -14,5 +14,5 @@ class Source(ABC):
     def load(
         self, ts: Time, path: Path
     ) -> (Time, Time, bool):  # first_ts, last_ts, completed
-        """Load 500 rows into path."""
+        """Load rows into path."""
         pass

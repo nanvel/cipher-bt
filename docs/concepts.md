@@ -83,3 +83,150 @@ def compose(self):
     self.datas[1]  # ethusdt ohlc
     self.datas.df  # shortcut for self.datas[0]
 ```
+
+## Strategy
+
+Strategy explains Cipher when and how to adjust positions.
+
+This is the interface:
+```python
+from pandas import DataFrame
+
+from .models import Datas, Wallet
+from .proxies import SessionProxy as Session
+
+
+class Strategy:
+    datas: Datas
+    wallet: Wallet
+
+    # def __init__(self, param1, param2):
+    #     self.param1 = param1
+    #     self.param2 = param2
+
+    def compose(self) -> DataFrame:
+        self.datas.df["entry"] = False
+        return self.datas.df
+
+    def on_entry(self, row: dict, session: Session) -> None:
+        pass
+
+    # def on_<signal>(self, row: dict, session: Session) -> None:
+    #     pass
+
+    def on_take_profit(self, row: dict, session: Session) -> None:
+        session.position = 0
+
+    def on_stop_loss(self, row: dict, session: Session) -> None:
+        session.position = 0
+
+    def on_stop(self, row: dict, session: Session) -> None:
+        pass
+```
+
+Strategies are stored in files, you can generate a new one using this command:
+
+```text
+cipher new my_strategy
+```
+
+To run it:
+```shell
+python my_strategy.py
+```
+
+## Cipher instance
+
+Cipher instance is a glue for Cipher components.
+
+```python
+cipher = Cipher()  # you can pass settings as kwargs, otherwise settings will be loaded from .env or ENV variables
+cipher.set_strategy(strategy_object)
+cipher.set_commission(commission_or_commission_object)
+cipher.add_source(source_name_or_object, **source_kwargs)
+cipher.run(start_ts, stop_ts)  # process data according to the strategy and generate output
+cipher.sessions  # returns sessions
+cipher.stats  # returns stats object
+cipher.output  # we can use it to do custom processing / visualization
+cipher.plot(plotter_or_none, rows_or_none)  # if plotter or rows is not specified, suggested values will be used
+```
+
+## Sources
+
+Sources are reading data from apis, files, etc., in blocks and writes them to a file.
+This way source has a simple interface and easy to implement.
+
+There are a few sources already were implemented:
+
+- `binance_futures_ohlc [symbol, interval]`
+- `binance_spot_ohlc [symbol, interval]`
+- `csv_file [path, ts_format]`
+- `gateio_spot_ohlc [symbol, interval]`
+- `yahoo_finance_ohlc [symbol, interval]`
+
+## Commission
+
+Commission is an objects that implements this interface:
+```python
+from abc import ABC, abstractmethod
+from decimal import Decimal
+
+from cipher.models.transaction import Transaction
+
+
+class Commission(ABC):
+    @abstractmethod
+    def for_transaction(self, transaction: Transaction) -> Decimal:
+        pass
+```
+
+`for_transaction` method returns how much quote asset have to be deducted.
+
+By default, SimpleCommission is used, that returns specified percent from quote for each transaction.
+
+## Stats
+
+Stats is the object returned by `cipher.stats` property.
+
+We can use the stats for strategy performance evaluation.
+
+## Plotters
+
+Plotters take Output and build charts.
+
+Currently, two plotters are available:
+
+- finplot (doesn't work in jupyter notebooks)
+- mplfinance
+
+A custom plotter can be passed to `cipher.plot`.
+
+Plotters accept rows, which describe to the plotter how to group chart,
+use it if default layout does not fit your needs.
+
+Rows can contain one of:
+
+- `ohlc`
+- `ohlcv`
+- `signals`
+- `position`
+- `balance`
+- `sessions`
+- `brackets`
+- `<indicator name>`
+
+Example:
+```python
+rows = [['ohlc']]  # show only ohlc
+rows = [['ohlc', 'ema50']]  # show ema50 as well (it should be present in the dataframe)
+rows = [['ohlcv', 'sessions'], ['balance']]  # show ohlcv with session marks on the top chart and balance in the bottom
+```
+
+## Settings
+
+Settings can be passed to Cipher as arguments, or in `.env` or using ENV variables.
+
+There is only one setting: `cache_root`. Cache root contains path to the cache colder. Default: `.cache`.
+
+If there are a few directories with strategies,
+and we want to have only one cache - we can specify the same cache_root for both.
