@@ -19,7 +19,7 @@ class Trader:
         sessions = Sessions()
         cursor = Cursor()
 
-        df = self.strategy.process()
+        df = self.strategy.compose()
         signals = self._extract_strategy_signal_handlers()
 
         row_dict = {}
@@ -52,7 +52,7 @@ class Trader:
                         row=row_dict,
                         session=new_session,
                     )
-                    if new_session.position != 0:
+                    if new_session.position.value != 0:
                         sessions.append(new_session)
                 else:
                     for session in sessions.open_sessions:

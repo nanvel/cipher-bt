@@ -23,12 +23,15 @@ class CreateStrategy:
         with target_path.open("w", encoding="utf-8") as f:
             f.write(
                 self.jinja_env.get_template(f"strategies/{template}.j2").render(
-                    class_name=self._name_to_class_name(name)
+                    class_name=self._name_to_class_name(name[:-3])
                 )
                 + "\n"
             )
 
     def _name_to_class_name(self, name: str) -> str:
-        return "".join(
+        class_name = "".join(
             [(i[0].isupper() and i or i.capitalize()) for i in name.split("_")]
         )
+        if not class_name.endswith("Strategy"):
+            class_name += "Strategy"
+        return class_name

@@ -41,7 +41,9 @@ class DataService:
             else:
                 ts = last_ts + (last_ts - first_ts) / 2
 
-        df = pd.concat((pd.read_csv(p) for p in paths), ignore_index=True)
+        df = pd.concat(
+            (pd.read_csv(p) for p in paths), ignore_index=True
+        ).drop_duplicates(subset=["ts"])
 
         return (
             df[(df.ts >= start_ts.to_timestamp()) & (df.ts < stop_ts.to_timestamp())]

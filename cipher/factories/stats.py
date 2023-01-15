@@ -67,8 +67,12 @@ class StatsFactory:
             balance_df = self._balance_df(output=output)
             balance_min = balance_df.min()
             balance_max = balance_df.max()
-            balance_drawdown_max = -(balance_df - balance_df.cummax()).min()
-            romad = balance_df.iat[-1] / balance_drawdown_max
+            balance_drawdown_max = abs((balance_df - balance_df.cummax()).min())
+            romad = (
+                balance_df.iat[-1] / balance_drawdown_max
+                if balance_drawdown_max
+                else None
+            )
         else:
             balance_min = Decimal(0)
             balance_max = Decimal(0)
