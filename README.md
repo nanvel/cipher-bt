@@ -8,14 +8,17 @@
 
 Documentation: https://cipher.nanvel.com
 
-Translate to Cipher:
+Features:
 
-- `buy` -> `add to position`
-- `sell` -> `reduce position`
-- `trade` -> `session` (trading session)
-- `close trade` -> `close session` (a side effect to adjusting position to 0) 
-- `order(market)` -> `transaction` (a side effect to position change)
-- `order(limit, stop_loss)` -> `brackets`
+- well-structured, simple to use, extensible
+- multiple trading sessions at the same time
+- complex exit strategies can be implemented (trailing take profit, etc.)
+- multiple data sources support (multiple exchanges, symbols, timeframes, etc.)
+- signal generation and signal handlers are splitted
+- simple to run, just `python my_strategy.py`
+- works in [Google Colab](https://colab.research.google.com/)
+- [finplot](https://github.com/highfestiva/finplot) and [mplfinance](https://github.com/matplotlib/mplfinance) plotters
+- TA: [pandas-ta](https://github.com/twopirllc/pandas-ta) is included, you can still use your libraries of choice
 
 ## Usage
 
