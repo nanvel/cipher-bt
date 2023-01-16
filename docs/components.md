@@ -1,22 +1,19 @@
-# Concepts
-
-Ciphers is distinct from the most of the other backtesting frameworks.
-It focuses on position adjustments, in scope of a session.
+# Components
 
 ## Session (trading session)
 
-Session starts from adding or reducing position inside `on_entry` method.
+A session starts from us adding or reducing position inside `on_entry` method.
 
-Session is considered closed when position is adjusted to zero.
+A session is considered closed when its position is adjusted to zero.
 
-Long session is a session that starts from adding position, and short session - starts from reducing position.
+A long session is a session that starts from adding to the position, a short session - starts from reducing the position.
 
 Multiple open sessions can coexist at the same time.
 
 Each session carries these attributes:
 
 - `position`
-- `transactions` (read only)
+- `transactions` (read-only)
 - `take_profit`
 - `stop_loss`
 - `meta`
@@ -25,17 +22,26 @@ Each session carries these attributes:
 
 `take_profit` and `stop_loss` - session brackets.
 
-Brackets can use `percent` similar to position:
+Brackets can use `percent`:
 ```python
+from cipher import percent
+
+
 session.take_profit = row['close'] * 1.015
 session.take_profit = percent('1.5')  # +1.5% of current price for long session
 session.stop_loss = percent('-1')  # -1% of current price for long session
 session.stop_loss = None  # disable stop loss
 ```
 
-`meta` - a dict-like object where we can store session specific state.
+`meta` - a dict-like object where we can store the session state.
 
-## Position adjustment
+## Position
+
+Each new session has a position equal to 0 initially.
+
+We can add to a position, or reduce a position (it can be negative).
+
+Each position change creates a transaction.
 
 There are multiple ways to adjust position:
 ```python
@@ -43,13 +49,14 @@ from cipher import base, percent, quote
 
 
 session.position = 1
-session.position = base(1)  # same as the previous one
-session.position = '1'  # int, str, float is being converted to Decimal
+session.position = base(1)  # same as the one above
+session.position = '1'  # int, str, float are being converted to Decimal
 session.position = quote(100)  # sets position worth 100 quote asset
 session.position += 1  # adds to the position
 session.position -= Decimal('1.25')  # reduces position by 1.25
 session.position += percent(50)  # adds 50% more position
-session.position *= 1.5  # has the same effect as the previous one
+session.position *= 1.5  # has the same effect as the one above
+session.position = session.position.value + Decimal(1)  # not recommended
 ```
 
 ## Signals
@@ -58,7 +65,7 @@ There is one signal that is required - `entry`. We can define as many as we want
 
 To add a new signal:
 - a bool column, with name equal the signal name, have to be present in the dataframe returned by compose method
-- a signal handler have to be added to the strategy: `on_<signal name>`
+- a signal handler has to be added to the strategy: `on_<signal name>`
 
 on_entry is called only once for a new session.
 
@@ -83,6 +90,18 @@ def compose(self):
     self.datas[1]  # ethusdt ohlc
     self.datas.df  # shortcut for self.datas[0]
 ```
+
+## Sources
+
+Sources are reading data from apis, files, etc., in blocks and writes them to a file.
+
+There are a few sources already included:
+
+- `binance_futures_ohlc [symbol, interval]`
+- `binance_spot_ohlc [symbol, interval]`
+- `csv_file [path, ts_format]`
+- `gateio_spot_ohlc [symbol, interval]`
+- `yahoo_finance_ohlc [symbol, interval]`
 
 ## Strategy
 
@@ -140,29 +159,16 @@ python my_strategy.py
 Cipher instance is a glue for Cipher components.
 
 ```python
-cipher = Cipher()  # you can pass settings as kwargs, otherwise settings will be loaded from .env or ENV variables
+cipher = Cipher()  # we can pass settings as kwargs, otherwise, settings will be loaded from .env or ENV variables
 cipher.set_strategy(strategy_object)
 cipher.set_commission(commission_or_commission_object)
-cipher.add_source(source_name_or_object, **source_kwargs)
+cipher.add_source(source_name_or_source_object, **source_kwargs)
 cipher.run(start_ts, stop_ts)  # process data according to the strategy and generate output
 cipher.sessions  # returns sessions
-cipher.stats  # returns stats object
-cipher.output  # we can use it to do custom processing / visualization
-cipher.plot(plotter_or_none, rows_or_none)  # if plotter or rows is not specified, suggested values will be used
+cipher.stats  # builds and returns stats object
+cipher.output  # raw output, contains the dataframe and sessions
+cipher.plot(plotter_or_plotter_object_or_none, rows_or_none)  # if plotter or rows is not specified, the values will be automatically selected
 ```
-
-## Sources
-
-Sources are reading data from apis, files, etc., in blocks and writes them to a file.
-This way source has a simple interface and easy to implement.
-
-There are a few sources already were implemented:
-
-- `binance_futures_ohlc [symbol, interval]`
-- `binance_spot_ohlc [symbol, interval]`
-- `csv_file [path, ts_format]`
-- `gateio_spot_ohlc [symbol, interval]`
-- `yahoo_finance_ohlc [symbol, interval]`
 
 ## Commission
 
@@ -182,7 +188,22 @@ class Commission(ABC):
 
 `for_transaction` method returns how much quote asset have to be deducted.
 
-By default, SimpleCommission is used, that returns specified percent from quote for each transaction.
+By default, SimpleCommission is used, which returns the specified part from quote for each transaction.
+
+Commission is only computed for stats and plotter, it does not apply to the output.
+
+## Wallet
+
+The wallet can be accessed from a strategy:
+```python
+self.wallet
+```
+
+Cipher wallet has two assets: base and quote, they both have 0 initially.
+
+The wallet does not have any limits, and assets can go negative.
+
+Transactions are being applied to a wallet adjusting the assets.
 
 ## Stats
 
@@ -196,12 +217,12 @@ Plotters take Output and build charts.
 
 Currently, two plotters are available:
 
-- finplot (doesn't work in jupyter notebooks)
-- mplfinance
+- [finplot](https://github.com/highfestiva/finplot) (doesn't work in jupyter notebooks)
+- [mplfinance](https://github.com/matplotlib/mplfinance)
 
 A custom plotter can be passed to `cipher.plot`.
 
-Plotters accept rows, which describe to the plotter how to group chart,
+Plotters accept rows, which describe to the plotter how to group charts,
 use it if default layout does not fit your needs.
 
 Rows can contain one of:
@@ -224,9 +245,9 @@ rows = [['ohlcv', 'sessions'], ['balance']]  # show ohlcv with session marks on 
 
 ## Settings
 
-Settings can be passed to Cipher as arguments, or in `.env` or using ENV variables.
+Settings can be passed to Cipher as arguments or in `.env` or using ENV variables.
 
-There is only one setting: `cache_root`. Cache root contains path to the cache colder. Default: `.cache`.
+There is only one setting: `cache_root`. `cache_root` contains path to the cache folder. Default: `.cache`.
 
 If there are a few directories with strategies,
-and we want to have only one cache - we can specify the same cache_root for both.
+and we want to reuse one cache - we can specify the same cache_root for both.
