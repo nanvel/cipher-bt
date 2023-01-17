@@ -45,9 +45,9 @@ def test_transactions():
 
     sessions = Sessions([session1, session2, session3])
 
-    assert [t.ts.ts for t in sessions.transactions] == [
-        1577840460000,
-        1577840700000,
-        1577844060000,
-        1577847600000,
+    assert [t.ts for t in sessions.transactions] == [
+        Time(1577840460),
+        Time(1577840700),
+        Time(1577844060),
+        Time(1577847600),
     ]

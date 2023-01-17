@@ -1,35 +1,25 @@
 import datetime
 from functools import reduce
 
-from pydantic import BaseModel
 
-
-class TimeDelta(BaseModel):
-    seconds: int
-
-    class Config:
-        frozen = True
-
+class TimeDelta(int):
     def to_timedelta(self) -> datetime.timedelta:
-        return datetime.timedelta(seconds=self.seconds)
-
-    def to_seconds(self) -> int:
-        return self.seconds
-
-    def __gt__(self, other) -> bool:
-        return self.seconds > other.seconds
+        return datetime.timedelta(seconds=int(self))
 
     def __add__(self, other) -> "TimeDelta":
-        return self.__class__(seconds=self.seconds + other.seconds)
+        return self.__class__(int(self) + other)
 
     def __truediv__(self, other: int) -> "TimeDelta":
-        return self.__class__(seconds=self.seconds // other)
+        return self.__class__(int(self) // other)
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}({int(self)})"
 
     def __str__(self):
-        if not self.seconds:
+        if not int(self):
             return "0s"
 
-        minutes = self.seconds // 60
+        minutes = self // 60
         hours = minutes // 60
         days = hours // 24
         return reduce(
@@ -42,7 +32,7 @@ class TimeDelta(BaseModel):
                         (days, "d"),
                         (hours % 24, "h"),
                         (minutes % 60, "m"),
-                        (self.seconds % 60, "s"),
+                        (int(self) % 60, "s"),
                     ],
                 ),
             ),

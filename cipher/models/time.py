@@ -1,8 +1,6 @@
 import datetime
 from typing import Union
 
-from pydantic import BaseModel
-
 from .interval import Interval
 from .time_delta import TimeDelta
 
@@ -10,31 +8,22 @@ from .time_delta import TimeDelta
 STRING_FORMATS = ("%Y-%m-%dT%H:%M", "%Y-%m-%d", "%Y-%m-%d %H:%M")
 
 
-class Time(BaseModel):
-    ts: int  # ms
-
-    class Config:
-        frozen = True
+class Time(int):
+    def __new__(cls, value):
+        value = int(value)
+        if value < 0:
+            raise ValueError("Seconds since January 1, 1970.")
+        return super(cls, cls).__new__(cls, value)
 
     def to_datetime(self) -> datetime.datetime:
-        return datetime.datetime.utcfromtimestamp(self.ts * 1.0 / 1000)
-
-    def to_timestamp(self) -> int:
-        return self.ts
+        return datetime.datetime.utcfromtimestamp(int(self))
 
     def block_ts(self, interval: Interval):
-        interval_ms = interval.seconds * 1000
-        return self.__class__(ts=(self.ts // interval_ms) * interval_ms)
-
-    @classmethod
-    def from_timestamp(cls, ts: int) -> "Time":
-        return cls(ts=ts)
+        return self.__class__(int(self) // interval * interval)
 
     @classmethod
     def from_datetime(cls, dt: datetime.datetime) -> "Time":
-        return cls(
-            ts=round(dt.replace(tzinfo=datetime.timezone.utc).timestamp() * 1000)
-        )
+        return cls(dt.replace(tzinfo=datetime.timezone.utc).timestamp())
 
     @classmethod
     def from_string(cls, s: Union[str, datetime.datetime]):
@@ -49,28 +38,13 @@ class Time(BaseModel):
         raise ValueError("Invalid datetime format.")
 
     def __sub__(self, other: "Time") -> TimeDelta:
-        return TimeDelta(seconds=int((self.ts - other.ts) / 1000))
+        return TimeDelta(int(self) - other)
 
-    def __add__(self, other: Interval):
-        return self.__class__(ts=self.ts + other.seconds * 1000)
+    def __add__(self, other: Union[Interval, TimeDelta]):
+        return self.__class__(int(self) + other)
 
-    def __lt__(self, other):
-        return self.ts < other.ts
-
-    def __le__(self, other):
-        return self.ts <= other.ts
-
-    def __eq__(self, other):
-        return self.ts == other.ts
-
-    def __ge__(self, other):
-        return self.ts >= other.ts
-
-    def __gt__(self, other):
-        return self.ts > other.ts
-
-    def __ne__(self, other):
-        return self.ts != other.ts
-
-    def __str__(self):
+    def __str__(self) -> str:
         return self.to_datetime().strftime("%Y-%m-%d %H:%M")
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}({int(self)})"

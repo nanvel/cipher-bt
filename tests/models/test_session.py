@@ -8,7 +8,7 @@ from cipher.models import Session, Time, Transaction, Transactions
 @pytest.fixture(scope="module")
 def transaction_open():
     return Transaction(
-        ts=Time(ts=1643400000000),
+        ts=Time(1643400000),
         base=Decimal("0.002"),
         quote=Decimal("-100"),
     )
@@ -17,7 +17,7 @@ def transaction_open():
 @pytest.fixture(scope="module")
 def transaction_close():
     return Transaction(
-        ts=Time(ts=1643886000000),
+        ts=Time(1643886000),
         base=Decimal("-0.002"),
         quote=Decimal("97.415"),
     )

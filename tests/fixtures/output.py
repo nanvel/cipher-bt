@@ -12,12 +12,12 @@ def output(df):
                 transactions=Transactions(
                     [
                         Transaction(
-                            ts=Time(ts=1643400000000),
+                            ts=Time(1643400000),
                             base=Decimal("0.0026503981693169764894"),
                             quote=Decimal("-100.00000000000000000"),
                         ),
                         Transaction(
-                            ts=Time(ts=1643886000000),
+                            ts=Time(1643886000),
                             base=Decimal("-0.0026503981693169764894"),
                             quote=Decimal("97.415358209263777698"),
                         ),
@@ -29,12 +29,12 @@ def output(df):
                 transactions=Transactions(
                     [
                         Transaction(
-                            ts=Time(ts=1643990400000),
+                            ts=Time(1643990400),
                             base=Decimal("0.0024845306907864906128"),
                             quote=Decimal("-99.999999999999999999"),
                         ),
                         Transaction(
-                            ts=Time(ts=1644699600000),
+                            ts=Time(1644699600),
                             base=Decimal("-0.0024845306907864906128"),
                             quote=Decimal("104.00247956162940492"),
                         ),
@@ -46,12 +46,12 @@ def output(df):
                 transactions=Transactions(
                     [
                         Transaction(
-                            ts=Time(ts=1644958800000),
+                            ts=Time(1644958800),
                             base=Decimal("0.0022740193291642978965"),
                             quote=Decimal("-99.999999999999999999"),
                         ),
                         Transaction(
-                            ts=Time(ts=1645110000000),
+                            ts=Time(1645110000),
                             base=Decimal("-0.0022740193291642978965"),
                             quote=Decimal("94.999999999999999999"),
                         ),
@@ -63,12 +63,12 @@ def output(df):
                 transactions=Transactions(
                     [
                         Transaction(
-                            ts=Time(ts=1645869600000),
+                            ts=Time(1645869600),
                             base=Decimal("0.0025652141569038891212"),
                             quote=Decimal("-100"),
                         ),
                         Transaction(
-                            ts=Time(ts=1645995600000),
+                            ts=Time(1645995600),
                             base=Decimal("-0.0025652141569038891212"),
                             quote=Decimal("95.000000000000000001"),
                         ),

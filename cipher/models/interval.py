@@ -1,6 +1,3 @@
-from pydantic import BaseModel
-
-
 BINANCE_INTERVALS = {
     "1m": 60,
     "3m": 60 * 3,
@@ -49,45 +46,30 @@ GATEIO_INTERVALS = {
 }
 
 
-class Interval(BaseModel):
-    seconds: int
-
-    class Config:
-        frozen = True
-
-    def to_seconds(self) -> int:
-        return self.seconds
-
+class Interval(int):
     def to_binance_slug(self) -> str:
-        return {v: k for k, v in BINANCE_INTERVALS.items()}[self.seconds]
+        return {v: k for k, v in BINANCE_INTERVALS.items()}[self]
 
     def to_yfinance_slug(self) -> str:
-        return {v: k for k, v in YFINANCE_INTERVALS.items()}[self.seconds]
+        return {v: k for k, v in YFINANCE_INTERVALS.items()}[self]
 
-    def to_gateio_slug(self):
-        return {v: k for k, v in GATEIO_INTERVALS.items()}[self.seconds]
-
-    def to_slug(self) -> str:
-        return self.to_binance_slug()
+    def to_gateio_slug(self) -> str:
+        return {v: k for k, v in GATEIO_INTERVALS.items()}[self]
 
     @classmethod
     def from_binance_slug(cls, slug: str):
-        return cls(seconds=BINANCE_INTERVALS[slug])
+        return cls(BINANCE_INTERVALS[slug])
 
     @classmethod
     def from_yfinance_slug(cls, slug: str):
-        return cls(seconds=YFINANCE_INTERVALS[slug])
+        return cls(YFINANCE_INTERVALS[slug])
 
     @classmethod
     def from_gateio_slug(cls, slug: str):
-        return cls(seconds=GATEIO_INTERVALS[slug])
-
-    @classmethod
-    def from_seconds(cls, seconds: int):
-        return cls(seconds=seconds)
+        return cls(GATEIO_INTERVALS[slug])
 
     def __mul__(self, other: int) -> "Interval":
-        return self.__class__(seconds=self.seconds * other)
+        return self.__class__(int(self) * other)
 
-    def __ge__(self, other: "Interval"):
-        return self.seconds >= other.seconds
+    def __repr__(self):
+        return f"{self.__class__.__name__}({int(self)})"

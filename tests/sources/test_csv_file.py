@@ -16,12 +16,8 @@ def test_slug(source):
 
 def test_detect_ts_format(source):
     assert (
-        source._detect_ts_format(Time.from_string("2020-01-01").to_timestamp()) == "ms"
+        source._detect_ts_format(str(int(Time.from_string("2020-01-01")) * 1000))
+        == "ms"
     )
-    assert (
-        source._detect_ts_format(
-            str(Time.from_string("2020-01-01").to_timestamp() // 1000)
-        )
-        == "s"
-    )
+    assert source._detect_ts_format(str(int(Time.from_string("2020-01-01")))) == "s"
     assert source._detect_ts_format("2020-01-01") == "%Y-%m-%d"

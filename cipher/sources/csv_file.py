@@ -42,26 +42,26 @@ class CsvFileSource(Source):
                     ts = self._to_ts(row[0])
                     first_ts = first_ts or ts
                     last_ts = ts
-                    writer.writerow([str(ts)] + row[1:])
+                    writer.writerow([int(ts)] + row[1:])
 
-        if ts.to_timestamp() < first_ts or ts.to_timestamp() > last_ts:
+        if ts < first_ts or ts > last_ts:
             raise AssertionError("No data for the specified time.")
 
         return (
-            Time.from_timestamp(first_ts),
-            Time.from_timestamp(last_ts),
+            first_ts,
+            last_ts,
             True,
         )
 
     def _to_ts(self, ts_str):
         if self.ts_format == "ms":
-            return int(ts_str)
+            return int(ts_str) // 1000
         elif self.ts_format == "s":
-            return int(ts_str) * 1000
+            return int(ts_str)
         else:
             return Time.from_datetime(
                 datetime.datetime.strptime(ts_str, self.ts_format)
-            ).to_timestamp()
+            )
 
     def _detect_ts_format(self, ts_str: str) -> str:
         try:
