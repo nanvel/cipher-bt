@@ -56,9 +56,6 @@ class Interval(int):
     def to_gateio_slug(self) -> str:
         return {v: k for k, v in GATEIO_INTERVALS.items()}[self]
 
-    def to_slug(self) -> str:
-        return self.to_binance_slug()
-
     @classmethod
     def from_binance_slug(cls, slug: str):
         return cls(BINANCE_INTERVALS[slug])
@@ -73,3 +70,6 @@ class Interval(int):
 
     def __mul__(self, other: int) -> "Interval":
         return self.__class__(int(self) * other)
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}({int(self)})"

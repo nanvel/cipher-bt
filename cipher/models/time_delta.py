@@ -12,6 +12,9 @@ class TimeDelta(int):
     def __truediv__(self, other: int) -> "TimeDelta":
         return self.__class__(int(self) // other)
 
+    def __repr__(self):
+        return f"{self.__class__.__name__}({int(self)})"
+
     def __str__(self):
         if not int(self):
             return "0s"
