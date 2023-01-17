@@ -55,7 +55,7 @@ class GateioSpotOHLCSource(Source):
                 "currency_pair": self.symbol,
                 "interval": self.interval.to_binance_slug(),
                 "limit": self.limit,
-                "from": start_ts.to_timestamp() // 1000,
+                "from": int(start_ts),
             },
         )
         assert isinstance(rows, list), rows
@@ -65,8 +65,8 @@ class GateioSpotOHLCSource(Source):
         self._latest_request_time_ms = time_ms
 
         return (
-            Time.from_timestamp(int(rows[0][0]) * 1000),
-            Time.from_timestamp(int(rows[-1][0]) * 1000),
+            Time(rows[0][0]),
+            Time(rows[-1][0]),
             len(rows) == self.limit,
         )
 
@@ -75,9 +75,7 @@ class GateioSpotOHLCSource(Source):
             writer = csv.writer(f)
             writer.writerow(self.field_names)
             for row in rows:
-                writer.writerow(
-                    [str(int(row[0]) * 1000)] + row[1 : len(self.field_names)]
-                )
+                writer.writerow(row[: len(self.field_names)])
 
     def _request(self, uri, data=None):
         data = data or {}

@@ -42,7 +42,7 @@ class YahooFinanceOHLCSource(Source):
         yf_start = start_ts.to_datetime().isoformat()
         yf_stop = (start_ts + (self.interval * self.limit)).to_datetime().isoformat()
 
-        if self.interval >= Interval.from_seconds(3600 * 24):
+        if self.interval >= 3600 * 24:
             yf_start = yf_start.split("T")[0]
             yf_stop = yf_stop.split("T")[0]
 
@@ -67,7 +67,7 @@ class YahooFinanceOHLCSource(Source):
             for ts, row in data.iterrows():
                 writer.writerow(
                     [
-                        Time.from_datetime(ts).to_timestamp(),
+                        int(Time.from_datetime(ts)),
                         row["Open"],
                         row["High"],
                         row["Low"],

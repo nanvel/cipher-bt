@@ -60,7 +60,7 @@ class BinanceSpotOHLCSource(Source):
                 "symbol": self.symbol,
                 "interval": self.interval.to_binance_slug(),
                 "limit": self.limit,
-                "startTime": start_ts.to_timestamp(),
+                "startTime": int(start_ts) * 1000,
             },
         )
 
@@ -69,8 +69,8 @@ class BinanceSpotOHLCSource(Source):
         self._latest_request_time_ms = time_ms
 
         return (
-            Time.from_timestamp(rows[0][0]),
-            Time.from_timestamp(rows[-1][0]),
+            Time(rows[0][0] // 1000),
+            Time(rows[-1][0] // 1000),
             len(rows) == self.limit,
         )
 
@@ -79,7 +79,7 @@ class BinanceSpotOHLCSource(Source):
             writer = csv.writer(f)
             writer.writerow(self.field_names)
             for row in rows:
-                writer.writerow(row[: len(self.field_names)])
+                writer.writerow([row[0] // 1000] + row[1 : len(self.field_names)])
 
     def _request(self, uri, data=None):
         data = data or {}

@@ -1,6 +1,6 @@
 [tool.poetry]
 name = "cipher-bt"
-version = "0.1.3"
+version = "0.1.4"
 description = "Cipher, a backtesting framework."
 authors = ["Oleksandr Polieno <oleksandr@nanvel.com>"]
 readme = "README.md"

@@ -46,8 +46,8 @@ class DataService:
         ).drop_duplicates(subset=["ts"])
 
         return (
-            df[(df.ts >= start_ts.to_timestamp()) & (df.ts < stop_ts.to_timestamp())]
-            .astype({"ts": "datetime64[ms]"})
+            df[(df.ts >= start_ts) & (df.ts < stop_ts)]
+            .astype({"ts": "datetime64[s]"})
             .set_index("ts")
         )
 
@@ -90,7 +90,7 @@ class DataService:
     def _load_from_cache(
         self, prefix: str, ts: Time
     ) -> Optional[Tuple[Time, Time, Path]]:
-        second = int(ts.to_timestamp() / 1000)
+        second = ts
         for p in (self.cache_root / prefix).glob("*.csv"):
             try:
                 first_ts, last_ts = p.stem.split("_")
@@ -103,19 +103,19 @@ class DataService:
 
                 if first_ts <= second <= last_ts:
                     return (
-                        Time.from_timestamp(first_ts * 1000),
-                        Time.from_timestamp(last_ts * 1000),
+                        Time(first_ts),
+                        Time(last_ts),
                         p,
                     )
             except ValueError:
                 pass
 
     def _build_temp_path(self, prefix: str, ts: Time):
-        return prefix + f"/{ts.to_timestamp() // 1000}.csv"
+        return prefix + f"/{int(ts)}.csv"
 
     def _build_path(self, prefix: str, first_ts: Time, last_ts: Time, completed: bool):
         return (
             prefix
-            + f"/{first_ts.to_timestamp() // 1000}_"
-            + (f"{last_ts.to_timestamp() // 1000}.csv" if completed else ".csv")
+            + f"/{int(first_ts)}_"
+            + (f"{int(last_ts)}.csv" if completed else ".csv")
         )

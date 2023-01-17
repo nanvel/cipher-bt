@@ -24,8 +24,8 @@ class FakeOHLCSource(Source):
             raise AssertionError("Should not be called!")
 
         return (
-            Time.from_timestamp(1578600000000),
-            Time.from_timestamp(1580396400000),
+            Time(1578600000),
+            Time(1580396400),
             True,
         )
 
