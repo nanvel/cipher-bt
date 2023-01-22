@@ -12,8 +12,12 @@ class StatsFactory:
         self.commission = commission
 
     def from_output(self, output: Output) -> Stats:
-        start_ts = Time.from_datetime(output.df.index[0])
-        stop_ts = Time.from_datetime(output.df.index[-1])
+        if len(output.df.index):
+            start_ts = Time.from_datetime(output.df.index[0])
+            stop_ts = Time.from_datetime(output.df.index[-1])
+        else:
+            start_ts = Time(0)
+            stop_ts = Time(0)
 
         sessions = output.sessions.closed_sessions
 
