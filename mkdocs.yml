@@ -6,6 +6,8 @@ nav:
     - Home: index.md
     - Installation: installation.md
     - Components: components.md
+    - FAQ: faq.md
+    - Examples: examples/index.md
 theme:
     name: readthedocs
     hljs_languages:

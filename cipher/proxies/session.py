@@ -26,6 +26,10 @@ class SessionProxy:
         return self._session
 
     @property
+    def is_long(self) -> bool:
+        return self._session.is_long
+
+    @property
     def is_open(self) -> bool:
         return self._session.is_open
 
