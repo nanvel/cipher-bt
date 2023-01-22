@@ -12,3 +12,19 @@ def on_entry(self, row, session):
         return
     ...
 ```
+
+## How to debug a strategy code
+
+Use `pdb.set_trace()`.
+
+Example:
+```python
+def compose(self):
+    df = self.datas.df
+    df["entry"] = None
+
+    import pdb
+    pdb.set_trace()
+
+    return df
+```
