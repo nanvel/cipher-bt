@@ -29,9 +29,13 @@ class Trader:
             cursor.set(ts=ts, price=row_dict["close"])
 
             for session in sessions.open_sessions:
-                take_profit, stop_loss = session.should_tp_sl(
-                    low=row_dict["low"], high=row_dict["high"]
-                )
+                if session.take_profit or session.stop_loss:
+                    take_profit, stop_loss = session.should_tp_sl(
+                        low=row_dict["low"], high=row_dict["high"]
+                    )
+                else:
+                    continue
+
                 if take_profit:
                     with cursor.patch_price(take_profit):
                         self.strategy.on_take_profit(row=row_dict, session=session)

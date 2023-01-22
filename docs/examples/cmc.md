@@ -21,8 +21,6 @@ class CmcStrategy(Strategy):
         df["rank_ema21"] = ta.ema(df["rank"], length=21)
         df["rank_ema7"] = ta.ema(df["rank"], length=7)
 
-        df["entry"] = None
-
         df["difference"] = df["rank_ema7"] - df["rank_ema21"]
         df["entry"] = np.sign(df["difference"].shift(1)) != np.sign(df["difference"])
 
