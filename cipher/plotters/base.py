@@ -25,6 +25,8 @@ class Plotter(ABC):
         limit: Optional[int] = None,
         commission: Optional[Commission] = None,
     ):
+        self.check_requirements()
+
         limit = limit or self.default_limit
 
         self.df = output.df
@@ -53,6 +55,12 @@ class Plotter(ABC):
         self.commission = commission
 
         self.title = output.title
+
+    @classmethod
+    @abstractmethod
+    def check_requirements(cls):
+        """The if required libraries are installed."""
+        pass
 
     @abstractmethod
     def run(self, rows: list):
