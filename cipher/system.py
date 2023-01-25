@@ -4,11 +4,10 @@ from typing import List, Optional, Type, Union
 from .container import Container
 from .factories import StatsFactory
 from .models import Commission, Datas, Output, Sessions, SimpleCommission, Stats, Time
-from .plotters import Plotter, PLOTTERS
+from .plotters import get_default_plotter, Plotter, PLOTTERS
 from .sources import Source, SOURCES
 from .strategy import Strategy
 from .trader import Trader
-from .utils import in_notebook
 from .values import Percent
 
 
@@ -80,7 +79,7 @@ class Cipher:
         elif isinstance(plotter, type) and issubclass(plotter, Plotter):
             plotter_cls = plotter
         else:
-            plotter_cls = PLOTTERS["mplfinance" if in_notebook else "finplot"]
+            plotter_cls = get_default_plotter()
 
         plotter_cls(
             output=self.output, start=start, limit=limit, commission=self.commission

@@ -15,13 +15,16 @@ from .base import Plotter
 class FinplotPlotter(Plotter):
     """Markers: https://matplotlib.org/stable/api/markers_api.html"""
 
+    @classmethod
+    def check_requirements(cls):
+        if not FINPLOT_INSTALLED:
+            raise RuntimeError("finplot is not installed, run pip install finplot")
+
     @property
     def default_limit(self) -> int:
         return 2000
 
     def run(self, rows: Optional[list] = None):
-        assert FINPLOT_INSTALLED, "finplot is not installed"
-
         rows = self._filter_rows(
             rows
             or [

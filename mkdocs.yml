@@ -5,6 +5,7 @@ repo_url: https://github.com/nanvel/cipher-bt
 nav:
     - Introduction: index.md
     - Installation: installation.md
+    - Tutorial: tutorial.md
     - Components: components.md
     - FAQ: faq.md
     - Examples:

@@ -14,13 +14,18 @@ from .base import Plotter
 class MPLFinancePlotter(Plotter):
     """https://github.com/matplotlib/mplfinance/blob/master/examples/addplot.ipynb"""
 
+    @classmethod
+    def check_requirements(cls):
+        if not MPLFINANCE_INSTALLED:
+            raise RuntimeError(
+                "mplfinance is not installed, run pip install mplfinance"
+            )
+
     @property
     def default_limit(self) -> int:
         return 200
 
     def run(self, rows: Optional[list] = None):
-        assert MPLFINANCE_INSTALLED, "mplfinance is not installed"
-
         if not self._ohlc_supported():
             return
 

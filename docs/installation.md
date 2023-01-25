@@ -23,7 +23,14 @@ source .venv/bin/activate
 
 Install Cipher:
 ```shell
-pip install cipher-bt[finplot]
+pip install cipher-bt
+```
+
+Install optional dependencies:
+```shell
+pip install finplot  # finplot or mplfinance is required for plotting
+pip install yfinance
+# pip install cipher-bt[finplot,yfinance]
 ```
 
 Initialize the directory and create a strategy:
@@ -40,5 +47,5 @@ python my_strategy.py
 ## Google Colaboratory
 
 ```text
-!pip install cipher-bt
+!pip install cipher-bt[mplfinance]
 ```

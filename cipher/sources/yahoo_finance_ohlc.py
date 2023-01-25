@@ -4,8 +4,10 @@ from typing import Union
 
 try:
     import yfinance
+
+    YFINANCE_INSTALLED = True
 except ImportError:
-    pass
+    YFINANCE_INSTALLED = False
 
 from ..models import Interval, Time
 from .base import Source
@@ -24,6 +26,9 @@ class YahooFinanceOHLCSource(Source):
     ]
 
     def __init__(self, symbol: str, interval: Union[Interval, str]):
+        if not YFINANCE_INSTALLED:
+            raise RuntimeError("yfinance is not installed, run pip install yfinance")
+
         if isinstance(interval, str):
             self.interval = Interval.from_yfinance_slug(interval)
         else:
