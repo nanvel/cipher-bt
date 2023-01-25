@@ -1,3 +1,5 @@
+from unittest import mock
+
 import pytest
 
 from cipher.sources import YahooFinanceOHLCSource
@@ -5,7 +7,8 @@ from cipher.sources import YahooFinanceOHLCSource
 
 @pytest.fixture(scope="module")
 def source():
-    return YahooFinanceOHLCSource(symbol="SPY", interval="1d")
+    with mock.patch("cipher.sources.yahoo_finance_ohlc.YFINANCE_INSTALLED", True):
+        return YahooFinanceOHLCSource(symbol="SPY", interval="1d")
 
 
 def test_slug(source):
