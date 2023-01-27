@@ -67,3 +67,16 @@ def test_cut_df_nulls(trader):
     trader._cut_df_nulls(df)
 
     assert len(df) == 15
+
+
+def test_cut_df_nulls_complicated(trader):
+    df = DataFrame(
+        {
+            "column_a": list(range(20)),
+            "column_b": ([None] * 5) + [1, None, 2, 3, 4] + ([1] * 10),
+        }
+    )
+
+    trader._cut_df_nulls(df)
+
+    assert len(df) == 20

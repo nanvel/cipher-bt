@@ -146,9 +146,9 @@ class Trader:
             if not df[column].isnull().any():
                 continue
             index = df[column].first_valid_index()
-            if index is None or index == df.index[0]:
+            if index is None or index == df.index[0] or index > df.index[len(df) // 2]:
                 continue
-            if not df[column].tail(len(df) // 2).isnull().any():
+            if not df[column][df.index > index].isnull().any():
                 indexes.append(index)
 
         if indexes:
