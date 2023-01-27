@@ -63,7 +63,7 @@ class VuManChuCipherBStrategy(Strategy):
 
         df["entry"] = None
 
-        return df[df["slow_ema"].notnull()]
+        return df
 
 
 def main():
@@ -167,7 +167,7 @@ class VuManChuCipherBStrategy(Strategy):
 
         df["entry"] = df["long_entry"] | df["short_entry"]
 
-        return df[df["slow_ema"].notnull()]
+        return df
 
 
 def main():
@@ -262,7 +262,7 @@ class VuManChuCipherBStrategy(Strategy):
 
         df["entry"] = df["long_entry"] | df["short_entry"]
 
-        return df[df["slow_ema"].notnull()]
+        return df
 
     def on_entry(self, row: dict, session: Session):
         if self.wallet.base != 0:
@@ -307,6 +307,12 @@ if __name__ == "__main__":
 Let's try different atr lengths and take profit and stop loss multipliers:
 
 ```python
+import matplotlib.pyplot as plt
+import seaborn as sns
+from pandas import DataFrame
+
+...
+
 def main():
     heat_map = DataFrame()
 

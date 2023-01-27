@@ -1,6 +1,9 @@
 import inspect
 import re
+from numpy import NaN
 from typing import List, Optional
+
+from pandas import DataFrame, Series
 
 from .models import Cursor, Datas, Output, Session, Sessions, Wallet
 from .proxies import SessionProxy
@@ -19,8 +22,13 @@ class Trader:
         sessions = Sessions()
         cursor = Cursor()
 
-        df = self.strategy.compose()
         signals = self._extract_strategy_signal_handlers()
+
+        df = self.strategy.compose()
+        self._ensure_df_not_empty(df)
+        self._ensure_df_entry(df)
+        self._validate_df_signals(df, signals=signals)
+        self._cut_df_nulls(df)
 
         row_dict = {}
         for ts, row in df.iterrows():
@@ -107,3 +115,41 @@ class Trader:
             )
         )
         return description.strip() or None
+
+    def _ensure_df_not_empty(self, df: DataFrame):
+        if len(df) == 0:
+            raise ValueError("Dataframe is empty.")
+
+    def _ensure_df_entry(self, df: DataFrame):
+        if "entry" not in df.columns:
+            df["entry"] = Series(None, dtype="boolean")
+
+    def _validate_df_signals(self, df: DataFrame, signals: List[str]):
+        for signal in signals:
+            if signal not in df.columns:
+                raise ValueError(f"{signal} signal column is missing in the dataframe.")
+            if isinstance(df.dtypes[signal], bool):
+                continue
+            unique_values = df[signal].unique()
+            if len(unique_values) < 10 and not (
+                set(unique_values) - {None, True, False, NaN}
+            ):
+                continue
+            raise ValueError(f"{signal} signal column type have to be boolean.")
+
+    def _cut_df_nulls(self, df: DataFrame):
+        if len(df) < 10:
+            return
+
+        indexes = []
+        for column in df.columns:
+            if not df[column].isnull().any():
+                continue
+            index = df[column].first_valid_index()
+            if index is None or index == df.index[0]:
+                continue
+            if not df[column].tail(len(df) // 2).isnull().any():
+                indexes.append(index)
+
+        if indexes:
+            df.drop(df.index[df.index < max(indexes)], inplace=True)

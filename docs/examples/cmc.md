@@ -29,7 +29,7 @@ class CmcStrategy(Strategy):
         df["cross_up"] = df["entry"] & (df["difference"] > 0)
         df["cross_down"] = df["entry"] & (df["difference"] < 0)
 
-        return df[df["difference"].notnull()]
+        return df
 
     def on_entry(self, row: dict, session: Session):
         if row["cross_down"]:
@@ -161,7 +161,7 @@ class CmcStrategy(Strategy):
         df["cross_up"] = df["entry"] & (df["difference"] > 0)
         df["cross_down"] = df["entry"] & (df["difference"] < 0)
 
-        return df[df["difference"].notnull()]
+        return df
 
     def on_entry(self, row: dict, session: Session):
         if row["cross_down"]:
@@ -276,7 +276,7 @@ class CmcStrategy(Strategy):
         df["entry"] = cross & (difference < 0)
         df["exit"] = cross & (difference > 0)
 
-        return df[df["rank_ema21"].notnull()]
+        return df
 
     def on_entry(self, row: dict, session: Session):
         session.position += quote(100)
