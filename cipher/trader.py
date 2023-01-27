@@ -1,5 +1,6 @@
 import inspect
 import re
+from numpy import NaN
 from typing import List, Optional
 
 from pandas import DataFrame, Series
@@ -119,7 +120,14 @@ class Trader:
             df["entry"] = Series(None, dtype="boolean")
 
     def _validate_df_signals(self, df: DataFrame, signals: List[str]):
-        pass
+        for signal in signals:
+            if signal not in df.columns:
+                raise ValueError(f"{signal} signal column is missing in the dataframe.")
+            if isinstance(df.dtypes[signal], bool):
+                continue
+            if not (set(df[signal].unique()) - {None, True, False, NaN}):
+                continue
+            raise ValueError(f"{signal} signal column type have to be boolean.")
 
     def _cut_df_nulls(self, df: DataFrame):
         pass
