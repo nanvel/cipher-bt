@@ -2,6 +2,8 @@ import inspect
 import re
 from typing import List, Optional
 
+from pandas import DataFrame, Series
+
 from .models import Cursor, Datas, Output, Session, Sessions, Wallet
 from .proxies import SessionProxy
 from .strategy import Strategy
@@ -19,8 +21,12 @@ class Trader:
         sessions = Sessions()
         cursor = Cursor()
 
-        df = self.strategy.compose()
         signals = self._extract_strategy_signal_handlers()
+
+        df = self.strategy.compose()
+        self._ensure_df_entry(df)
+        self._validate_df_signals(df, signals=signals)
+        self._cut_df_nulls(df)
 
         row_dict = {}
         for ts, row in df.iterrows():
@@ -107,3 +113,13 @@ class Trader:
             )
         )
         return description.strip() or None
+
+    def _ensure_df_entry(self, df: DataFrame):
+        if "entry" not in df.columns:
+            df["entry"] = Series(None, dtype="boolean")
+
+    def _validate_df_signals(self, df: DataFrame, signals: List[str]):
+        pass
+
+    def _cut_df_nulls(self, df: DataFrame):
+        pass

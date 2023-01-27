@@ -307,6 +307,12 @@ if __name__ == "__main__":
 Let's try different atr lengths and take profit and stop loss multipliers:
 
 ```python
+import matplotlib.pyplot as plt
+import seaborn as sns
+from pandas import DataFrame
+
+...
+
 def main():
     heat_map = DataFrame()
 
