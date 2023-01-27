@@ -63,7 +63,7 @@ class VuManChuCipherBStrategy(Strategy):
 
         df["entry"] = None
 
-        return df[df["slow_ema"].notnull()]
+        return df
 
 
 def main():
@@ -167,7 +167,7 @@ class VuManChuCipherBStrategy(Strategy):
 
         df["entry"] = df["long_entry"] | df["short_entry"]
 
-        return df[df["slow_ema"].notnull()]
+        return df
 
 
 def main():
@@ -262,7 +262,7 @@ class VuManChuCipherBStrategy(Strategy):
 
         df["entry"] = df["long_entry"] | df["short_entry"]
 
-        return df[df["slow_ema"].notnull()]
+        return df
 
     def on_entry(self, row: dict, session: Session):
         if self.wallet.base != 0:

@@ -55,7 +55,7 @@ class EmaCrossoverStrategy(Strategy):
         df["max_6"] = df["high"].rolling(window=6).max()
         df["min_6"] = df["low"].rolling(window=6).min()
 
-        return df[df["trend_ema"].notnull()]
+        return df
 
     def on_entry(self, row: dict, session: Session):
         if row["difference"] > 0 and row["close"] > row["trend_ema"]:

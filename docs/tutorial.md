@@ -142,8 +142,7 @@ class MacdStrategy(Strategy):
 
         df["atr"] = df.ta.atr()
 
-        # excluded null values
-        return df[difference.notnull()]
+        return df
 
 
 def main():
@@ -178,7 +177,7 @@ class MacdStrategy(Strategy):
         df["atr_stop_loss"] = df["close"] - (df["atr"] * 1.5)
         df["atr_take_profit"] = df["close"] + (df["atr"] * 1.5)
 
-        return df[difference.notnull()]
+        return df
 
     def on_entry(self, row: dict, session: Session):
         # add DOGE worth 100USD

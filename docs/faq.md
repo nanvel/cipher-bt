@@ -13,6 +13,13 @@ def on_entry(self, row, session):
     ...
 ```
 
+## Why cipher cuts the dataframe
+
+Cipher may cut the composed dataframe if it contains indicators that need time to initialize.
+
+For example, if the dataframe contains EMA50, it means that the first 50 rows will be nulls,
+and so we can not use the indicator in the first 50 rows.
+
 ## How to debug a strategy code
 
 Use `pdb.set_trace()`.
