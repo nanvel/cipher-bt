@@ -127,7 +127,7 @@ class Trader:
         for signal in signals:
             if signal not in df.columns:
                 raise ValueError(f"{signal} signal column is missing in the dataframe.")
-            if isinstance(df[signal].dtype, (bool, BooleanDtype)):
+            if isinstance(df[signal].dtype, BooleanDtype) or df[signal].dtype == 'bool':
                 continue
             raise ValueError(f"{signal} signal column type have to be boolean.")
 
