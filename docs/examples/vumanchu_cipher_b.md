@@ -340,3 +340,11 @@ def main():
 ![vumanchu_cipher_b_params](images/vumanchu_cipher_b_params.png)
 
 ATR lengths = 48 and stop_loss_k = 3 shows the best result among tested.
+
+## Google colaboratory
+
+<object data="vumanchu_cipher_b_colab.pdf" type="application/pdf" width="650px" height="600px">
+    <embed src="vumanchu_cipher_b_colab.pdf">
+        <p>This browser does not support PDFs. Please download the PDF to view it: <a href="vumanchu_cipher_b_colab.pdf">Download PDF</a>.</p>
+    </embed>
+</object>
