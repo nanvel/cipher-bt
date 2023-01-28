@@ -119,6 +119,8 @@ if __name__ == "__main__":
     main()
 ```
 
+![ema_crossover_plot](docs/plotter.png)
+
 ## Development
 
 ```shell
