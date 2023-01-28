@@ -1,5 +1,4 @@
 import csv
-import time
 from pathlib import Path
 from typing import Union
 from urllib.parse import urlencode, urljoin
@@ -7,6 +6,7 @@ from urllib.parse import urlencode, urljoin
 import requests
 
 from ..models import Interval, Time
+from ..utils import RateLimiter
 from .base import Source
 
 
@@ -35,7 +35,7 @@ class BinanceFuturesOHLCSource(Source):
 
         self.symbol = symbol
 
-        self._latest_request_time_ms = None
+        self.rate_limiter = RateLimiter(calls_per_seconds=2.0)
 
     @property
     def slug(self):
@@ -43,13 +43,6 @@ class BinanceFuturesOHLCSource(Source):
 
     def load(self, ts: Time, path: Path) -> (Time, Time, bool):
         """query: start_ts, interval, symbol"""
-        time_ms = int(time.monotonic() * 1000)
-        if (
-            self._latest_request_time_ms
-            and time_ms - self._latest_request_time_ms < 200
-        ):
-            time.sleep(0.2)
-
         start_ts = ts.block_ts(self.interval * self.limit)
 
         rows = self._request(
@@ -63,8 +56,6 @@ class BinanceFuturesOHLCSource(Source):
         )
 
         self._write(rows, path=path)
-
-        self._latest_request_time_ms = time_ms
 
         return (
             Time(rows[0][0] // 1000),
@@ -87,7 +78,8 @@ class BinanceFuturesOHLCSource(Source):
         if data_str:
             url = "?".join([url, data_str])
 
-        response = requests.get(url)
+        with self.rate_limiter.call():
+            response = requests.get(url)
 
         assert response.status_code == 200, response.content
 

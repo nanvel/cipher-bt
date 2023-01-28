@@ -1,3 +1,4 @@
+import logging
 from pathlib import Path
 from typing import Optional, Tuple
 
@@ -5,6 +6,9 @@ import pandas as pd
 
 from ..models import Time
 from ..sources import Source
+
+
+logger = logging.getLogger(__name__)
 
 
 class DataService:
@@ -71,6 +75,8 @@ class DataService:
             )
             if incomplete_path.exists():
                 incomplete_path.unlink()
+
+        logger.info(f"Loaded from {source.slug} {first_ts}..{last_ts}")
 
         return (
             first_ts,

@@ -243,11 +243,16 @@ rows = [['ohlc', 'ema50']]  # show ema50 as well (it should be present in the da
 rows = [['ohlcv', 'sessions'], ['balance']]  # show ohlcv with session marks on the top chart and balance in the bottom
 ```
 
+`plot` also accepts `limit` (number of rows to show) and `start` (where the plot starts).
+`start` can be one of: datetime, offset, negative offset.
+
 ## Settings
 
 Settings can be passed to Cipher as arguments or in `.env` or using ENV variables.
 
-There is only one setting: `cache_root`. `cache_root` contains path to the cache folder. Default: `.cache`.
+Available settings: `cache_root`, `log_level`.
+
+`cache_root`. `cache_root` contains path to the cache folder. Default: `.cache`
 
 If there are a few directories with strategies,
 and we want to reuse one cache - we can specify the same cache_root for both.
