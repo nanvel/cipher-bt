@@ -56,7 +56,6 @@ One way to experiment with indicators is to start an interactive session inside 
 class MacdStrategy(Strategy):
     def compose(self):
         df = self.datas.df
-        df["entry"] = None
 
         import pdb; pdb.set_trace()
 
@@ -83,7 +82,6 @@ In order to see the `MACD`, we have to add it to the dataframe and add another r
 class MacdStrategy(Strategy):
     def compose(self):
         df = self.datas.df
-        df["entry"] = None
 
         return df.merge(df.ta.macd(), left_index=True, right_index=True)
 
@@ -108,8 +106,6 @@ class MacdStrategy(Strategy):
         df["macds"] = macd_df["MACDs_12_26_9"]
 
         df["atr"] = df.ta.atr()
-
-        df["entry"] = None
 
         return df
 

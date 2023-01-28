@@ -61,8 +61,6 @@ class VuManChuCipherBStrategy(Strategy):
         df["fast_ema"] = df.ta.ema(length=self.fast_ema_length)
         df["slow_ema"] = df.ta.ema(length=self.slow_ema_length)
 
-        df["entry"] = None
-
         return df
 
 
