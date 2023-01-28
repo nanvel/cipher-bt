@@ -1,10 +1,14 @@
 import datetime
+import logging
 from abc import ABC, abstractmethod
 from typing import List, Optional, Union
 
 import pandas as pd
 
 from ..models import Commission, Output, Wallet
+
+
+logger = logging.getLogger(__name__)
 
 
 class Plotter(ABC):
@@ -55,6 +59,11 @@ class Plotter(ABC):
         self.commission = commission
 
         self.title = output.title
+
+        if len(self.df) != len(output.df):
+            logger.warning(
+                "Only a part of the dataframe is shown on the plot, use start/limit plot arguments to paginate"
+            )
 
     @classmethod
     @abstractmethod

@@ -2,6 +2,7 @@ from .commission import Commission, SimpleCommission
 from .cursor import Cursor
 from .datas import Datas
 from .interval import Interval
+from .log_level import LogLevel
 from .meta import Meta
 from .output import Output
 from .position import Position
@@ -21,6 +22,7 @@ __all__ = (
     "Cursor",
     "Datas",
     "Interval",
+    "LogLevel",
     "Meta",
     "Output",
     "Position",

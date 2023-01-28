@@ -15,6 +15,7 @@ class Cipher:
     def __init__(self, **settings):
         self.container = Container()
         self.container.config.from_dict(settings)
+        self.container.init_resources()
 
         self.strategy: Optional[Strategy] = None
         self.sources: List[Source] = []
