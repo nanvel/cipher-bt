@@ -1,9 +1,8 @@
 import inspect
 import re
-from numpy import NaN
 from typing import List, Optional
 
-from pandas import DataFrame, Series
+from pandas import BooleanDtype, DataFrame, isna, Series
 
 from .models import Cursor, Datas, Output, Session, Sessions, Wallet
 from .proxies import SessionProxy
@@ -27,7 +26,7 @@ class Trader:
         df = self.strategy.compose()
         self._ensure_df_not_empty(df)
         self._ensure_df_entry(df)
-        self._validate_df_signals(df, signals=signals)
+        self._ensure_df_signals_type(df, signals=signals)
         self._cut_df_nulls(df)
 
         row_dict = {}
@@ -52,7 +51,7 @@ class Trader:
                         self.strategy.on_stop_loss(row=row_dict, session=session)
 
             for signal in signals:
-                if not row[signal]:
+                if isna(row[signal]) or not row[signal]:
                     continue
                 if signal == "entry":
                     new_session = SessionProxy(
@@ -124,16 +123,11 @@ class Trader:
         if "entry" not in df.columns:
             df["entry"] = Series(None, dtype="boolean")
 
-    def _validate_df_signals(self, df: DataFrame, signals: List[str]):
+    def _ensure_df_signals_type(self, df: DataFrame, signals: List[str]):
         for signal in signals:
             if signal not in df.columns:
                 raise ValueError(f"{signal} signal column is missing in the dataframe.")
-            if isinstance(df.dtypes[signal], bool):
-                continue
-            unique_values = df[signal].unique()
-            if len(unique_values) < 10 and not (
-                set(unique_values) - {None, True, False, NaN}
-            ):
+            if isinstance(df[signal].dtype, (bool, BooleanDtype)):
                 continue
             raise ValueError(f"{signal} signal column type have to be boolean.")
 

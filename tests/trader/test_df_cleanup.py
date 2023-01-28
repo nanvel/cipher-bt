@@ -1,5 +1,5 @@
 import pytest
-from pandas import DataFrame, BooleanDtype
+from pandas import BooleanDtype, DataFrame, Series
 
 from cipher.models import Datas
 from cipher.strategy import Strategy
@@ -31,26 +31,41 @@ def test_ensure_df_entry(trader):
     assert isinstance(df.dtypes["entry"], BooleanDtype)
 
 
-def test_validate_df_signals_ok(trader):
+def test_ensure_df_signals_type_ok(trader):
     trader = Trader(datas=Datas(), strategy=Strategy())
 
-    df = DataFrame({"entry": [None, True], "another": [True, False]})
+    df = DataFrame(
+        {
+            "entry": Series([False, True], dtype="boolean"),
+            "another": [None, True],
+        }
+    )
+    df["my_signal"] = df["entry"] & df["another"]
 
-    trader._validate_df_signals(df, signals=["entry", "another"])
+    trader._ensure_df_signals_type(df, signals=["entry", "my_signal"])
 
 
-def test_validate_df_signals_missing(trader):
-    df = DataFrame({"entry": [None, True]})
+def test_ensure_df_signals_type_missing(trader):
+    df = DataFrame({"entry": Series([None, True], dtype="boolean")})
 
-    with pytest.raises(ValueError):
-        trader._validate_df_signals(df, signals=["entry", "another"])
+    with pytest.raises(ValueError) as e:
+        trader._ensure_df_signals_type(df, signals=["entry", "another"])
+
+    assert "another signal column is missing in the dataframe." in str(e)
 
 
-def test_validate_df_signals_invalid_format(trader):
-    df = DataFrame({"entry": [None, True], "another": [1, 2]})
+def test_ensure_df_signals_type_invalid_type(trader):
+    df = DataFrame(
+        {
+            "entry": Series(None, dtype="boolean"),
+            "another": Series([1, 2], dtype="int32"),
+        }
+    )
 
-    with pytest.raises(ValueError):
-        trader._validate_df_signals(df, signals=["entry", "another"])
+    with pytest.raises(ValueError) as e:
+        trader._ensure_df_signals_type(df, signals=["entry", "another"])
+
+    assert "another signal column type have to be boolean." in str(e)
 
 
 def test_cut_df_nulls(trader):
@@ -69,7 +84,7 @@ def test_cut_df_nulls(trader):
     assert len(df) == 15
 
 
-def test_cut_df_nulls_complicated(trader):
+def test_cut_df_nulls_scatter(trader):
     df = DataFrame(
         {
             "column_a": list(range(20)),

@@ -13,7 +13,6 @@ class Strategy:
     #     self.param2 = param2
 
     def compose(self) -> DataFrame:
-        self.datas.df["entry"] = False
         return self.datas.df
 
     def on_entry(self, row: dict, session: Session) -> None:
