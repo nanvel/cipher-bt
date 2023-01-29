@@ -264,7 +264,7 @@ class VuManChuCipherBStrategy(Strategy):
 
     def on_entry(self, row: dict, session: Session):
         if self.wallet.base != 0:
-            # keep only one position open
+            # keep only one session open
             return
 
         if row["long_entry"]:

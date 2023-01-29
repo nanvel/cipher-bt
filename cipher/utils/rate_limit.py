@@ -9,7 +9,7 @@ class RateLimiter:
         self.calls_per_second = calls_per_seconds
 
     @contextmanager
-    def call(self):
+    def __call__(self):
         now = time.monotonic()
         to_wait = self.last_call_ts - now + (1 / self.calls_per_second)
         if to_wait > 0:

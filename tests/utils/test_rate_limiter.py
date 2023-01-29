@@ -9,7 +9,7 @@ def test_rate_limiter():
     times = []
     for i in range(3):
         start_time = time.monotonic()
-        with rate_limiter.call():
+        with rate_limiter():
             pass
         times.append(time.monotonic() - start_time)
 

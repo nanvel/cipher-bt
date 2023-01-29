@@ -10,6 +10,9 @@ from ..utils import RateLimiter
 from .base import Source
 
 
+rate_limiter = RateLimiter(calls_per_seconds=2.0)
+
+
 class BinanceSpotOHLCSource(Source):
     base_url = "https://api.binance.com/api/"
     limit = 500
@@ -34,8 +37,6 @@ class BinanceSpotOHLCSource(Source):
             self.interval = interval
 
         self.symbol = symbol
-
-        self.rate_limiter = RateLimiter(calls_per_seconds=2.0)
 
     @property
     def slug(self):
@@ -80,7 +81,7 @@ class BinanceSpotOHLCSource(Source):
         if data_str:
             url = "?".join([url, data_str])
 
-        with self.rate_limiter.call():
+        with rate_limiter():
             response = requests.get(url)
 
         assert response.status_code == 200, response.content
