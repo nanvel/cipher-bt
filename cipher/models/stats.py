@@ -83,8 +83,10 @@ class Stats(BaseModel):
                 ["pnl", str(self.pnl), ""],
                 [
                     "commission",
-                    str(self.commission),
-                    self._to_percent(self.commission, self.pnl) if self.pnl > 0 else "",
+                    str(self.commission.normalize()),
+                    self._to_percent(self.commission, self.pnl)
+                    if self.pnl > self.commission
+                    else "",
                 ],
                 ["balance min", str(self.balance_min), ""],
                 ["balance max", str(self.balance_max), ""],
