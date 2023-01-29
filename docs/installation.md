@@ -1,3 +1,7 @@
+---
+description: Installation instruction for local setup and for Google Colaboratory.
+---
+
 # Installation
 
 ## Local

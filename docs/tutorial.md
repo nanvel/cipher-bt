@@ -1,3 +1,7 @@
+---
+description: Here we step-by-step test an MACD strategy with stop loss based on ATR and 2 stages take profit.
+---
+
 # Tutorial
 
 Here we step-by-step test an MACD strategy with stop loss based on ATR and 2 stages take profit.
@@ -50,6 +54,7 @@ python macd.py
 ## Adding indicators
 
 We have to add `MACD` and `ATR` indicators. To achieve this, the compose method has to be edited.
+
 One way to experiment with indicators is to start an interactive session inside compose:
 
 ```python

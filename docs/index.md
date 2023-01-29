@@ -1,3 +1,7 @@
+---
+description: Cipher - a backtesting framework with focus on position adjustment in scope of a trading session.
+---
+
 # Introduction
 
 Cipher is distinct from most other backtesting frameworks.
