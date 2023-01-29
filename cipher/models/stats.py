@@ -15,6 +15,7 @@ class Stats(BaseModel):
     start_ts: Time
     stop_ts: Time
     period: TimeDelta  # dataframe size
+    exposed_period: TimeDelta
 
     # sessions
     sessions_n: int
@@ -88,6 +89,11 @@ class Stats(BaseModel):
                     self._to_percent(self.commission, self.pnl)
                     if self.pnl > self.commission
                     else "",
+                ],
+                [
+                    "exposed period",
+                    str(self.exposed_period),
+                    self._to_percent(self.exposed_period, self.period),
                 ],
                 ["balance min", str(self.balance_min), ""],
                 ["balance max", str(self.balance_max), ""],
