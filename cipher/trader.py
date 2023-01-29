@@ -51,23 +51,25 @@ class Trader:
                         self.strategy.on_stop_loss(row=row_dict, session=session)
 
             for signal in signals:
+                if signal == "entry":
+                    continue
                 if isna(row[signal]) or not row[signal]:
                     continue
-                if signal == "entry":
-                    new_session = SessionProxy(
-                        Session(cursor=cursor, wallet=self.strategy.wallet),
-                        wallet=self.strategy.wallet,
-                        cursor=cursor,
-                    )
-                    self.strategy.on_entry(
-                        row=row_dict,
-                        session=new_session,
-                    )
-                    if new_session.position.value != 0:
-                        sessions.append(new_session)
-                else:
-                    for session in sessions.open_sessions:
-                        getattr(self.strategy, f"on_{signal}")(row=row, session=session)
+                for session in sessions.open_sessions:
+                    getattr(self.strategy, f"on_{signal}")(row=row, session=session)
+
+            if not isna(row["entry"]) and row["entry"]:
+                new_session = SessionProxy(
+                    Session(cursor=cursor, wallet=self.strategy.wallet),
+                    wallet=self.strategy.wallet,
+                    cursor=cursor,
+                )
+                self.strategy.on_entry(
+                    row=row_dict,
+                    session=new_session,
+                )
+                if new_session.position.value != 0:
+                    sessions.append(new_session)
 
         for session in sessions.open_sessions:
             self.strategy.on_stop(row=row_dict, session=session)
@@ -127,7 +129,7 @@ class Trader:
         for signal in signals:
             if signal not in df.columns:
                 raise ValueError(f"{signal} signal column is missing in the dataframe.")
-            if isinstance(df[signal].dtype, BooleanDtype) or df[signal].dtype == 'bool':
+            if isinstance(df[signal].dtype, BooleanDtype) or df[signal].dtype == "bool":
                 continue
             raise ValueError(f"{signal} signal column type have to be boolean.")
 

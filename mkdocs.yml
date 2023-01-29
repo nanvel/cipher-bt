@@ -11,6 +11,7 @@ nav:
     - Examples:
         - examples/cmc.md
         - examples/vumanchu_cipher_b.md
+        - examples/liquidations.md
 theme:
     name: material
     features:
