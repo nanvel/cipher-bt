@@ -27,6 +27,7 @@ class Stats(BaseModel):
 
     # performance
     pnl: Decimal  # profit and loss
+    volume: Decimal
     commission: Decimal
     success_pnl_med: Optional[Decimal]
     failure_pnl_med: Optional[Decimal]
@@ -38,7 +39,6 @@ class Stats(BaseModel):
     balance_max: Decimal
     balance_drawdown_max: Decimal
     romad: Optional[Decimal]
-    overperform: Optional[Decimal]
 
     def to_table(self):
         return tabulate(
@@ -81,6 +81,7 @@ class Stats(BaseModel):
                     "",
                 ],
                 ["pnl", str(self.pnl), ""],
+                ["volume", str(self.volume), ""],
                 [
                     "commission",
                     str(self.commission.normalize()),

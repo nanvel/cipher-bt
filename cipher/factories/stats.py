@@ -24,6 +24,8 @@ class StatsFactory:
         wallet = Wallet()
         wallet_no_commission = Wallet()
 
+        volume = Decimal(0)
+
         success = []
         failure = []
 
@@ -45,6 +47,7 @@ class StatsFactory:
                 wallet.apply(transaction, commission=self.commission)
                 session_wallet.apply(transaction, commission=self.commission)
                 wallet_no_commission.apply(transaction)
+                volume += abs(transaction.base)
 
             if session_wallet.quote > 0:
                 success.append(session_wallet.quote)
@@ -97,6 +100,7 @@ class StatsFactory:
             success_row_max=success_row_max,
             failure_row_max=failure_row_max,
             pnl=wallet.quote,
+            volume=volume,
             longs_n=longs_n,
             shorts_n=shorts_n,
             commission=wallet_no_commission.quote - wallet.quote,
