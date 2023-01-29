@@ -15,6 +15,7 @@ class Stats(BaseModel):
     start_ts: Time
     stop_ts: Time
     period: TimeDelta  # dataframe size
+    exposed_period: TimeDelta
 
     # sessions
     sessions_n: int
@@ -27,6 +28,7 @@ class Stats(BaseModel):
 
     # performance
     pnl: Decimal  # profit and loss
+    volume: Decimal
     commission: Decimal
     success_pnl_med: Optional[Decimal]
     failure_pnl_med: Optional[Decimal]
@@ -38,7 +40,6 @@ class Stats(BaseModel):
     balance_max: Decimal
     balance_drawdown_max: Decimal
     romad: Optional[Decimal]
-    overperform: Optional[Decimal]
 
     def to_table(self):
         return tabulate(
@@ -81,10 +82,18 @@ class Stats(BaseModel):
                     "",
                 ],
                 ["pnl", str(self.pnl), ""],
+                ["volume", str(self.volume), ""],
                 [
                     "commission",
-                    str(self.commission),
-                    self._to_percent(self.commission, self.pnl) if self.pnl > 0 else "",
+                    str(self.commission.normalize()),
+                    self._to_percent(self.commission, self.pnl)
+                    if self.pnl > self.commission
+                    else "",
+                ],
+                [
+                    "exposed period",
+                    str(self.exposed_period),
+                    self._to_percent(self.exposed_period, self.period),
                 ],
                 ["balance min", str(self.balance_min), ""],
                 ["balance max", str(self.balance_max), ""],

@@ -4,7 +4,7 @@ from typing import Optional
 
 import pandas as pd
 
-from ..models import Commission, Output, Stats, Time, Wallet
+from ..models import Commission, Output, Stats, Time, TimeDelta, Wallet
 
 
 class StatsFactory:
@@ -23,6 +23,8 @@ class StatsFactory:
 
         wallet = Wallet()
         wallet_no_commission = Wallet()
+
+        volume = Decimal(0)
 
         success = []
         failure = []
@@ -45,6 +47,7 @@ class StatsFactory:
                 wallet.apply(transaction, commission=self.commission)
                 session_wallet.apply(transaction, commission=self.commission)
                 wallet_no_commission.apply(transaction)
+                volume += abs(transaction.base)
 
             if session_wallet.quote > 0:
                 success.append(session_wallet.quote)
@@ -67,26 +70,34 @@ class StatsFactory:
 
         assert wallet.base == 0
 
+        period = stop_ts - start_ts
+
         if output.sessions:
             balance_df = self._balance_df(output=output)
-            balance_min = balance_df.min()
-            balance_max = balance_df.max()
-            balance_drawdown_max = abs((balance_df - balance_df.cummax()).min())
+            balance = balance_df["balance"]
+            balance_min = balance.min()
+            balance_max = balance.max()
+            balance_drawdown_max = abs((balance - balance.cummax()).min())
             romad = (
-                balance_df.iat[-1] / balance_drawdown_max
-                if balance_drawdown_max
-                else None
+                balance.iat[-1] / balance_drawdown_max if balance_drawdown_max else None
+            )
+            exposed_period = period * (
+                1
+                - len(balance_df["position"][balance_df["position"] == 0])
+                / len(balance_df)
             )
         else:
             balance_min = Decimal(0)
             balance_max = Decimal(0)
             balance_drawdown_max = Decimal(0)
             romad = None
+            exposed_period = TimeDelta(0)
 
         return Stats(
             start_ts=start_ts,
             stop_ts=stop_ts,
-            period=stop_ts - start_ts,
+            period=period,
+            exposed_period=exposed_period,
             sessions_n=len(sessions),
             success_n=len(success),
             failure_n=len(failure),
@@ -97,6 +108,7 @@ class StatsFactory:
             success_row_max=success_row_max,
             failure_row_max=failure_row_max,
             pnl=wallet.quote,
+            volume=volume,
             longs_n=longs_n,
             shorts_n=shorts_n,
             commission=wallet_no_commission.quote - wallet.quote,
@@ -131,8 +143,10 @@ class StatsFactory:
         df[position_col] = df[position_col].fillna(method="ffill")
         df[quote_col] = df[quote_col].fillna(method="ffill")
 
-        _df = df[position_col] * df["close"] + df[quote_col]
+        _df = df[[]]
+        _df["balance"] = df[position_col] * df["close"] + df[quote_col]
+        _df["position"] = df[position_col]
 
-        output.df = df.drop([position_col, quote_col], axis=1)
+        df.drop([position_col, quote_col], axis=1, inplace=True)
 
         return _df
