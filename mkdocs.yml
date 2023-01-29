@@ -12,9 +12,15 @@ nav:
         - examples/cmc.md
         - examples/vumanchu_cipher_b.md
 theme:
-    name: readthedocs
-    hljs_languages:
-        - yaml
-        - json
-        - csv
-        - python
+    name: material
+    features:
+        - navigation.sections
+        - navigation.instant
+    palette:
+        primary: teal
+    font:
+        text: Roboto
+markdown_extensions:
+    - pymdownx.superfences
+    - pymdownx.highlight:
+          use_pygments: true
