@@ -22,7 +22,8 @@ jobs:
         with:
           python-version: '3.10'
 
-      - run: pip install mkdocs
+      - run: pip install "mkdocs>=1.4.2,<2"
+      - run: pip install "mkdocs-material>=9.0.7,<10"
       - run: mkdocs build
 
       - name: Publish
