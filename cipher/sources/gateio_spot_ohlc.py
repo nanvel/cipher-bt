@@ -10,6 +10,9 @@ from ..utils import RateLimiter
 from .base import Source
 
 
+rate_limiter = RateLimiter(calls_per_seconds=2.0)
+
+
 class GateioSpotOHLCSource(Source):
     base_url = "https://api.gateio.ws/api/v4/"
     limit = 500
@@ -30,8 +33,6 @@ class GateioSpotOHLCSource(Source):
             self.interval = interval
 
         self.symbol = symbol
-
-        self.rate_limiter = RateLimiter(calls_per_seconds=2.0)
 
     @property
     def slug(self):
@@ -76,7 +77,7 @@ class GateioSpotOHLCSource(Source):
         if data_str:
             url = "?".join([url, data_str])
 
-        with self.rate_limiter.call():
+        with rate_limiter():
             response = requests.get(
                 url,
                 headers={

@@ -28,7 +28,6 @@ Example:
 ```python
 def compose(self):
     df = self.datas.df
-    df["entry"] = None
 
     import pdb
     pdb.set_trace()

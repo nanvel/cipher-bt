@@ -1,3 +1,7 @@
+---
+description: Details about each component on the system.
+---
+
 # Components
 
 ## Session (trading session)
