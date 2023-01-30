@@ -140,24 +140,50 @@ class MPLFinancePlotter(Plotter):
                 )
 
         for row in rows[0]:
+            row, *args = row.split("|")
+            if len(args) == 1:
+                marker = args[0]
+                color = None
+            elif len(args) > 1:
+                marker = args[0]
+                color = args[1]
+            else:
+                marker = None
+                color = None
+
             if row not in self.OPTIONS and row in self.original_df.columns:
                 ap.append(
                     mpf.make_addplot(
                         self.original_df[row],
                         panel=0,
-                        color=next(palette),
+                        color=color or next(palette),
+                        type="scatter" if marker else None,
+                        marker=marker,
                     )
                 )
 
         if len(rows) > 1:
             for row in rows[1]:
+                row, *args = row.split("|")
+                if len(args) == 1:
+                    marker = args[0]
+                    color = None
+                elif len(args) > 1:
+                    marker = args[0]
+                    color = args[1]
+                else:
+                    marker = None
+                    color = None
+
                 if row not in self.OPTIONS and row in self.original_df.columns:
                     ap.append(
                         mpf.make_addplot(
                             self.original_df[row],
                             panel=1,
-                            color=next(palette),
+                            color=color or next(palette),
                             secondary_y=show_volume,
+                            type="scatter" if marker else None,
+                            marker=marker,
                         )
                     )
 
@@ -178,9 +204,11 @@ class MPLFinancePlotter(Plotter):
             for r in rr:
                 if r in {"ohlc", "ohlcv", "brackets", "sessions"} and n != 0:
                     continue
+
+                r_name, *_ = r.split("|")
                 if r in self.OPTIONS and getattr(self, f"_{r}_supported")():
                     new_rr.append(r)
-                elif r in columns:
+                elif r_name in columns:
                     new_rr.append(r)
             if new_rr:
                 result.append(new_rr)
