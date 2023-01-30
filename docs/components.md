@@ -251,6 +251,7 @@ rows = [['ohlcv', 'sessions'], ['balance']]  # show ohlcv with session marks on 
 `start` can be one of: datetime, offset, negative offset.
 
 Indicator name can be appended with marker and color. See markers [here](https://matplotlib.org/stable/api/markers_api.html).
+
 Example:
 ```python
 rows = [['ohlc', 'my_indicator|^', 'another_indicator|s|red']]
