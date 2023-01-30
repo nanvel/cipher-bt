@@ -1,11 +1,10 @@
-import datetime
 import logging
 from abc import ABC, abstractmethod
 from typing import List, Optional, Union
 
 import pandas as pd
 
-from ..models import Commission, Output, Wallet
+from ..models import Commission, Output, Time, Wallet
 
 
 logger = logging.getLogger(__name__)
@@ -25,42 +24,58 @@ class Plotter(ABC):
     def __init__(
         self,
         output: Output,
-        start: Union[int, datetime.datetime, None] = None,
+        start: Union[int, str, None] = None,
         limit: Optional[int] = None,
         commission: Optional[Commission] = None,
     ):
         self.check_requirements()
 
+        self.output = output
+
         limit = limit or self.default_limit
 
-        self.df = output.df
-
         if start is None:
-            self.df = self.df.tail(limit)
+            start_i = len(output.df) - limit
         elif isinstance(start, int):
             if start == 0:
-                self.df = self.df.head(limit)
+                start_i = 0
             elif start < 0:
-                first = len(self.df.index) + start
-                self.df = self.df.iloc[first : first + limit]
+                start_i = len(output.df) + start
             else:
-                self.df = self.df.iloc[start : start + limit]
-        elif isinstance(start, datetime.datetime):
-            self.df = self.df.loc[start:].head(limit)
+                start_i = start
+        elif isinstance(start, str):
+            start = Time.from_string(start).to_datetime()
+            start_i = len(output.df.index[output.df.index <= start])
+        else:
+            raise ValueError("Invalid start value.")
 
-        self.start_ts = self.df.index[0]
-        self.stop_ts = self.df.index[-1]
+        if start_i > len(output.df):
+            start_i = len(output.df) - limit
+        if start_i < 0:
+            start_i = 0
 
-        self.signals = output.signals
-        self.sessions = output.sessions.closed_sessions.filter(
-            lambda s: s.opened_ts.to_datetime() >= self.start_ts
-            and s.closed_ts.to_datetime() <= self.stop_ts
-        )
         self.commission = commission
-
         self.title = output.title
+        self.signals = output.signals
+        self.sessions = output.sessions.closed_sessions
 
-        if len(self.df) != len(output.df):
+        extras_df = output.df[[]]
+        extras_df["base"] = self._build_asset_series(asset_name="base")
+        extras_df["quote"] = self._build_asset_series(asset_name="quote")
+        extras_df["balance"] = (
+            extras_df["base"] * output.df["close"] + extras_df["quote"]
+        )
+        extras_df["sessions_long_open"] = self._build_session_series(is_long=True, is_open=True)
+        extras_df["sessions_long_close"] = self._build_session_series(is_long=True, is_open=False)
+        extras_df["sessions_short_open"] = self._build_session_series(is_long=False, is_open=True)
+        extras_df["sessions_short_close"] = self._build_session_series(is_long=False, is_open=False)
+        extras_df['stop_loss'] = self._build_brackets_series(bracket_name='stop_loss')
+        extras_df['take_profit'] = self._build_brackets_series(bracket_name='take_profit')
+
+        self.original_df = output.df.iloc[start_i: start_i + limit]
+        self.extras_df = extras_df.iloc[start_i: start_i + limit]
+
+        if len(self.original_df) != len(output.df):
             logger.warning(
                 "Only a part of the dataframe is shown on the plot, use start/limit plot arguments to paginate"
             )
@@ -83,122 +98,89 @@ class Plotter(ABC):
         """Float columns where median value falls into proces range."""
         exclude = {"open", "close", "high", "low", "volume"}
 
-        min_low = self.df["low"].min()
-        max_high = self.df["high"].max()
+        min_low = self.original_df["low"].min()
+        max_high = self.original_df["high"].max()
 
         result = []
-        for column in self.df.columns:
+        for column in self.original_df.columns:
             if column in exclude:
                 continue
 
-            if self.df.dtypes[column] != "float64":
+            if self.original_df.dtypes[column] != "float64":
                 continue
 
-            if min_low < self.df[column].median() < max_high:
+            if min_low < self.original_df[column].median() < max_high:
                 result.append(column)
 
         return result
 
     def build_signal_df(self, signal, value=1):
-        return self.df[signal].replace({True: value, False: None})
+        return self.original_df[signal].replace({True: value, False: None})
 
-    def build_position_df(self):
-        col = "_position"
-        self.df[col] = pd.Series(dtype="float64")
-        self.df.at[self.start_ts, col] = 0
+    def _build_asset_series(self, asset_name):
+        df = self.output.df
+        column_name = f"_asset_{asset_name}"
 
-        wallet = Wallet()
-
-        for transaction in self.sessions.transactions:
-            wallet.apply(transaction, commission=self.commission)
-            self.df.at[transaction.ts.to_datetime(), col] = float(wallet.base)
-
-        self.df[col] = self.df[col].fillna(method="ffill")
-
-        df = self.df[col]
-
-        self.df = self.df.drop([col], axis=1)
-
-        return df
-
-    def build_quote_df(self):
-        col = "_quote"
-        self.df[col] = pd.Series(dtype="float64")
-        self.df.at[self.start_ts, col] = 0
+        df[column_name] = pd.Series(dtype="float64")
+        df.at[df.index[0], column_name] = 0
 
         wallet = Wallet()
 
         for transaction in self.sessions.transactions:
             wallet.apply(transaction, commission=self.commission)
-            self.df.at[transaction.ts.to_datetime(), col] = float(wallet.quote)
+            df.at[transaction.ts.to_datetime(), column_name] = float(
+                getattr(wallet, asset_name)
+            )
 
-        self.df[col] = self.df[col].fillna(method="ffill")
+        df[column_name] = df[column_name].fillna(method="ffill")
 
-        df = self.df[col]
+        result = df[column_name]
 
-        self.df = self.df.drop([col], axis=1)
-
-        return df
-
-    def build_balance_df(self):
-        position = self.build_position_df()
-        quote = self.build_quote_df()
-
-        return position * self.df["close"] + quote
-
-    def build_sessions_df(self):
-        long_open = "_long_session_open"
-        long_close = "_long_session_close"
-        short_open = "_short_session_open"
-        short_close = "_short_session_close"
-
-        self.df[long_open] = pd.Series(dtype="float64")
-        self.df[long_close] = pd.Series(dtype="float64")
-        self.df[short_open] = pd.Series(dtype="float64")
-        self.df[short_close] = pd.Series(dtype="float64")
-
-        for session in self.sessions:
-            opened_ts = session.opened_ts.to_datetime()
-            if session.is_long:
-                self.df.at[opened_ts, long_open] = float(session.transactions[0].price)
-            else:
-                self.df.at[opened_ts, short_open] = float(session.transactions[0].price)
-
-            close_ts = session.closed_ts.to_datetime()
-            if session.is_long:
-                self.df.at[close_ts, long_close] = float(session.transactions[-1].price)
-            else:
-                self.df.at[close_ts, short_close] = float(
-                    session.transactions[-1].price
-                )
-
-        result = (
-            self.df[long_open],
-            self.df[long_close],
-            self.df[short_open],
-            self.df[short_close],
-        )
-
-        self.df = self.df.drop([long_open, long_close, short_open, short_close], axis=1)
+        df.drop([column_name], axis=1, inplace=True)
 
         return result
 
-    def build_brackets_df(self):
-        sl_col = "_brackets_sl"
-        tp_col = "_brackets_tp"
+    def _build_session_series(self, is_long, is_open):
+        df = self.output.df
+        column_name = f"_sessions_{is_long}_{is_open}"
 
-        self.df[sl_col] = pd.Series(dtype="float64")
-        self.df[tp_col] = pd.Series(dtype="float64")
+        df[column_name] = pd.Series(dtype="float64")
+
+        for session in self.sessions:
+            if is_open:
+                opened_ts = session.opened_ts.to_datetime()
+                if session.is_long and is_long:
+                    df.at[opened_ts, column_name] = float(session.transactions[0].price)
+                elif not session.is_long and not is_long:
+                    df.at[opened_ts, column_name] = float(session.transactions[0].price)
+            else:
+                close_ts = session.closed_ts.to_datetime()
+                if session.is_long and is_long:
+                    df.at[close_ts, column_name] = float(session.transactions[-1].price)
+                elif not session.is_long and not is_long:
+                    df.at[close_ts, column_name] = float(
+                        session.transactions[-1].price
+                    )
+
+        result = df[column_name]
+
+        df.drop([column_name], axis=1, inplace=True)
+
+        return result
+
+    def _build_brackets_series(self, bracket_name):
+        df = self.output.df
+        column_name = f"_brackets_{bracket_name}"
+
+        df[column_name] = pd.Series(dtype="float64")
         for session in self.sessions:
             ts = session.closed_ts.to_datetime()
 
-            if session.stop_loss:
-                self.df.at[ts, sl_col] = float(session.stop_loss)
-            if session.take_profit:
-                self.df.at[ts, tp_col] = float(session.take_profit)
+            if getattr(session, bracket_name):
+                df.at[ts, column_name] = float(getattr(session, bracket_name))
 
-        result = (self.df[sl_col], self.df[tp_col])
+        result = df[column_name]
 
-        self.df = self.df.drop([sl_col, tp_col], axis=1)
+        df.drop([column_name], axis=1, inplace=True)
 
         return result
