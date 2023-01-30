@@ -102,4 +102,4 @@ def test_stop_loss_short(session):
 def test_meta(session):
     session.meta["a"] = 1
 
-    assert session.meta.a == 1
+    assert session.meta["a"] == 1

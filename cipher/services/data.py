@@ -25,6 +25,7 @@ class DataService:
         ts = start_ts
         paths = []
 
+        previous_first_ts = None
         for i in range(20):
             result = self._load_from_cache(prefix=source.slug, ts=ts)
             if result:
@@ -34,6 +35,9 @@ class DataService:
                 first_ts, last_ts, p, completed = self._load_from_source(
                     source=source, ts=ts
                 )
+                if first_ts == previous_first_ts:
+                    break
+                previous_first_ts = first_ts
 
             paths.append(p)
 

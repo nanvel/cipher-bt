@@ -250,6 +250,13 @@ rows = [['ohlcv', 'sessions'], ['balance']]  # show ohlcv with session marks on 
 `plot` also accepts `limit` (number of rows to show) and `start` (where the plot starts).
 `start` can be one of: datetime, offset, negative offset.
 
+Indicator name can be appended with marker and color. See markers [here](https://matplotlib.org/stable/api/markers_api.html).
+
+Example:
+```python
+rows = [['ohlc', 'my_indicator|^', 'another_indicator|s|red']]
+```
+
 ## Settings
 
 Settings can be passed to Cipher as arguments or in `.env` or using ENV variables.
