@@ -63,7 +63,7 @@ class MPLFinancePlotter(Plotter):
         if self._position_supported() and len(rows) > 1 and "position" in rows[1]:
             ap.append(
                 mpf.make_addplot(
-                    self.build_position_df(),
+                    self.extras_df["base"],
                     panel=1,
                     color=next(palette),
                     secondary_y=show_volume,
@@ -73,7 +73,7 @@ class MPLFinancePlotter(Plotter):
         if self._balance_supported() and len(rows) > 1 and "balance" in rows[1]:
             ap.append(
                 mpf.make_addplot(
-                    self.build_balance_df(),
+                    self.extras_df["balance"],
                     panel=1,
                     color=next(palette),
                     secondary_y=True,
@@ -81,39 +81,37 @@ class MPLFinancePlotter(Plotter):
             )
 
         if self._sessions_supported() and "sessions" in rows[0]:
-            long_open, long_close, short_open, short_close = self.build_sessions_df()
-
-            if long_open[long_open.notnull()].size:
+            if self.extras_df["sessions_long_open"].notnull().any():
                 ap.append(
                     mpf.make_addplot(
-                        long_open,
+                        self.extras_df["sessions_long_open"],
                         type="scatter",
                         marker=">",
                         color="green",
                     )
                 )
-            if long_close[long_close.notnull()].size:
+            if self.extras_df["sessions_long_close"].notnull().any():
                 ap.append(
                     mpf.make_addplot(
-                        long_close,
+                        self.extras_df["sessions_long_close"],
                         type="scatter",
                         marker="<",
                         color="green",
                     )
                 )
-            if short_open[short_open.notnull()].size:
+            if self.extras_df["sessions_short_open"].notnull().any():
                 ap.append(
                     mpf.make_addplot(
-                        short_open,
+                        self.extras_df["sessions_short_open"],
                         type="scatter",
                         marker=">",
                         color="red",
                     )
                 )
-            if short_close[short_close.notnull()].size:
+            if self.extras_df["sessions_short_close"].notnull().any():
                 ap.append(
                     mpf.make_addplot(
-                        short_close,
+                        self.extras_df["sessions_short_close"],
                         type="scatter",
                         marker="<",
                         color="red",
@@ -121,22 +119,20 @@ class MPLFinancePlotter(Plotter):
                 )
 
         if self._brackets_supported() and "brackets" in rows[0]:
-            sl, tp = self.build_brackets_df()
-
-            if sl[sl.notnull()].size:
+            if self.extras_df["stop_loss"].notnull().any():
                 ap.append(
                     mpf.make_addplot(
-                        sl,
+                        self.extras_df["stop_loss"],
                         type="scatter",
                         marker="+",
                         color="red",
                     )
                 )
 
-            if tp[tp.notnull()].size:
+            if self.extras_df["take_profit"].notnull().any():
                 ap.append(
                     mpf.make_addplot(
-                        tp,
+                        self.extras_df["take_profit"],
                         type="scatter",
                         marker="+",
                         color="green",
@@ -144,10 +140,10 @@ class MPLFinancePlotter(Plotter):
                 )
 
         for row in rows[0]:
-            if row not in self.OPTIONS and row in self.df.columns:
+            if row not in self.OPTIONS and row in self.original_df.columns:
                 ap.append(
                     mpf.make_addplot(
-                        self.df[row],
+                        self.original_df[row],
                         panel=0,
                         color=next(palette),
                     )
@@ -155,10 +151,10 @@ class MPLFinancePlotter(Plotter):
 
         if len(rows) > 1:
             for row in rows[1]:
-                if row not in self.OPTIONS and row in self.df.columns:
+                if row not in self.OPTIONS and row in self.original_df.columns:
                     ap.append(
                         mpf.make_addplot(
-                            self.df[row],
+                            self.original_df[row],
                             panel=1,
                             color=next(palette),
                             secondary_y=show_volume,
@@ -166,7 +162,7 @@ class MPLFinancePlotter(Plotter):
                     )
 
         mpf.plot(
-            self.df,
+            self.original_df,
             type="candle",
             volume=show_volume,
             addplot=ap,
@@ -175,7 +171,7 @@ class MPLFinancePlotter(Plotter):
         )
 
     def _filter_rows(self, rows: list) -> list:
-        columns = set(self.df.columns)
+        columns = set(self.original_df.columns)
         result = []
         for n, rr in enumerate(rows):
             new_rr = []
@@ -191,10 +187,12 @@ class MPLFinancePlotter(Plotter):
         return result[:2]
 
     def _ohlc_supported(self):
-        return {"open", "close", "high", "low"}.issubset(set(self.df.columns))
+        return {"open", "close", "high", "low"}.issubset(set(self.original_df.columns))
 
     def _ohlcv_supported(self):
-        return {"open", "close", "high", "low", "volume"}.issubset(set(self.df.columns))
+        return {"open", "close", "high", "low", "volume"}.issubset(
+            set(self.original_df.columns)
+        )
 
     def _signals_supported(self):
         return bool(self.signals)
@@ -203,7 +201,7 @@ class MPLFinancePlotter(Plotter):
         return bool(self.sessions)
 
     def _balance_supported(self):
-        return bool(self.sessions) and {"close"}.issubset(set(self.df.columns))
+        return bool(self.sessions) and {"close"}.issubset(set(self.original_df.columns))
 
     def _sessions_supported(self):
         return bool(self.sessions)

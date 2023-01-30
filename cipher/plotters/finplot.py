@@ -47,9 +47,9 @@ class FinplotPlotter(Plotter):
                 method = getattr(self, f"_{row}", None)
                 if method:
                     method(ax)
-                elif row in self.df.columns:
+                elif row in self.original_df.columns:
                     finplot.plot(
-                        self.df[row],
+                        self.original_df[row],
                         ax=ax,
                         legend=row,
                     )
@@ -57,7 +57,7 @@ class FinplotPlotter(Plotter):
         finplot.show()
 
     def _filter_rows(self, rows: list) -> list:
-        columns = set(self.df.columns)
+        columns = set(self.original_df.columns)
         result = []
         for rr in rows:
             new_rr = []
@@ -71,17 +71,17 @@ class FinplotPlotter(Plotter):
         return result
 
     def _ohlc_supported(self):
-        return {"open", "close", "high", "low"}.issubset(set(self.df.columns))
+        return {"open", "close", "high", "low"}.issubset(set(self.original_df.columns))
 
     def _ohlc(self, ax):
-        finplot.candlestick_ochl(self.df[["open", "close", "high", "low"]], ax=ax)
+        finplot.candlestick_ochl(self.original_df[["open", "close", "high", "low"]], ax=ax)
 
     def _ohlcv_supported(self):
-        return {"open", "close", "high", "low", "volume"}.issubset(set(self.df.columns))
+        return {"open", "close", "high", "low", "volume"}.issubset(set(self.original_df.columns))
 
     def _ohlcv(self, ax):
-        finplot.candlestick_ochl(self.df[["open", "close", "high", "low"]], ax=ax)
-        finplot.volume_ocv(self.df[["open", "close", "volume"]], ax=ax.overlay())
+        finplot.candlestick_ochl(self.original_df[["open", "close", "high", "low"]], ax=ax)
+        finplot.volume_ocv(self.original_df[["open", "close", "volume"]], ax=ax.overlay())
 
     def _signals_supported(self):
         return bool(self.signals)
@@ -102,17 +102,17 @@ class FinplotPlotter(Plotter):
 
     def _position(self, ax):
         finplot.plot(
-            self.build_position_df(),
+            self.extras_df['base'],
             ax=ax,
             legend="Position",
         )
 
     def _balance_supported(self):
-        return bool(self.sessions) and {"close"}.issubset(set(self.df.columns))
+        return bool(self.sessions) and {"close"}.issubset(set(self.original_df.columns))
 
     def _balance(self, ax):
         finplot.plot(
-            self.build_balance_df(),
+            self.extras_df['balance'],
             ax=ax,
             legend="Balance",
         )
@@ -121,31 +121,29 @@ class FinplotPlotter(Plotter):
         return bool(self.sessions)
 
     def _sessions(self, ax):
-        long_open, long_close, short_open, short_close = self.build_sessions_df()
-
         finplot.plot(
-            long_open,
+            self.extras_df['sessions_long_open'],
             ax=ax,
             style=">",
             legend="Long Open",
             color="green",
         )
         finplot.plot(
-            long_close,
+            self.extras_df['sessions_long_close'],
             ax=ax,
             style="<",
             legend="Long Close",
             color="green",
         )
         finplot.plot(
-            short_open,
+            self.extras_df['sessions_short_open'],
             ax=ax,
             style=">",
             legend="Short Open",
             color="red",
         )
         finplot.plot(
-            short_close,
+            self.extras_df['sessions_short_close'],
             ax=ax,
             style="<",
             legend="Shor Close",
@@ -156,17 +154,15 @@ class FinplotPlotter(Plotter):
         return bool(self.sessions)
 
     def _brackets(self, ax):
-        sl, tp = self.build_brackets_df()
-
         finplot.plot(
-            sl,
+            self.extras_df['stop_loss'],
             ax=ax,
             style="+",
             legend="Stop loss",
             color="red",
         )
         finplot.plot(
-            tp,
+            self.extras_df['take_profit'],
             ax=ax,
             style="+",
             legend="Take profit",
