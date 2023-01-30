@@ -40,16 +40,7 @@ class VwapStrategy(Strategy):
 
         df["price_volume"] = (df["high"] + df["low"]) / 2 * df["volume"]
 
-        daily = df.resample("24h").agg(
-            {
-                "volume": "sum",
-                "price_volume": "sum",
-                "open": "first",
-                "close": "last",
-                "high": "max",
-                "low": "min",
-            }
-        )
+        daily = df.resample("24h").agg({"volume": "sum", "price_volume": "sum"})
 
         daily = daily[daily["volume"] > 0]
         df["vwap"] = (daily["price_volume"] / daily["volume"]).shift(1)
@@ -102,16 +93,7 @@ class VwapStrategy(Strategy):
 
         df["price_volume"] = (df["high"] + df["low"]) / 2 * df["volume"]
 
-        daily = df.resample("24h").agg(
-            {
-                "volume": "sum",
-                "price_volume": "sum",
-                "open": "first",
-                "close": "last",
-                "high": "max",
-                "low": "min",
-            }
-        )
+        daily = df.resample("24h").agg({"volume": "sum", "price_volume": "sum"})
 
         daily = daily[daily["volume"] > 0]
         df["vwap"] = (daily["price_volume"] / daily["volume"]).shift(1)
