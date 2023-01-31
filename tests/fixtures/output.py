@@ -1,7 +1,15 @@
 import pytest
 from decimal import Decimal
 
-from cipher.models import Session, Output, Sessions, Time, Transaction, Transactions
+from cipher.models import (
+    Meta,
+    Session,
+    Output,
+    Sessions,
+    Time,
+    Transaction,
+    Transactions,
+)
 
 
 @pytest.fixture
@@ -12,77 +20,35 @@ def output(df):
                 transactions=Transactions(
                     [
                         Transaction(
-                            ts=Time(1643400000),
-                            base=Decimal("0.0026503981693169764894"),
+                            ts=Time(1578560400),
+                            base=Decimal("47824.007651841224295"),
                             quote=Decimal("-100.00000000000000000"),
                         ),
                         Transaction(
-                            ts=Time(1643886000),
-                            base=Decimal("-0.0026503981693169764894"),
-                            quote=Decimal("97.415358209263777698"),
+                            ts=Time(1578564000),
+                            base=Decimal("-23912.003825920612147"),
+                            quote=Decimal("50.839311334289813486"),
+                        ),
+                        Transaction(
+                            ts=Time(1578650400),
+                            base=Decimal("-23912.003825920612148"),
+                            quote=Decimal("51.678622668579626974"),
                         ),
                     ]
                 ),
-                stop_loss=Decimal("35843.6710"),
-            ),
-            Session(
-                transactions=Transactions(
-                    [
-                        Transaction(
-                            ts=Time(1643990400),
-                            base=Decimal("0.0024845306907864906128"),
-                            quote=Decimal("-99.999999999999999999"),
-                        ),
-                        Transaction(
-                            ts=Time(1644699600),
-                            base=Decimal("-0.0024845306907864906128"),
-                            quote=Decimal("104.00247956162940492"),
-                        ),
-                    ]
+                take_profit=Decimal("0.0021612"),
+                stop_loss=Decimal("0.0020910"),
+                meta=Meta(
+                    meta_dict={"next_take_profit": None, "next_stop_loss": 0.002091}
                 ),
-                stop_loss=Decimal("38236.5975"),
-            ),
-            Session(
-                transactions=Transactions(
-                    [
-                        Transaction(
-                            ts=Time(1644958800),
-                            base=Decimal("0.0022740193291642978965"),
-                            quote=Decimal("-99.999999999999999999"),
-                        ),
-                        Transaction(
-                            ts=Time(1645110000),
-                            base=Decimal("-0.0022740193291642978965"),
-                            quote=Decimal("94.999999999999999999"),
-                        ),
-                    ]
-                ),
-                stop_loss=Decimal("41776.2500"),
-            ),
-            Session(
-                transactions=Transactions(
-                    [
-                        Transaction(
-                            ts=Time(1645869600),
-                            base=Decimal("0.0025652141569038891212"),
-                            quote=Decimal("-100"),
-                        ),
-                        Transaction(
-                            ts=Time(1645995600),
-                            base=Decimal("-0.0025652141569038891212"),
-                            quote=Decimal("95.000000000000000001"),
-                        ),
-                    ]
-                ),
-                stop_loss=Decimal("37033.9450"),
-            ),
+            )
         ]
     )
 
     return Output(
         df=df,
         sessions=sessions,
-        signals=["entry", "death_cross"],
+        signals=["entry"],
         title="A title",
         description=None,
     )
