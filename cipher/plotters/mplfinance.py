@@ -157,7 +157,7 @@ class MPLFinancePlotter(Plotter):
                         self.original_df[row],
                         panel=0,
                         color=color or next(palette),
-                        type="scatter" if marker else None,
+                        type="scatter" if marker else "line",
                         marker=marker,
                     )
                 )
@@ -182,7 +182,7 @@ class MPLFinancePlotter(Plotter):
                             panel=1,
                             color=color or next(palette),
                             secondary_y=show_volume,
-                            type="scatter" if marker else None,
+                            type="scatter" if marker else "line",
                             marker=marker,
                         )
                     )
