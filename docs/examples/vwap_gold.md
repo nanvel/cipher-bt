@@ -123,11 +123,9 @@ class VwapStrategy(Strategy):
 
     def on_take_profit(self, row: dict, session: Session):
         if session.is_long:
-            session.entry_price = row["close"]
             session.take_profit = percent("0.5")
             session.stop_loss = percent("-0.5")
         else:
-            session.entry_price = row["close"]
             session.take_profit = percent("-0.5")
             session.stop_loss = percent("0.5")
 

@@ -119,7 +119,7 @@ if __name__ == "__main__":
     main()
 ```
 
-![ema_crossover_plot](docs/plotter.png)
+![ema_crossover_plot](https://github.com/nanvel/cipher-bt/raw/master/docs/plotter.png)
 
 ## Development
 
