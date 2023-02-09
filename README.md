@@ -54,7 +54,7 @@ class EmaCrossoverStrategy(Strategy):
 
         df["difference"] = df["fast_ema"] - df["slow_ema"]
 
-        # this column is required, it triggers on_entry, has to be bool
+        # signal columns have to be boolean type
         df["entry"] = np.sign(df["difference"].shift(1)) != np.sign(df["difference"])
 
         df["max_6"] = df["high"].rolling(window=6).max()
