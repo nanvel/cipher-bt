@@ -55,7 +55,7 @@ python macd.py
 
 We have to add `MACD` and `ATR` indicators. To achieve this, the compose method has to be edited.
 
-One way to experiment with indicators is to start an interactive session inside compose:
+One way to experiment with indicators is to start an interactive session inside compose (create a breakpoint):
 
 ```python
 class MacdStrategy(Strategy):
@@ -66,6 +66,8 @@ class MacdStrategy(Strategy):
 
         return df
 ```
+
+You can also use your IDE to set breakpoints, see a [PyCharm example](https://www.youtube.com/watch?v=aIlXb2QpxXc).
 
 Then try to type:
 ```python

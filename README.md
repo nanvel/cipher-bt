@@ -24,7 +24,7 @@ Features:
 
 Initialize a new strategies folder and create a strategy:
 ```shell
-pip install cipher-bt
+pip install 'cipher-bt[finplot]'
 mkdir my_strategies
 cd my_strategies
 
