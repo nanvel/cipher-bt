@@ -9,3 +9,6 @@ def test_meta():
 
     assert meta.to_dict() == {"a": 1, "b": 2}
     assert meta["a"] == 1
+
+    assert meta.get("c") is None
+    assert meta.get("c", 123) == 123
