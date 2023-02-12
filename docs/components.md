@@ -75,6 +75,8 @@ on_entry is called only once for a new session.
 
 `on_<signal>` is being called for each open session.
 
+`on_step` - is similar to `on_entry`, only called for each row in the dataframe.
+
 ## Datas
 
 ![data flow](data_flow.png)

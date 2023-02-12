@@ -30,10 +30,29 @@ class Trader:
         self._cut_df_nulls(df)
 
         row_dict = {}
+        new_session = None
         for ts, row in df.iterrows():
             row_dict = dict(row)
 
             cursor.set(ts=ts, price=row_dict["close"])
+
+            new_session = new_session or SessionProxy(
+                Session(cursor=cursor, wallet=self.strategy.wallet),
+                wallet=self.strategy.wallet,
+                cursor=cursor,
+            )
+
+            self.strategy.on_step(
+                row=row_dict,
+                session=new_session,
+            )
+            if new_session.position.value != 0:
+                sessions.append(new_session)
+                new_session = SessionProxy(
+                    Session(cursor=cursor, wallet=self.strategy.wallet),
+                    wallet=self.strategy.wallet,
+                    cursor=cursor,
+                )
 
             for session in sessions.open_sessions:
                 if session.take_profit or session.stop_loss:
@@ -70,6 +89,7 @@ class Trader:
                 )
                 if new_session.position.value != 0:
                     sessions.append(new_session)
+                    new_session = None
 
         for session in sessions.open_sessions:
             self.strategy.on_stop(row=row_dict, session=session)
@@ -83,7 +103,7 @@ class Trader:
         )
 
     def _extract_strategy_signal_handlers(self) -> List[str]:
-        skip_handler = {"on_take_profit", "on_stop_loss", "on_stop"}
+        skip_handler = {"on_take_profit", "on_stop_loss", "on_stop", "on_step"}
 
         handlers = []
         for key, _ in inspect.getmembers(self.strategy.__class__):

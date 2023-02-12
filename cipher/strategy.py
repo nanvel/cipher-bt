@@ -15,6 +15,9 @@ class Strategy:
     def compose(self) -> DataFrame:
         return self.datas.df
 
+    def on_step(self, row: dict, session: Session) -> None:
+        pass
+
     def on_entry(self, row: dict, session: Session) -> None:
         pass
 
