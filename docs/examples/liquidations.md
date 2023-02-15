@@ -68,7 +68,7 @@ def main():
     cipher.add_source("csv_file", path="data/liquidations.csv")
     cipher.set_strategy(LiquidationsStrategy())
     cipher.run(start_ts="2023-01-20", stop_ts="2023-01-28")
-    cipher.set_commission("0.0025")
+    cipher.set_commission("0.00075")
     print(cipher.stats)
     cipher.plot(rows=[["ohlc", "sessions"], ["signals"], ["balance"]], limit=1700)
 

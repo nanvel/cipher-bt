@@ -183,7 +183,7 @@ def run_for_asset(asset_id, asset_slug):
     cipher.add_source("csv_file", path=f"data/{asset_id}_{asset_slug}.csv")
     cipher.set_strategy(CmcStrategy())
     cipher.run(start_ts="2021-11-20", stop_ts="2022-01-20")
-    cipher.set_commission("0.0025")
+    cipher.set_commission("0.00075")
     return cipher.stats
 
 
@@ -292,7 +292,7 @@ def run_for_asset(asset_id, asset_slug):
     cipher.add_source("csv_file", path=f"data/{asset_id}_{asset_slug}.csv")
     cipher.set_strategy(CmcStrategy())
     cipher.run(start_ts="2021-11-20", stop_ts="2022-01-20")
-    cipher.set_commission("0.0025")
+    cipher.set_commission("0.00075")
     return cipher.stats
 
 

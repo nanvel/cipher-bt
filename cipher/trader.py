@@ -54,20 +54,28 @@ class Trader:
                     cursor=cursor,
                 )
 
-            for session in sessions.open_sessions:
-                if session.take_profit or session.stop_loss:
-                    take_profit, stop_loss = session.should_tp_sl(
-                        low=row_dict["low"], high=row_dict["high"]
-                    )
-                else:
-                    continue
+            # loop because take_profit/stop_loss can be triggered multiple times for a row,
+            # in case of partial take profit, for example
+            for i in range(10):
+                has_tp_sl = False
+                for session in sessions.open_sessions:
+                    if session.take_profit or session.stop_loss:
+                        take_profit, stop_loss = session.should_tp_sl(
+                            low=row_dict["low"], high=row_dict["high"]
+                        )
+                        has_tp_sl = True
+                    else:
+                        continue
 
-                if take_profit:
-                    with cursor.patch_price(take_profit):
-                        self.strategy.on_take_profit(row=row_dict, session=session)
-                if stop_loss:
-                    with cursor.patch_price(stop_loss):
-                        self.strategy.on_stop_loss(row=row_dict, session=session)
+                    if take_profit:
+                        with cursor.patch_price(take_profit):
+                            self.strategy.on_take_profit(row=row_dict, session=session)
+                    if stop_loss:
+                        with cursor.patch_price(stop_loss):
+                            self.strategy.on_stop_loss(row=row_dict, session=session)
+
+                if not has_tp_sl:
+                    break
 
             for signal in signals:
                 if signal == "entry":

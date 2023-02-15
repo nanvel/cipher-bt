@@ -108,7 +108,7 @@ def main():
     cipher.add_source("binance_spot_ohlc", symbol="BTCUSDT", interval="1h")
     cipher.set_strategy(EmaCrossoverStrategy())
     cipher.run(start_ts="2020-01-01", stop_ts="2020-04-01")
-    cipher.set_commission("0.0025")
+    cipher.set_commission("0.00075")
     print(cipher.sessions)
     print(cipher.stats)
     cipher.plot()

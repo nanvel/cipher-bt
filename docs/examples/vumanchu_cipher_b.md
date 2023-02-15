@@ -282,7 +282,7 @@ def main():
     cipher.add_source("gateio_spot_ohlc", symbol="DOGE_USDT", interval="1h")
     cipher.set_strategy(VuManChuCipherBStrategy())
     cipher.run(start_ts="2020-01-01", stop_ts="2020-04-01")
-    cipher.set_commission("0.0025")
+    cipher.set_commission("0.00075")
     cipher.plot(
         rows=[
             ["ohlc", "slow_ema", "fast_ema", "sessions"],
@@ -327,7 +327,7 @@ def main():
                 )
             )
             cipher.run(start_ts="2020-01-01", stop_ts="2020-04-01")
-            cipher.set_commission("0.0025")
+            cipher.set_commission("0.00075")
 
             column[f"k-{stop_loss_k}"] = int(cipher.stats.romad * 100)
 
