@@ -1,6 +1,9 @@
 # Cipher - trading strategy backtesting framework
 
 ![Tests](https://github.com/nanvel/cipher-bt/actions/workflows/tests.yaml/badge.svg)
+[![PyPI version](https://badge.fury.io/py/cipher-bt.svg)](https://badge.fury.io/py/cipher-bt)
+[![Python Versions](https://img.shields.io/pypi/pyversions/cipher-bt.svg)](https://pypi.python.org/pypi/cipher-bt/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
 - [Usage](#usage)  
 - [Development](#development)

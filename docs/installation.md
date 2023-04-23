@@ -51,5 +51,5 @@ python my_strategy.py
 ## Google Colaboratory
 
 ```text
-!pip install cipher-bt[mplfinance]
+!pip install 'cipher-bt[mplfinance]'
 ```
