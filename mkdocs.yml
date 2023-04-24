@@ -14,6 +14,7 @@ nav:
         - examples/liquidations.md
         - examples/vwap_gold.md
         - examples/supertrend.md
+        - examples/harmonic.md
 theme:
     name: material
     features:
