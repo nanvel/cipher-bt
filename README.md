@@ -5,6 +5,8 @@
 [![Python Versions](https://img.shields.io/pypi/pyversions/cipher-bt.svg)](https://pypi.python.org/pypi/cipher-bt/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+![cipher](https://github.com/nanvel/cipher-bt/raw/master/docs/cipher.jpeg)
+
 - [Usage](#usage)  
 - [Development](#development)
 - [Disclaimer](#disclaimer)

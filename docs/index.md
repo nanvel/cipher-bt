@@ -4,6 +4,8 @@ description: Cipher - a backtesting framework with focus on position adjustment 
 
 # Introduction
 
+<img src="cipher.jpeg" alt="cipher" style="max-height: 400px" />
+
 Cipher is distinct from most other backtesting frameworks.
 It focuses on position adjustments in the scope of a session.
 
