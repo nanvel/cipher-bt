@@ -129,7 +129,7 @@ if __name__ == "__main__":
 ## Development
 
 ```shell
-brew install poetry
+brew install uv
 uv sync
 source .venv/bin/activate
 
