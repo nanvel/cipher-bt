@@ -5,6 +5,7 @@ from .container import Container
 from .factories import StatsFactory
 from .models import Commission, Datas, Output, Sessions, SimpleCommission, Stats, Time
 from .plotters import get_default_plotter, Plotter, PLOTTERS
+from .settings import Settings
 from .sources import Source, SOURCES
 from .strategy import Strategy
 from .trader import Trader
@@ -14,7 +15,9 @@ from .values import Percent
 class Cipher:
     def __init__(self, **settings):
         self.container = Container()
-        self.container.config.from_dict(settings)
+        settings_dict = Settings().model_dump()
+        settings_dict.update(**settings)
+        self.container.config.from_dict(settings_dict)
         self.container.init_resources()
 
         self.strategy: Optional[Strategy] = None
@@ -71,7 +74,7 @@ class Cipher:
         plotter: Union[None, Type[Plotter], str] = None,
         start: Union[str, int, None] = None,
         limit: Optional[int] = None,
-        **kwargs
+        **kwargs,
     ):
         assert self.output
 

@@ -1,45 +1,60 @@
-[tool.poetry]
+[project]
 name = "cipher-bt"
-version = "0.4.2"
+version = "0.5.0"
 description = "Cipher, a backtesting framework."
-authors = ["Oleksandr Polieno <oleksandr@nanvel.com>"]
+authors = [{ name = "Oleksandr Polieno", email = "oleksandr@nanvel.com" }]
+requires-python = "~=3.10"
 readme = "README.md"
-repository = "https://github.com/nanvel/cipher-bt"
-homepage = "https://cipher.nanvel.com/"
-keywords = ["backtest", "quant", "trading", "crypto", "framework", "colab", "strategy"]
-packages = [{include = "cipher"}]
+keywords = [
+    "backtest",
+    "quant",
+    "trading",
+    "crypto",
+    "framework",
+    "colab",
+    "strategy",
+]
+dependencies = [
+    "dependency-injector>=4.46.0",
+    "jinja2>=3.1.6",
+    "mplfinance>=0.12.10b0",
+    "pandas-ta>=0.3.14b0",
+    "pydantic>=2.11.4",
+    "pydantic-settings>=2.9.1",
+    "requests>=2.32.3",
+    "tabulate>=0.9.0",
+    "typer>=0.15.4",
+    "ujson>=5.10.0",
+]
 
-[tool.poetry.dependencies]
-python = "^3.8"
-pydantic = {extras = ["dotenv"], version = "^1.10.4"}
-typer = "^0.7.0"
-pandas-ta = "^0.3.14b0"
-ujson = "^5.6.0"
-requests = "^2.28.1"
-mplfinance = {version = "^0.12.9b7", optional = true}
-dependency-injector = "^4.41.0"
-tabulate = "^0.9.0"
-finplot = {version = "^1.9.0", optional = true}
-jupyterlab = {version = "^3.5.2", optional = true}
-jinja2 = "^3.1.2"
-yfinance = {version = "^0.2.3", optional = true}
-setuptools = "^67.2.0"
+[project.optional-dependencies]
+finplot = ["finplot>=1.9.0,<2"]
+jupyter = [
+    "jupyterlab>=3.5.2,<4",
+]
+yfinance = ["yfinance>=0.2.3,<0.3"]
 
-[tool.poetry.group.dev.dependencies]
-black = {extras = ["d"], version = "^22.12.0"}
-pytest = "^7.2.0"
-mkdocs = "^1.4.2"
-mkdocs-material = "^9.0.7"
+[project.urls]
+Homepage = "https://cipher.nanvel.com/"
+Repository = "https://github.com/nanvel/cipher-bt"
 
-[tool.poetry.extras]
-finplot = ["finplot"]
-mplfinance = ["mplfinance"]
-jupyter = ["jupyterlab", "mplfinance"]
-yfinance = ["yfinance"]
+[project.scripts]
+cipher = "cipher.cli:app"
+
+[dependency-groups]
+dev = [
+    "black[d]>=25.1.0",
+    "mkdocs>=1.6.1",
+    "mkdocs-material>=9.6.14",
+    "pytest>=8.3.5",
+]
+
+[tool.hatch.build.targets.sdist]
+include = ["cipher"]
+
+[tool.hatch.build.targets.wheel]
+include = ["cipher"]
 
 [build-system]
-requires = ["poetry-core"]
-build-backend = "poetry.core.masonry.api"
-
-[tool.poetry.scripts]
-cipher = "cipher.cli:app"
+requires = ["hatchling"]
+build-backend = "hatchling.build"

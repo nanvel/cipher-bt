@@ -1,9 +1,9 @@
 import typer
 from pathlib import Path
 
-from .models import Template
 from .container import Container
-
+from .models import Template
+from .settings import Settings
 
 app = typer.Typer()
 
@@ -17,6 +17,7 @@ def callback():
 def init(path: Path = typer.Argument(default=".", file_okay=False, resolve_path=True)):
     """Init directory / strategies repository."""
     container = Container()
+    container.config.from_dict(Settings().model_dump())
     container.init_resources()
     use_case = container.init_repository()
 
@@ -27,6 +28,7 @@ def init(path: Path = typer.Argument(default=".", file_okay=False, resolve_path=
 def new(name: str, template: Template = Template.default):
     """Create a new strategy file from template."""
     container = Container()
+    container.config.from_dict(Settings().model_dump())
     container.init_resources()
     use_case = container.create_strategy()
 

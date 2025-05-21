@@ -1,6 +1,8 @@
 import datetime
 from typing import Union
 
+from pydantic_core import core_schema
+
 from .interval import Interval
 from .time_delta import TimeDelta
 

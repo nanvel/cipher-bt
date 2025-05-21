@@ -22,7 +22,7 @@ class CreateStrategy:
 
         with target_path.open("w", encoding="utf-8") as f:
             f.write(
-                self.jinja_env.get_template(f"strategies/{template}.j2").render(
+                self.jinja_env.get_template(f"strategies/{template.value}.j2").render(
                     class_name=self._name_to_class_name(name[:-3])
                 )
                 + "\n"

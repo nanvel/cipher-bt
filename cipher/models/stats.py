@@ -86,9 +86,11 @@ class Stats(BaseModel):
                 [
                     "commission",
                     str(self.commission.normalize()),
-                    self._to_percent(self.commission, self.pnl)
-                    if self.pnl > self.commission
-                    else "",
+                    (
+                        self._to_percent(self.commission, self.pnl)
+                        if self.pnl > self.commission
+                        else ""
+                    ),
                 ],
                 [
                     "exposed period",
@@ -112,3 +114,6 @@ class Stats(BaseModel):
         if numerator and denominator:
             return f"{Decimal(numerator * 100 / denominator).quantize(Decimal('0.1'))}%"
         return ""
+
+    class Config:
+        arbitrary_types_allowed = True

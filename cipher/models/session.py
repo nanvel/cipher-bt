@@ -20,7 +20,7 @@ class Session(BaseModel):
 
     @property
     def quote(self) -> Decimal:
-        return sum(t.quote for t in self.transactions)
+        return Decimal(sum(t.quote for t in self.transactions))
 
     @property
     def is_long(self) -> bool:
@@ -43,3 +43,6 @@ class Session(BaseModel):
         if self.is_open:
             return None
         return self.transactions[-1].ts
+
+    class Config:
+        arbitrary_types_allowed = True

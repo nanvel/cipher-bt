@@ -130,8 +130,8 @@ if __name__ == "__main__":
 
 ```shell
 brew install poetry
-poetry install
-poetry shell
+uv sync
+source .venv/bin/activate
 
 pytest tests
 

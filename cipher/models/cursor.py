@@ -15,6 +15,9 @@ class Cursor(BaseModel):
     price: Decimal = Decimal(0)
     ts: Time = Time(0)
 
+    class Config:
+        arbitrary_types_allowed = True
+
     def set(self, ts: datetime, price: Union[int, float, Decimal]):
         self.ts = Time.from_datetime(ts)
         self.price = float_to_decimal(price)

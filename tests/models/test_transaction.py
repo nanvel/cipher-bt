@@ -1,6 +1,7 @@
 from decimal import Decimal
 
 import pytest
+from pydantic import ValidationError
 
 from cipher.models import Time, Transaction
 
@@ -10,7 +11,7 @@ def test_transaction():
         ts=Time.from_string("2020-01-01T01:01"), base=Decimal(1), quote=Decimal(20)
     )
 
-    with pytest.raises(TypeError):
+    with pytest.raises(ValidationError):
         transaction.base = Decimal(2)
 
     assert transaction.price == Decimal(20)
