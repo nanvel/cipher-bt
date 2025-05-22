@@ -14,12 +14,13 @@ jobs:
     steps:
       - uses: actions/checkout@v3
 
-      - uses: actions/setup-python@v4
+      - name: "Set up Python"
+        uses: actions/setup-python@v5
         with:
-          python-version: '3.8'
+          python-version-file: "pyproject.toml"
 
-      - uses: Gr1N/setup-poetry@v8
+      - uses: astral-sh/setup-uv@v5
 
-      - run: poetry config virtualenvs.create false --local
-      - run: poetry install
-      - run: pytest tests
+      - run: uv sync --locked --all-extras --dev
+
+      - run: uv run pytest tests
