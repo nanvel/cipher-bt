@@ -1,6 +1,6 @@
 [project]
 name = "cipher-bt"
-version = "0.5.1"
+version = "0.5.2"
 description = "Cipher, a backtesting framework."
 authors = [{ name = "Oleksandr Polieno", email = "oleksandr@nanvel.com" }]
 requires-python = "~=3.10"
