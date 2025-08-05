@@ -62,7 +62,7 @@ class MacdStrategy(Strategy):
     def compose(self):
         df = self.datas.df
 
-        import pdb; pdb.set_trace()
+        breakpoint()
 
         return df
 ```
@@ -71,16 +71,20 @@ You can also use your IDE to set breakpoints, see a [PyCharm example](https://ww
 
 Then try to type:
 ```python
-df.ta.macd()
+talib.MACD(df.close, fastperiod=12, slowperiod=26, signalperiod=9)
 # returns a dataframe with next columns: MACD_12_26_9, MACDh_12_26_9, MACDs_12_26_9
 ```
 
 If you want to know the indicator parameters, use `help` in a Python REPL:
 ```python
-import pandas_ta as ta
-help(ta.macd)
-# macd(close, fast=None, slow=None, signal=None, talib=None, offset=None, **kwargs)
-#     Moving Average Convergence Divergence (MACD)
+import talib
+help(talib.MACD)
+# Help on function MACD in module talib._ta_lib:
+# 
+# MACD(
+#     real,
+#     fastperiod=-2147483648,
+#     slowperiod=-2147483648,
 # ...
 ```
 
@@ -135,15 +139,14 @@ class MacdStrategy(Strategy):
     def compose(self):
         df = self.datas.df
 
-        macd_df = df.ta.macd()
-        df["macd"] = macd_df["MACD_12_26_9"]
-        df["macds"] = macd_df["MACDs_12_26_9"]
+        df["macd"], df["macds"], _ = talib.MACD(
+            df.close, fastperiod=12, slowperiod=26, signalperiod=9
+        )
         difference = df["macds"] - df["macd"]
         cross = np.sign(difference.shift(1)) != np.sign(difference)
-
         df["entry"] = cross & (difference < 0) & (df["macds"] < 0)
 
-        df["atr"] = df.ta.atr()
+        df["atr"] = talib.ATR(df["high"], df["low"], df["close"], timeperiod=14)
 
         return df
 
@@ -161,6 +164,8 @@ def main():
 ```python
 import numpy as np
 
+import talib
+
 from cipher import Cipher, Session, Strategy, quote
 
 
@@ -168,15 +173,14 @@ class MacdStrategy(Strategy):
     def compose(self):
         df = self.datas.df
 
-        macd_df = df.ta.macd()
-        df["macd"] = macd_df["MACD_12_26_9"]
-        df["macds"] = macd_df["MACDs_12_26_9"]
+        df["macd"], df["macds"], _ = talib.MACD(
+            df.close, fastperiod=12, slowperiod=26, signalperiod=9
+        )
         difference = df["macds"] - df["macd"]
         cross = np.sign(difference.shift(1)) != np.sign(difference)
-
         df["entry"] = cross & (difference < 0) & (df["macds"] < 0)
 
-        df["atr"] = df.ta.atr()
+        df["atr"] = talib.ATR(df["high"], df["low"], df["close"], timeperiod=14)
         df["atr_stop_loss"] = df["close"] - (df["atr"] * 1.5)
         df["atr_take_profit"] = df["close"] + (df["atr"] * 1.5)
 
@@ -208,7 +212,7 @@ def main():
     cipher = Cipher()
     cipher.add_source("gateio_spot_ohlc", symbol="DOGE_USDT", interval="1h")
     cipher.set_strategy(MacdStrategy())
-    cipher.run(start_ts="2020-01-01", stop_ts="2020-02-01")
+    cipher.run(start_ts="2025-01-01", stop_ts="2025-02-01")
     cipher.plot(
         rows=[
             ["ohlc", "atr_stop_loss", "atr_take_profit"],

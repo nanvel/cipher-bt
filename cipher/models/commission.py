@@ -2,7 +2,7 @@ from abc import ABC, abstractmethod
 from decimal import Decimal
 from typing import Union
 
-from ..values import Percent
+from cipher.values import Percent
 from .transaction import Transaction
 
 

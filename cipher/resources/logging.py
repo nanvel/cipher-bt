@@ -1,6 +1,5 @@
-import sys
-
 import logging
+import sys
 
 
 def init_logging(level):

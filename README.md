@@ -29,13 +29,14 @@ Features:
 
 Initialize a new strategies folder and create a strategy:
 ```shell
-pip install 'cipher-bt[finplot]'
-mkdir my_strategies
-cd my_strategies
+mkdir strategies
+cd strategies
+uv init
+uv add 'cipher-bt[finplot]'
 
-cipher init
-cipher new my_strategy
-python my_strategy.py
+uv run cipher init
+uv run cipher new my_strategy
+uv run python my_strategy.py
 ```
 
 EMA crossover strategy example:
@@ -134,7 +135,6 @@ uv sync
 source .venv/bin/activate
 
 pytest tests
-
 cipher --help
 ```
 

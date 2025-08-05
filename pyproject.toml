@@ -1,6 +1,6 @@
 [project]
 name = "cipher-bt"
-version = "0.5.3"
+version = "0.6.0"
 description = "Cipher, a backtesting framework."
 authors = [{ name = "Oleksandr Polieno", email = "oleksandr@nanvel.com" }]
 requires-python = ">=3.10"
@@ -18,10 +18,10 @@ dependencies = [
     "dependency-injector>=4.46.0",
     "jinja2>=3.1.6",
     "mplfinance>=0.12.10b0",
-    "pandas-ta>=0.3.14b0",
     "pydantic>=2.11.4",
     "pydantic-settings>=2.9.1",
     "requests>=2.32.3",
+    "ta-lib>=0.6.4",
     "tabulate>=0.9.0",
     "typer>=0.15.4",
     "ujson>=5.10.0",
@@ -43,10 +43,11 @@ cipher = "cipher.cli:app"
 
 [dependency-groups]
 dev = [
-    "black[d]>=25.1.0",
     "mkdocs>=1.6.1",
     "mkdocs-material>=9.6.14",
+    "mypy>=1.17.1",
     "pytest>=8.3.5",
+    "ruff>=0.12.7",
     "twine>=6.1.0",
 ]
 

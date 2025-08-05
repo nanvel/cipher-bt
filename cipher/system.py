@@ -1,15 +1,23 @@
 from decimal import Decimal
 from typing import List, Optional, Type, Union
 
-from .container import Container
-from .factories import StatsFactory
-from .models import Commission, Datas, Output, Sessions, SimpleCommission, Stats, Time
-from .plotters import get_default_plotter, Plotter, PLOTTERS
-from .settings import Settings
-from .sources import Source, SOURCES
-from .strategy import Strategy
-from .trader import Trader
-from .values import Percent
+from cipher.container import Container
+from cipher.factories import StatsFactory
+from cipher.models import (
+    Commission,
+    Datas,
+    Output,
+    Sessions,
+    SimpleCommission,
+    Stats,
+    Time,
+)
+from cipher.plotters import PLOTTERS, Plotter, get_default_plotter
+from cipher.settings import Settings
+from cipher.sources import SOURCES, Source
+from cipher.strategy import Strategy
+from cipher.trader import Trader
+from cipher.values import Percent
 
 
 class Cipher:

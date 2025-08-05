@@ -5,10 +5,9 @@ from urllib.parse import urlencode, urljoin
 
 import requests
 
-from ..models import Interval, Time
-from ..utils import RateLimiter
+from cipher.models import Interval, Time
+from cipher.utils import RateLimiter
 from .base import Source
-
 
 rate_limiter = RateLimiter(calls_per_seconds=2.0)
 

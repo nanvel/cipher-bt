@@ -9,7 +9,7 @@ try:
 except ImportError:
     YFINANCE_INSTALLED = False
 
-from ..models import Interval, Time
+from cipher.models import Interval, Time
 from .base import Source
 
 
