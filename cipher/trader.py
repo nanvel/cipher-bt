@@ -2,11 +2,11 @@ import inspect
 import re
 from typing import List, Optional
 
-from pandas import BooleanDtype, DataFrame, isna, Series
+from pandas import BooleanDtype, DataFrame, Series, isna
 
-from .models import Cursor, Datas, Output, Session, Sessions, Wallet
-from .proxies import SessionProxy
-from .strategy import Strategy
+from cipher.models import Cursor, Datas, Output, Session, Sessions, Wallet
+from cipher.proxies import SessionProxy
+from cipher.strategy import Strategy
 
 
 class Trader:
@@ -37,7 +37,7 @@ class Trader:
             cursor.set(ts=ts, price=row_dict["close"])
 
             new_session = new_session or SessionProxy(
-                Session(cursor=cursor, wallet=self.strategy.wallet),
+                Session(),
                 wallet=self.strategy.wallet,
                 cursor=cursor,
             )
@@ -49,7 +49,7 @@ class Trader:
             if new_session.position.value != 0:
                 sessions.append(new_session)
                 new_session = SessionProxy(
-                    Session(cursor=cursor, wallet=self.strategy.wallet),
+                    Session(),
                     wallet=self.strategy.wallet,
                     cursor=cursor,
                 )
@@ -87,7 +87,7 @@ class Trader:
 
             if not isna(row["entry"]) and row["entry"]:
                 new_session = SessionProxy(
-                    Session(cursor=cursor, wallet=self.strategy.wallet),
+                    Session(),
                     wallet=self.strategy.wallet,
                     cursor=cursor,
                 )

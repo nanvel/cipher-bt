@@ -43,10 +43,11 @@ cipher = "cipher.cli:app"
 
 [dependency-groups]
 dev = [
-    "black[d]>=25.1.0",
     "mkdocs>=1.6.1",
     "mkdocs-material>=9.6.14",
+    "mypy>=1.17.1",
     "pytest>=8.3.5",
+    "ruff>=0.12.7",
     "twine>=6.1.0",
 ]
 

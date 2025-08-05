@@ -1,10 +1,9 @@
 from functools import reduce
 from operator import attrgetter
-from typing import List, Iterator
+from typing import List, Self
 
 from tabulate import tabulate
 
-from .session import Session
 from .transaction import Transaction
 from .wallet import Wallet
 
@@ -14,7 +13,7 @@ class Sessions(list):
         self._commission = kwargs.pop("commission", None)
         super().__init__(*args, **kwargs)
 
-    def filter(self, condition) -> Iterator[Session]:
+    def filter(self, condition) -> Self:
         return self.__class__(filter(condition, self))
 
     @property
