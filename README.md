@@ -32,7 +32,7 @@ Initialize a new strategies folder and create a strategy:
 mkdir strategies
 cd strategies
 uv init
-uv add 'cipher-bt[finplot]'
+uv add 'cipher-bt[finplot,talib]'
 
 uv run cipher init
 uv run cipher new my_strategy
