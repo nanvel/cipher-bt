@@ -43,6 +43,8 @@ EMA crossover strategy example:
 ```python
 import numpy as np
 
+import talib
+
 from cipher import Cipher, Session, Strategy
 
 
@@ -54,9 +56,9 @@ class EmaCrossoverStrategy(Strategy):
 
     def compose(self):
         df = self.datas.df
-        df["fast_ema"] = df.ta.ema(length=self.fast_ema_length)
-        df["slow_ema"] = df.ta.ema(length=self.slow_ema_length)
-        df["trend_ema"] = df.ta.ema(length=self.trend_ema_length)
+        df["fast_ema"] = talib.EMA(df["close"], timeperiod=self.fast_ema_length)
+        df["slow_ema"] = talib.EMA(df["close"], timeperiod=self.slow_ema_length)
+        df["trend_ema"] = talib.EMA(df["close"], timeperiod=self.trend_ema_length)
 
         df["difference"] = df["fast_ema"] - df["slow_ema"]
 
