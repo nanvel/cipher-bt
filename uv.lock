@@ -315,7 +315,7 @@ wheels = [
 
 [[package]]
 name = "cipher-bt"
-version = "0.6.0"
+version = "0.6.1"
 source = { editable = "." }
 dependencies = [
     { name = "dependency-injector" },
@@ -324,7 +324,6 @@ dependencies = [
     { name = "pydantic" },
     { name = "pydantic-settings" },
     { name = "requests" },
-    { name = "ta-lib" },
     { name = "tabulate" },
     { name = "typer" },
     { name = "ujson" },
@@ -336,6 +335,9 @@ finplot = [
 ]
 jupyter = [
     { name = "jupyterlab" },
+]
+talib = [
+    { name = "ta-lib" },
 ]
 yfinance = [
     { name = "yfinance" },
@@ -361,13 +363,13 @@ requires-dist = [
     { name = "pydantic", specifier = ">=2.11.4" },
     { name = "pydantic-settings", specifier = ">=2.9.1" },
     { name = "requests", specifier = ">=2.32.3" },
-    { name = "ta-lib", specifier = ">=0.6.4" },
+    { name = "ta-lib", marker = "extra == 'talib'", specifier = ">=0.6.4" },
     { name = "tabulate", specifier = ">=0.9.0" },
     { name = "typer", specifier = ">=0.15.4" },
     { name = "ujson", specifier = ">=5.10.0" },
     { name = "yfinance", marker = "extra == 'yfinance'", specifier = ">=0.2.3,<0.3" },
 ]
-provides-extras = ["finplot", "jupyter", "yfinance"]
+provides-extras = ["finplot", "jupyter", "yfinance", "talib"]
 
 [package.metadata.requires-dev]
 dev = [
