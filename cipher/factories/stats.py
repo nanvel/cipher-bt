@@ -4,7 +4,7 @@ from typing import Optional
 
 import pandas as pd
 
-from ..models import Commission, Output, Stats, Time, TimeDelta, Wallet
+from cipher.models import Commission, Output, Stats, Time, TimeDelta, Wallet
 
 
 class StatsFactory:
@@ -140,8 +140,8 @@ class StatsFactory:
             df.at[ts, position_col] = float(wallet.base)
             df.at[ts, quote_col] = float(wallet.quote)
 
-        df[position_col] = df[position_col].fillna(method="ffill")
-        df[quote_col] = df[quote_col].fillna(method="ffill")
+        df[position_col] = df[position_col].ffill()
+        df[quote_col] = df[quote_col].ffill()
 
         _df = df[[]]
         _df["balance"] = df[position_col] * df["close"] + df[quote_col]

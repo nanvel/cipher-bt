@@ -2,9 +2,9 @@ from pathlib import Path
 
 from dependency_injector import containers, providers
 
-from .resources import init_logging
-from .services import DataService
-from .use_cases import CreateStrategy, InitRepository
+from cipher.resources import init_logging
+from cipher.services import DataService
+from cipher.use_cases import CreateStrategy, InitRepository
 
 
 class Container(containers.DeclarativeContainer):

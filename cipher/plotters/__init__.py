@@ -1,8 +1,7 @@
-from ..utils import in_notebook
+from cipher.utils import in_notebook
 from .base import Plotter
 from .finplot import FinplotPlotter
 from .mplfinance import MPLFinancePlotter
-
 
 PLOTTERS = {
     "finplot": FinplotPlotter,

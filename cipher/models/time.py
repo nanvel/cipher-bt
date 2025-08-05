@@ -1,11 +1,8 @@
 import datetime
 from typing import Union
 
-from pydantic_core import core_schema
-
 from .interval import Interval
 from .time_delta import TimeDelta
-
 
 STRING_FORMATS = ("%Y-%m-%dT%H:%M", "%Y-%m-%d", "%Y-%m-%d %H:%M")
 

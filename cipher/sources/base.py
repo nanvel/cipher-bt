@@ -1,7 +1,7 @@
 from abc import ABC, abstractmethod
 from pathlib import Path
 
-from ..models import Time
+from cipher.models import Time
 
 
 class Source(ABC):

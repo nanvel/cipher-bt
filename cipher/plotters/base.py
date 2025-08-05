@@ -2,10 +2,10 @@ import logging
 from abc import ABC, abstractmethod
 from typing import List, Optional, Union
 
+import numpy as np
 import pandas as pd
 
 from ..models import Commission, Output, Time, Wallet
-
 
 logger = logging.getLogger(__name__)
 
@@ -65,15 +65,25 @@ class Plotter(ABC):
         extras_df["balance"] = (
             extras_df["base"] * output.df["close"] + extras_df["quote"]
         )
-        extras_df["sessions_long_open"] = self._build_session_series(is_long=True, is_open=True)
-        extras_df["sessions_long_close"] = self._build_session_series(is_long=True, is_open=False)
-        extras_df["sessions_short_open"] = self._build_session_series(is_long=False, is_open=True)
-        extras_df["sessions_short_close"] = self._build_session_series(is_long=False, is_open=False)
-        extras_df['stop_loss'] = self._build_brackets_series(bracket_name='stop_loss')
-        extras_df['take_profit'] = self._build_brackets_series(bracket_name='take_profit')
+        extras_df["sessions_long_open"] = self._build_session_series(
+            is_long=True, is_open=True
+        )
+        extras_df["sessions_long_close"] = self._build_session_series(
+            is_long=True, is_open=False
+        )
+        extras_df["sessions_short_open"] = self._build_session_series(
+            is_long=False, is_open=True
+        )
+        extras_df["sessions_short_close"] = self._build_session_series(
+            is_long=False, is_open=False
+        )
+        extras_df["stop_loss"] = self._build_brackets_series(bracket_name="stop_loss")
+        extras_df["take_profit"] = self._build_brackets_series(
+            bracket_name="take_profit"
+        )
 
-        self.original_df = output.df.iloc[start_i: start_i + limit]
-        self.extras_df = extras_df.iloc[start_i: start_i + limit]
+        self.original_df = output.df.iloc[start_i : start_i + limit]
+        self.extras_df = extras_df.iloc[start_i : start_i + limit]
 
         if len(self.original_df) != len(output.df):
             logger.warning(
@@ -115,7 +125,11 @@ class Plotter(ABC):
         return result
 
     def build_signal_df(self, signal, value=1):
-        return self.original_df[signal].replace({True: value, False: None})
+        return (
+            self.original_df[signal]
+            .replace({True: value, False: None})
+            .astype(np.float64)
+        )
 
     def _build_asset_series(self, asset_name):
         df = self.output.df
@@ -132,7 +146,7 @@ class Plotter(ABC):
                 getattr(wallet, asset_name)
             )
 
-        df[column_name] = df[column_name].fillna(method="ffill")
+        df[column_name] = df[column_name].ffill()
 
         result = df[column_name]
 
@@ -158,9 +172,7 @@ class Plotter(ABC):
                 if session.is_long and is_long:
                     df.at[close_ts, column_name] = float(session.transactions[-1].price)
                 elif not session.is_long and not is_long:
-                    df.at[close_ts, column_name] = float(
-                        session.transactions[-1].price
-                    )
+                    df.at[close_ts, column_name] = float(session.transactions[-1].price)
 
         result = df[column_name]
 

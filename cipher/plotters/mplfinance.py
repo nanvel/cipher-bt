@@ -7,7 +7,7 @@ try:
 except ImportError:
     MPLFINANCE_INSTALLED = False
 
-from ..utils import create_palette
+from cipher.utils import create_palette
 from .base import Plotter
 
 

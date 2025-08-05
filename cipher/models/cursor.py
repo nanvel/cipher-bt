@@ -5,7 +5,7 @@ from typing import Union
 
 from pydantic import BaseModel
 
-from ..utils import float_to_decimal
+from cipher.utils import float_to_decimal
 from .time import Time
 
 

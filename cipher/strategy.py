@@ -1,7 +1,7 @@
 from pandas import DataFrame
 
-from .models import Datas, Wallet
-from .proxies import SessionProxy as Session
+from cipher.models import Datas, Wallet
+from cipher.proxies import SessionProxy as Session
 
 
 class Strategy:

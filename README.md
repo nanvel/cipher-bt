@@ -135,9 +135,6 @@ uv sync
 source .venv/bin/activate
 
 pytest tests
-# fix imports
-ruff check --select I --fix
-
 cipher --help
 ```
 

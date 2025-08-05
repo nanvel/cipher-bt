@@ -3,7 +3,7 @@ import datetime
 from pathlib import Path
 from typing import Optional
 
-from ..models import Time
+from cipher.models import Time
 from .base import Source
 
 

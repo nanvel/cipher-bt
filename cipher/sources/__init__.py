@@ -5,7 +5,6 @@ from .csv_file import CsvFileSource
 from .gateio_spot_ohlc import GateioSpotOHLCSource
 from .yahoo_finance_ohlc import YahooFinanceOHLCSource
 
-
 SOURCES = {
     "binance_futures_ohlc": BinanceFuturesOHLCSource,
     "binance_spot_ohlc": BinanceSpotOHLCSource,
