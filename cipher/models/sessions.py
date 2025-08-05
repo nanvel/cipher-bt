@@ -1,8 +1,9 @@
 from functools import reduce
 from operator import attrgetter
-from typing import List, Self
+from typing import List
 
 from tabulate import tabulate
+from typing_extensions import Self
 
 from .transaction import Transaction
 from .wallet import Wallet

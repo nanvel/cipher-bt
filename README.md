@@ -42,7 +42,6 @@ uv run python my_strategy.py
 EMA crossover strategy example:
 ```python
 import numpy as np
-
 import talib
 
 from cipher import Cipher, Session, Strategy
