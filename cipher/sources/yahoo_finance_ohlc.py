@@ -21,7 +21,6 @@ class YahooFinanceOHLCSource(Source):
         "high",
         "low",
         "close",
-        "adj_close",
         "volume",
     ]
 
@@ -73,11 +72,10 @@ class YahooFinanceOHLCSource(Source):
                 writer.writerow(
                     [
                         int(Time.from_datetime(ts)),
-                        row["Open"],
-                        row["High"],
-                        row["Low"],
-                        row["Close"],
-                        row["Adj Close"],
-                        row["Volume"],
+                        row["Open"][0],
+                        row["High"][0],
+                        row["Low"][0],
+                        row["Close"][0],
+                        row["Volume"][0],
                     ]
                 )

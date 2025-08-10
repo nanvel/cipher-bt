@@ -8,8 +8,8 @@ This example demonstrates how to use multiple data sources.
 
 ```python
 import numpy as np
-import pandas_ta as ta
 
+import talib
 from cipher import Cipher, Session, Strategy, quote
 
 
@@ -20,8 +20,8 @@ class CmcStrategy(Strategy):
 
         df = df.join(cmc_df)
         df["rank"] = df["cmc_rank"].fillna(method="ffill")
-        df["rank_ema21"] = ta.ema(df["rank"], length=21)
-        df["rank_ema7"] = ta.ema(df["rank"], length=7)
+        df["rank_ema21"] = talib.EMA(df["rank"], timeperiod=21)
+        df["rank_ema7"] = talib.EMA(df["rank"], timeperiod=7)
 
         df["difference"] = df["rank_ema7"] - df["rank_ema21"]
         df["entry"] = np.sign(df["difference"].shift(1)) != np.sign(df["difference"])
@@ -138,7 +138,7 @@ import csv
 import json
 
 import numpy as np
-import pandas_ta as ta
+import talib
 
 from cipher import Cipher, Session, Strategy, quote
 
@@ -146,14 +146,12 @@ from cipher import Cipher, Session, Strategy, quote
 class CmcStrategy(Strategy):
     def compose(self):
         df = self.datas.df
+        cmc_df = self.datas[1]
 
-        # close price is required
-        df["close"] = df["price"]
+        df = df.join(cmc_df)
         df["rank"] = df["cmc_rank"].fillna(method="ffill")
-        df = df.drop(columns=["price", "cmc_rank"])
-
-        df["rank_ema21"] = ta.ema(df["rank"], length=21)
-        df["rank_ema7"] = ta.ema(df["rank"], length=7)
+        df["rank_ema21"] = talib.EMA(df["rank"], timeperiod=21)
+        df["rank_ema7"] = talib.EMA(df["rank"], timeperiod=7)
 
         df["difference"] = df["rank_ema7"] - df["rank_ema21"]
         df["entry"] = np.sign(df["difference"].shift(1)) != np.sign(df["difference"])
@@ -251,7 +249,7 @@ import csv
 import json
 
 import numpy as np
-import pandas_ta as ta
+import talib
 
 from cipher import Cipher, Session, Strategy, percent, quote
 
@@ -267,8 +265,8 @@ class CmcStrategy(Strategy):
         df["rank"] = df["cmc_rank"].fillna(method="ffill")
         df = df.drop(columns=["price", "cmc_rank"])
 
-        df["rank_ema21"] = ta.ema(df["rank"], length=21)
-        df["rank_ema7"] = ta.ema(df["rank"], length=7)
+        df["rank_ema21"] = talib.EMA(df["rank"], timeperiod=21)
+        df["rank_ema7"] = talib.EMA(df["rank"], timeperiod=7)
 
         difference = df["rank_ema7"] - df["rank_ema21"]
         cross = np.sign(difference.shift(1)) != np.sign(difference)

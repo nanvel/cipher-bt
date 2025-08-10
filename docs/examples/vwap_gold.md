@@ -29,8 +29,7 @@ if __name__ == "__main__":
 ## Add VWAP
 
 ```python
-import pandas_ta as ta
-
+import talib
 from cipher import Cipher, Session, Strategy
 
 
@@ -47,7 +46,7 @@ class VwapStrategy(Strategy):
         df["vwap"] = df["vwap"].fillna(method="ffill")
         hlc3 = (df["close"] + df["high"] + df["low"]) / 3
 
-        df["ema"] = ta.ema(hlc3, length=24)
+        df["ema"] = talib.EMA(hlc3, timeperiod=24)
 
         df["long"] = (hlc3 > df["vwap"]) & (hlc3 > df["ema"])
         df["short"] = (hlc3 < df["vwap"]) & (hlc3 < df["ema"])
@@ -82,8 +81,7 @@ if __name__ == "__main__":
 Take profit and stop loss 0.5% both. Trailing take profit.
 
 ```python
-import pandas_ta as ta
-
+import talib
 from cipher import Cipher, percent, Session, Strategy, quote
 
 
@@ -100,7 +98,7 @@ class VwapStrategy(Strategy):
         df["vwap"] = df["vwap"].fillna(method="ffill")
         hlc3 = (df["close"] + df["high"] + df["low"]) / 3
 
-        df["ema"] = ta.ema(hlc3, length=24)
+        df["ema"] = talib.EMA(hlc3, timeperiod=24)
 
         df["long"] = (hlc3 > df["vwap"]) & (hlc3 > df["ema"])
         df["short"] = (hlc3 < df["vwap"]) & (hlc3 < df["ema"])

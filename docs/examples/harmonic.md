@@ -178,7 +178,7 @@ def _is_high(values) -> bool:
     return (
         values.iat[1]
         if values.iat[1] > values.iat[0] and values.iat[1] > values.iat[2]
-        else np.NaN
+        else np.nan
     )
 
 
@@ -186,7 +186,7 @@ def _is_low(values) -> bool:
     return (
         values.iat[1]
         if values.iat[1] < values.iat[0] and values.iat[1] < values.iat[2]
-        else np.NaN
+        else np.nan
     )
 
 
@@ -313,8 +313,8 @@ def main():
                             if found:
                                 break
 
-    df["bull"] = np.NaN
-    df["bear"] = np.NaN
+    df["bull"] = np.nan
+    df["bear"] = np.nan
     bull_index = len(df.columns) - 2
     bear_index = len(df.columns) - 1
 
@@ -394,7 +394,7 @@ def _is_high(values) -> bool:
     return (
         values.iat[1]
         if values.iat[1] > values.iat[0] and values.iat[1] > values.iat[2]
-        else np.NaN
+        else np.nan
     )
 
 
@@ -402,7 +402,7 @@ def _is_low(values) -> bool:
     return (
         values.iat[1]
         if values.iat[1] < values.iat[0] and values.iat[1] < values.iat[2]
-        else np.NaN
+        else np.nan
     )
 
 
@@ -507,9 +507,9 @@ class HarmonicStrategy(Strategy):
                                 if found:
                                     break
 
-        df["bull"] = np.NaN
-        df["bear"] = np.NaN
-        df["stop"] = np.NaN
+        df["bull"] = np.nan
+        df["bear"] = np.nan
+        df["stop"] = np.nan
         df["entry"] = False
 
         for ts, price, ax in longs:

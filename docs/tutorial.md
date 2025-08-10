@@ -112,11 +112,10 @@ class MacdStrategy(Strategy):
     def compose(self):
         df = self.datas.df
 
-        macd_df = df.ta.macd()
-        df["macd"] = macd_df["MACD_12_26_9"]
-        df["macds"] = macd_df["MACDs_12_26_9"]
-
-        df["atr"] = df.ta.atr()
+        df["macd"], df["macds"], _ = talib.MACD(
+            df.close, fastperiod=12, slowperiod=26, signalperiod=9
+        )
+        df["atr"] = talib.ATR(df["high"], df["low"], df["close"], timeperiod=14)
 
         return df
 

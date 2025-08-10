@@ -23,7 +23,7 @@ wt2 = sma(wt1, malen)
 
 Using the same idea when composing the pandas dataframe:
 ```python
-import pandas_ta as ta
+import talib
 
 from cipher import Cipher, Strategy
 
@@ -51,15 +51,21 @@ class VuManChuCipherBStrategy(Strategy):
         df = self.datas.df
 
         hlc3 = (df["high"] + df["low"] + df["close"]) / 3
-        esa = ta.ema(hlc3, length=self.wave_channel_length)
-        de = ta.ema(abs(hlc3 - esa), length=self.wave_channel_length)
+        esa = talib.EMA(hlc3, timeperiod=self.wave_channel_length)
+        de = talib.EMA(abs(hlc3 - esa), timeperiod=self.wave_channel_length)
         ci = (hlc3 - esa) / (de * self.wave_k)
 
-        df["wt1"] = ta.ema(ci, length=self.wave_average_length)
-        df["wt2"] = ta.sma(df["wt1"], length=self.wave_ma_length)
-        df["mfi"] = df.ta.mfi(length=self.mfi_length)
-        df["fast_ema"] = df.ta.ema(length=self.fast_ema_length)
-        df["slow_ema"] = df.ta.ema(length=self.slow_ema_length)
+        df["wt1"] = talib.EMA(ci, timeperiod=self.wave_average_length)
+        df["wt2"] = talib.SMA(df["wt1"], timeperiod=self.wave_ma_length)
+        df["mfi"] = talib.stream_MFI(
+            high=df["high"],
+            low=df["low"],
+            close=df["close"],
+            volume=df["volume"],
+            timeperiod=self.mfi_length,
+        )
+        df["fast_ema"] = talib.EMA(df["close"], timeperiod=self.fast_ema_length)
+        df["slow_ema"] = talib.EMA(df["close"], timeperiod=self.slow_ema_length)
 
         return df
 
@@ -68,7 +74,7 @@ def main():
     cipher = Cipher()
     cipher.add_source("gateio_spot_ohlc", symbol="DOGE_USDT", interval="1h")
     cipher.set_strategy(VuManChuCipherBStrategy())
-    cipher.run(start_ts="2020-01-01", stop_ts="2020-04-01")
+    cipher.run(start_ts="2025-01-01", stop_ts="2025-04-01")
     cipher.plot(
         rows=[
             ["ohlc", "slow_ema", "fast_ema"],
@@ -101,8 +107,8 @@ Enter short:
 - wt1 cross wt2 from above
 
 ```python
-import pandas_ta as ta
 import numpy as np
+import talib
 
 from cipher import Cipher, Strategy
 
@@ -132,16 +138,30 @@ class VuManChuCipherBStrategy(Strategy):
         df = self.datas.df
 
         hlc3 = (df["high"] + df["low"] + df["close"]) / 3
-        esa = ta.ema(hlc3, length=self.wave_channel_length)
-        de = ta.ema(abs(hlc3 - esa), length=self.wave_channel_length)
+        esa = talib.EMA(hlc3, timeperiod=self.wave_channel_length)
+        de = talib.EMA(abs(hlc3 - esa), timeperiod=self.wave_channel_length)
         ci = (hlc3 - esa) / (de * self.wave_k)
 
-        df["wt1"] = ta.ema(ci, length=self.wave_average_length)
-        df["wt2"] = ta.sma(df["wt1"], length=self.wave_ma_length)
-        df["mfi"] = df.ta.mfi(length=self.mfi_length) - 50
-        df["atr"] = df.ta.atr(length=self.atr_length)
-        df["fast_ema"] = df.ta.ema(length=self.fast_ema_length)
-        df["slow_ema"] = df.ta.ema(length=self.slow_ema_length)
+        df["wt1"] = talib.EMA(ci, timeperiod=self.wave_average_length)
+        df["wt2"] = talib.SMA(df["wt1"], timeperiod=self.wave_ma_length)
+        df["mfi"] = (
+            talib.stream_MFI(
+                high=df["high"],
+                low=df["low"],
+                close=df["close"],
+                volume=df["volume"],
+                timeperiod=self.mfi_length,
+            )
+            - 50
+        )
+        df["atr"] = talib.ATR(
+            high=df["high"],
+            low=df["low"],
+            close=df["close"],
+            timeperiod=self.atr_length,
+        )
+        df["fast_ema"] = talib.EMA(df["close"], timeperiod=self.fast_ema_length)
+        df["slow_ema"] = talib.EMA(df["close"], timeperiod=self.slow_ema_length)
 
         difference = df["wt2"] - df["wt1"]
         cross = np.sign(difference.shift(1)) != np.sign(difference)
@@ -172,7 +192,7 @@ def main():
     cipher = Cipher()
     cipher.add_source("gateio_spot_ohlc", symbol="DOGE_USDT", interval="1h")
     cipher.set_strategy(VuManChuCipherBStrategy())
-    cipher.run(start_ts="2020-01-01", stop_ts="2020-04-01")
+    cipher.run(start_ts="2025-01-01", stop_ts="2025-04-01")
     cipher.plot(
         rows=[
             ["ohlc", "slow_ema", "fast_ema"],
@@ -192,8 +212,8 @@ if __name__ == "__main__":
 Take profit = 2x stop loss.
 
 ```python
-import pandas_ta as ta
 import numpy as np
+import talib
 
 from cipher import Cipher, Session, Strategy, quote
 
@@ -227,16 +247,30 @@ class VuManChuCipherBStrategy(Strategy):
         df = self.datas.df
 
         hlc3 = (df["high"] + df["low"] + df["close"]) / 3
-        esa = ta.ema(hlc3, length=self.wave_channel_length)
-        de = ta.ema(abs(hlc3 - esa), length=self.wave_channel_length)
+        esa = talib.EMA(hlc3, timeperiod=self.wave_channel_length)
+        de = talib.EMA(abs(hlc3 - esa), timeperiod=self.wave_channel_length)
         ci = (hlc3 - esa) / (de * self.wave_k)
 
-        df["wt1"] = ta.ema(ci, length=self.wave_average_length)
-        df["wt2"] = ta.sma(df["wt1"], length=self.wave_ma_length)
-        df["mfi"] = df.ta.mfi(length=self.mfi_length) - 50
-        df["atr"] = df.ta.atr(length=self.atr_length)
-        df["fast_ema"] = df.ta.ema(length=self.fast_ema_length)
-        df["slow_ema"] = df.ta.ema(length=self.slow_ema_length)
+        df["wt1"] = talib.EMA(ci, timeperiod=self.wave_average_length)
+        df["wt2"] = talib.SMA(df["wt1"], timeperiod=self.wave_ma_length)
+        df["mfi"] = (
+            talib.stream_MFI(
+                high=df["high"],
+                low=df["low"],
+                close=df["close"],
+                volume=df["volume"],
+                timeperiod=self.mfi_length,
+            )
+            - 50
+        )
+        df["atr"] = talib.ATR(
+            high=df["high"],
+            low=df["low"],
+            close=df["close"],
+            timeperiod=self.atr_length,
+        )
+        df["fast_ema"] = talib.EMA(df["close"], timeperiod=self.fast_ema_length)
+        df["slow_ema"] = talib.EMA(df["close"], timeperiod=self.slow_ema_length)
 
         difference = df["wt2"] - df["wt1"]
         cross = np.sign(difference.shift(1)) != np.sign(difference)
@@ -281,7 +315,7 @@ def main():
     cipher = Cipher()
     cipher.add_source("gateio_spot_ohlc", symbol="DOGE_USDT", interval="1h")
     cipher.set_strategy(VuManChuCipherBStrategy())
-    cipher.run(start_ts="2020-01-01", stop_ts="2020-04-01")
+    cipher.run(start_ts="2025-01-01", stop_ts="2025-04-01")
     cipher.set_commission("0.00075")
     cipher.plot(
         rows=[
@@ -326,7 +360,7 @@ def main():
                     take_profit_k=stop_loss_k * 2,
                 )
             )
-            cipher.run(start_ts="2020-01-01", stop_ts="2020-04-01")
+            cipher.run(start_ts="2025-01-01", stop_ts="2025-04-01")
             cipher.set_commission("0.00075")
 
             column[f"k-{stop_loss_k}"] = int(cipher.stats.romad * 100)
