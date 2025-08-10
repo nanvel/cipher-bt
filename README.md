@@ -23,7 +23,6 @@ Features:
 - simple to run, just `python my_strategy.py`
 - works in [Google Colab](https://colab.research.google.com/)
 - [finplot](https://github.com/highfestiva/finplot) and [mplfinance](https://github.com/matplotlib/mplfinance) plotters
-- TA: [pandas-ta](https://github.com/twopirllc/pandas-ta) is included, you can still use your libraries of choice
 
 ## Usage
 
