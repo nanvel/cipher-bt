@@ -1,6 +1,7 @@
 from pathlib import Path
 from typing import Optional
 
+
 try:
     import mplfinance as mpf
 
@@ -188,17 +189,15 @@ class MPLFinancePlotter(Plotter):
                         )
                     )
 
-        fig_ = mpf.plot(
+        mpf.plot(
             self.original_df,
             type="candle",
             volume=show_volume,
             addplot=ap,
             title=self.title,
             tight_layout=True,
-            returning=self.plot_to_file,
+            savefig=Path(__file__).with_suffix(".png") if self.plot_to_file else None,
         )
-        if self.plot_to_file:
-            fig_[0].savefig(Path(__file__).with_suffix(".png"), dpi=300)
 
     def _filter_rows(self, rows: list) -> list:
         columns = set(self.original_df.columns)
