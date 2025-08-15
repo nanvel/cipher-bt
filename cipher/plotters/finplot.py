@@ -25,6 +25,9 @@ class FinplotPlotter(Plotter):
         return 2000
 
     def run(self, rows: Optional[list] = None):
+        if self.plot_to_file:
+            return
+
         rows = self._filter_rows(
             rows
             or [

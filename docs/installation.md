@@ -1,10 +1,10 @@
 ---
-description: Installation instruction for local setup and for Google Colaboratory.
+description: This guide provides step-by-step instructions for installing Cipher on your local machine or in Google Colaboratory.
 ---
 
-# Installation
+# Installation Guide
 
-## Local
+## Local installation using pip
 
 Requirement: Python 3.8+
 

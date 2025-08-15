@@ -1,42 +1,44 @@
 ---
-description: Cipher - a backtesting framework with focus on position adjustment in scope of a trading session.
+description: Cipher - a backtesting framework focused on position adjustments within trading sessions.
 ---
 
 # Introduction
 
 <img src="cipher.jpeg" alt="cipher" style="max-height: 400px" />
 
-Cipher is distinct from most other backtesting frameworks.
-It focuses on position adjustments in the scope of a session.
+Cipher stands apart from most backtesting frameworks by focusing on position adjustments within the scope of individual trading sessions.
 
-Translate to Cipher:
+## Core Concepts
 
-- `buy` -> `add to position`
-- `sell` -> `reduce position`
-- `trade` -> `session` (trading session)
-- `close trade` -> `close session` (a side effect of adjusting position to 0) 
-- `order(market)` -> `transaction` (a side effect for position change)
-- `order(limit, stop_loss)` -> `brackets`
+Cipher uses distinctive terminology that reflects its session-based approach:
 
-## Features
+- `buy` → `add to position`
+- `sell` → `reduce position`
+- `trade` → `session` (trading session)
+- `close trade` → `close session` (achieved by adjusting position to 0) 
+- `market order` → `transaction` (executed when position changes)
+- `limit/stop orders` → `brackets`
 
-- well-structured, simple to use, extensible
-- multiple trading sessions at the same time
-- complex exit strategies can be implemented (trailing take profit, etc.)
-- multiple data sources support (multiple exchanges, symbols, timeframes, etc.)
-- signal generation and signal handlers are splitted
-- simple to run, just `python my_strategy.py`
-- works in [Google Colab](https://colab.research.google.com/)
-- [finplot](https://github.com/highfestiva/finplot) and [mplfinance](https://github.com/matplotlib/mplfinance) plotters
-- TA: [pandas-ta](https://github.com/twopirllc/pandas-ta) is included, you can still use your libraries of choice
+## Key Features
 
-Cipher does no forward testing, paper, or live trading.
+- **Clean Architecture**: Well-structured, intuitive, and easily extensible
+- **Concurrent Sessions**: Support for multiple simultaneous trading sessions
+- **Advanced Exit Strategies**: Implement sophisticated strategies like trailing take profits
+- **Multi-Source Data**: Support for multiple exchanges, symbols, and timeframes
+- **Modular Design**: Signal generation and handling are cleanly separated
+- **Simple Execution**: Run strategies with just `python my_strategy.py`
+- **Cloud Ready**: Compatible with [Google Colab](https://colab.research.google.com/)
+- **Flexible Visualization**: Built-in support for [finplot](https://github.com/highfestiva/finplot) and [mplfinance](https://github.com/matplotlib/mplfinance)
 
-## Example
+**Note**: Cipher is designed exclusively for backtesting and does not support forward testing, paper trading, or live trading.
 
-EMA crossover strategy example:
+## Example Strategy
+
+Here's an EMA crossover strategy implementation:
+
 ```python
 import numpy as np
+import talib
 
 from cipher import Cipher, Session, Strategy
 
@@ -49,68 +51,80 @@ class EmaCrossoverStrategy(Strategy):
 
     def compose(self):
         df = self.datas.df
-        df["fast_ema"] = df.ta.ema(length=self.fast_ema_length)
-        df["slow_ema"] = df.ta.ema(length=self.slow_ema_length)
-        df["trend_ema"] = df.ta.ema(length=self.trend_ema_length)
+        
+        # Calculate EMAs using talib
+        df["fast_ema"] = talib.EMA(df["close"], timeperiod=self.fast_ema_length)
+        df["slow_ema"] = talib.EMA(df["close"], timeperiod=self.slow_ema_length)
+        df["trend_ema"] = talib.EMA(df["close"], timeperiod=self.trend_ema_length)
 
+        # Calculate crossover signal
         df["difference"] = df["fast_ema"] - df["slow_ema"]
-
-        # signal columns have to be boolean type
+        
+        # Signal columns must be boolean type
         df["entry"] = np.sign(df["difference"].shift(1)) != np.sign(df["difference"])
 
-        df["max_6"] = df["high"].rolling(window=6).max()
-        df["min_6"] = df["low"].rolling(window=6).min()
+        # Calculate support and resistance levels using talib
+        df["max_6"] = talib.MAX(df["high"], timeperiod=6)
+        df["min_6"] = talib.MIN(df["low"], timeperiod=6)
 
         return df
 
     def on_entry(self, row: dict, session: Session):
+        # Long position: bullish crossover above trend
         if row["difference"] > 0 and row["close"] > row["trend_ema"]:
-            # start a new long session
             session.position += "0.01"
             session.stop_loss = row["min_6"]
             session.take_profit = row["close"] + 1.5 * (row["close"] - row["min_6"])
 
+        # Short position: bearish crossover below trend
         elif row["difference"] < 0 and row["close"] < row["trend_ema"]:
-            # start a new short session
             session.position -= "0.01"
             session.stop_loss = row["max_6"]
             session.take_profit = row["close"] - 1.5 * (row["max_6"] - row["close"])
 
+    # Optional: Custom signal handlers
     # def on_<signal>(self, row: dict, session: Session) -> None:
-    #     """Custom signal handler, called for each open session.
-    #     We can adjust or close position or adjust brackets here."""
-    #     # session.position = 1
-    #     # session.position = base(1)  # same as the one above
-    #     # session.position = '1'  # int, str, float are being converted to Decimal
-    #     # session.position = quote(100)  # sets position worth 100 quote asset
-    #     # session.position += 1  # adds to the position
-    #     # session.position -= Decimal('1.25')  # reduces position by 1.25
-    #     # session.position += percent(50)  # adds 50% more position
-    #     # session.position *= 1.5  # has the same effect as the one above
+    #     """Custom signal handler called for each open session.
+    #     Use this to adjust positions or modify brackets."""
+    #     
+    #     # Position adjustment examples:
+    #     # session.position = 1            # Set absolute position
+    #     # session.position = base(1)      # Same as above
+    #     # session.position = '1'          # Auto-converts to Decimal
+    #     # session.position = quote(100)   # Set position worth 100 quote units
+    #     # session.position += 1           # Add to position
+    #     # session.position -= Decimal('1.25')  # Reduce position
+    #     # session.position += percent(50) # Increase by 50%
+    #     # session.position *= 1.5         # Same as percent(50)
     #     pass
-    #
+
     # def on_take_profit(self, row: dict, session: Session) -> None:
-    #     """Called once take profit hit, default action - close position.
-    #     We can adjust the position and brackets here and let the session continue."""
+    #     """Called when take profit is hit. Default: closes position.
+    #     Override to adjust position/brackets and continue session."""
     #     session.position = 0
-    #
+
     # def on_stop_loss(self, row: dict, session: Session) -> None:
-    #     """Called once stop loss hit, default action - close position.
-    #     We can adjust the position and brackets here and let the session continue."""
+    #     """Called when stop loss is hit. Default: closes position.
+    #     Override to adjust position/brackets and continue session."""
     #     session.position = 0
-    #
+
     # def on_stop(self, row: dict, session: Session) -> None:
-    #     """Called for each open session when the dataframe end reached.
-    #     We have an opportunity to close open sessions, otherwise - they will be ignored."""
+    #     """Called when dataframe ends with open sessions.
+    #     Use this to close positions, otherwise they're ignored."""
     #     session.position = 0
 
 
 def main():
+    # Initialize and configure Cipher
     cipher = Cipher()
     cipher.add_source("binance_spot_ohlc", symbol="BTCUSDT", interval="1h")
     cipher.set_strategy(EmaCrossoverStrategy())
-    cipher.run(start_ts="2020-01-01", stop_ts="2020-04-01")
     cipher.set_commission("0.00075")
+    
+    # Run backtest
+    cipher.run(start_ts="2020-01-01", stop_ts="2020-04-01")
+    
+    # Display results
     print(cipher.sessions)
     print(cipher.stats)
     cipher.plot()
@@ -122,7 +136,8 @@ if __name__ == "__main__":
 
 ![plotter](plotter.png)
 
-## Disclaimer
+## Risk Disclaimer
 
-This software is for educational purposes only. Do not risk money which you are afraid to lose.
-USE THE SOFTWARE AT YOUR OWN RISK. THE AUTHORS AND ALL AFFILIATES ASSUME NO RESPONSIBILITY FOR YOUR TRADING RESULTS.
+**This software is intended for educational purposes only.** Never risk capital you cannot afford to lose. 
+
+**USE THIS SOFTWARE AT YOUR OWN RISK.** The authors and affiliates assume no responsibility for trading results or financial losses incurred through the use of this software.

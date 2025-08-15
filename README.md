@@ -1,4 +1,4 @@
-# Cipher - trading strategy backtesting framework
+# Cipher - Trading Strategy Backtesting Framework
 
 ![Tests](https://github.com/nanvel/cipher-bt/actions/workflows/tests.yaml/badge.svg)
 [![PyPI version](https://badge.fury.io/py/cipher-bt.svg)](https://badge.fury.io/py/cipher-bt)
@@ -13,20 +13,20 @@
 
 Documentation: https://cipher.nanvel.com
 
-Features:
+**Features:**
 
-- well-structured, simple to use, extensible
-- multiple trading sessions at the same time
-- complex exit strategies can be implemented (trailing take profit, etc.)
-- multiple data sources support (multiple exchanges, symbols, timeframes, etc.)
-- signal generation and signal handlers are splitted
-- simple to run, just `python my_strategy.py`
-- works in [Google Colab](https://colab.research.google.com/)
-- [finplot](https://github.com/highfestiva/finplot) and [mplfinance](https://github.com/matplotlib/mplfinance) plotters
+- Well-structured, intuitive, and easily extensible design
+- Support for multiple concurrent trading sessions
+- Sophisticated exit strategies including trailing take profits
+- Multi-source data integration (exchanges, symbols, timeframes)
+- Clean separation between signal generation and handling
+- Simple execution - just run `python my_strategy.py`
+- Compatibility with [Google Colab](https://colab.research.google.com/)
+- Built-in visualization with [finplot](https://github.com/highfestiva/finplot) and [mplfinance](https://github.com/matplotlib/mplfinance) plotters
 
 ## Usage
 
-Initialize a new strategies folder and create a strategy:
+Set up a new strategies workspace and create your first strategy:
 ```shell
 mkdir strategies
 cd strategies
@@ -38,7 +38,7 @@ uv run cipher new my_strategy
 uv run python my_strategy.py
 ```
 
-EMA crossover strategy example:
+Complete EMA crossover strategy example:
 ```python
 import numpy as np
 import talib
@@ -60,7 +60,7 @@ class EmaCrossoverStrategy(Strategy):
 
         df["difference"] = df["fast_ema"] - df["slow_ema"]
 
-        # signal columns have to be boolean type
+        # Signal columns must be boolean type
         df["entry"] = np.sign(df["difference"].shift(1)) != np.sign(df["difference"])
 
         df["max_6"] = df["high"].rolling(window=6).max()
@@ -70,43 +70,43 @@ class EmaCrossoverStrategy(Strategy):
 
     def on_entry(self, row: dict, session: Session):
         if row["difference"] > 0 and row["close"] > row["trend_ema"]:
-            # start a new long session
+            # Open a new long position
             session.position += "0.01"
             session.stop_loss = row["min_6"]
             session.take_profit = row["close"] + 1.5 * (row["close"] - row["min_6"])
 
         elif row["difference"] < 0 and row["close"] < row["trend_ema"]:
-            # start a new short session
+            # Open a new short position
             session.position -= "0.01"
             session.stop_loss = row["max_6"]
             session.take_profit = row["close"] - 1.5 * (row["max_6"] - row["close"])
 
     # def on_<signal>(self, row: dict, session: Session) -> None:
-    #     """Custom signal handler, called for each open session.
-    #     We can adjust or close position or adjust brackets here."""
+    #     """Custom signal handler called for each active session.
+    #     Adjust or close positions and modify brackets here."""
     #     # session.position = 1
-    #     # session.position = base(1)  # same as the one above
-    #     # session.position = '1'  # int, str, float are being converted to Decimal
-    #     # session.position = quote(100)  # sets position worth 100 quote asset
-    #     # session.position += 1  # adds to the position
-    #     # session.position -= Decimal('1.25')  # reduces position by 1.25
-    #     # session.position += percent(50)  # adds 50% more position
-    #     # session.position *= 1.5  # has the same effect as the one above
+    #     # session.position = base(1)  # equivalent to the above
+    #     # session.position = '1'  # int, str, float are converted to Decimal
+    #     # session.position = quote(100)  # position worth 100 quote asset
+    #     # session.position += 1  # add to the position
+    #     # session.position -= Decimal('1.25')  # reduce position by 1.25
+    #     # session.position += percent(50)  # add 50% more to position
+    #     # session.position *= 1.5  # equivalent to the above
     #     pass
     #
     # def on_take_profit(self, row: dict, session: Session) -> None:
-    #     """Called once take profit hit, default action - close position.
-    #     We can adjust the position and brackets here and let the session continue."""
+    #     """Called when take profit is hit. Default action closes the position.
+    #     Modify position and brackets here to continue the session."""
     #     session.position = 0
     #
     # def on_stop_loss(self, row: dict, session: Session) -> None:
-    #     """Called once stop loss hit, default action - close position.
-    #     We can adjust the position and brackets here and let the session continue."""
+    #     """Called when stop loss is hit. Default action closes the position.
+    #     Modify position and brackets here to continue the session."""
     #     session.position = 0
     #
     # def on_stop(self, row: dict, session: Session) -> None:
-    #     """Called for each open session when the dataframe end reached.
-    #     We have an opportunity to close open sessions, otherwise - they will be ignored."""
+    #     """Called for each active session when dataframe ends.
+    #     Close open sessions here, otherwise they will be ignored."""
     #     session.position = 0
 
 
@@ -140,5 +140,5 @@ cipher --help
 
 ## Disclaimer
 
-This software is for educational purposes only. Do not risk money which you are afraid to lose.
+This software is for educational purposes only. Do not risk money you cannot afford to lose.
 USE THE SOFTWARE AT YOUR OWN RISK. THE AUTHORS AND ALL AFFILIATES ASSUME NO RESPONSIBILITY FOR YOUR TRADING RESULTS.

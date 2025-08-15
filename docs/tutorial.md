@@ -1,21 +1,28 @@
 ---
-description: Here we step-by-step test an MACD strategy with stop loss based on ATR and 2 stages take profit.
+description: This comprehensive tutorial demonstrates how to implement and test a Moving Average Convergence Divergence (MACD) trading strategy featuring ATR-based stop losses and a two-stage take profit system.
 ---
 
 # Tutorial
 
-Here we step-by-step test an MACD strategy with stop loss based on ATR and 2 stages take profit.
+This comprehensive tutorial demonstrates how to implement and test a Moving Average Convergence Divergence (MACD) trading strategy featuring ATR-based stop losses and a two-stage take profit system.
 
-The strategy was found here:
-<iframe width="480" height="270" src="https://www.youtube.com/embed/Hgvt3lP7WxQ" frameborder="0" allowfullscreen></iframe>
-<br />
+**Strategy Overview:**
+- **Entry Signal**: MACD line crosses above signal line when both are below zero
+- **Stop Loss**: Based on Average True Range (ATR) for dynamic risk management
+- **Take Profit**: Two-stage system using ATR multiples for optimized exits
 
-## Creating a new strategy file
+*Original strategy source: [YouTube Trading Video](https://www.youtube.com/embed/Hgvt3lP7WxQ)*
+
+## Step 1: Creating the Strategy Framework
+
+Begin by creating a new strategy file using the Cipher framework:
 
 ```shell
 cipher new macd
 cat macd.py
 ```
+
+This generates the basic strategy template:
 
 ```python
 from cipher import Cipher, Strategy
@@ -39,82 +46,87 @@ if __name__ == '__main__':
     main()
 ```
 
-Let's use hourly DOGEUSDT ohlc from GateIO:
+**Configuration Update**: For this tutorial, we'll use DOGE/USDT hourly data from GateIO:
+
 ```python
 cipher.add_source('gateio_spot_ohlc', symbol='DOGE_USDT', interval='1h')
 ```
 
-And run the backtest:
+Execute the initial backtest:
+
 ```shell
 python macd.py
 ```
 
-![doge_usdt](examples/images/doge_usdt.png)
+![Initial DOGE/USDT Chart](examples/images/doge_usdt.png)
 
-## Adding indicators
+## Step 2: Implementing Technical Indicators
 
-We have to add `MACD` and `ATR` indicators. To achieve this, the compose method has to be edited.
+### Adding MACD and ATR Indicators
 
-One way to experiment with indicators is to start an interactive session inside compose (create a breakpoint):
+The strategy requires two key indicators:
+- **MACD**: For trend identification and entry signals
+- **ATR**: For dynamic stop loss and take profit levels
+
+#### Interactive Development Approach
+
+For experimentation, you can add a breakpoint in the `compose` method to test indicators interactively:
 
 ```python
 class MacdStrategy(Strategy):
     def compose(self):
         df = self.datas.df
-
-        breakpoint()
-
+        breakpoint()  # Interactive testing point
         return df
 ```
 
-You can also use your IDE to set breakpoints, see a [PyCharm example](https://www.youtube.com/watch?v=aIlXb2QpxXc).
+**Pro Tip**: Use your IDE's debugging features (like PyCharm's breakpoint system) for a better development experience.
 
-Then try to type:
+#### Testing MACD Parameters
+
+In the interactive session, test the MACD indicator:
+
 ```python
 talib.MACD(df.close, fastperiod=12, slowperiod=26, signalperiod=9)
-# returns a dataframe with next columns: MACD_12_26_9, MACDh_12_26_9, MACDs_12_26_9
+# Returns: MACD_12_26_9, MACDh_12_26_9, MACDs_12_26_9
 ```
 
-If you want to know the indicator parameters, use `help` in a Python REPL:
+To explore indicator parameters, use Python's help system:
+
 ```python
 import talib
 help(talib.MACD)
-# Help on function MACD in module talib._ta_lib:
-# 
-# MACD(
-#     real,
-#     fastperiod=-2147483648,
-#     slowperiod=-2147483648,
-# ...
 ```
 
-In order to see the `MACD`, we have to add it to the dataframe and add another row to plot:
+### Initial Indicator Implementation
+
 ```python
 class MacdStrategy(Strategy):
     def compose(self):
         df = self.datas.df
-
         return df.merge(df.ta.macd(), left_index=True, right_index=True)
 
 
 def main():
-    # ...
+    # ... existing code ...
     cipher.plot(rows=[['ohlc'], ['MACD_12_26_9', 'MACDh_12_26_9', 'MACDs_12_26_9']])
 ```
 
-![doge_usdt_macd](examples/images/doge_usdt_macd.png)
+### Refined Indicator Setup
 
-We don't need the histogram, so `MACDh_12_26_9` can be excluded, and let's rename
-the remaining `MACD` columns to `macd` and `macds` (signal), and add `ATR`.
+For cleaner code and better performance, implement indicators directly with custom column names:
 
 ```python
 class MacdStrategy(Strategy):
     def compose(self):
         df = self.datas.df
 
+        # Calculate MACD components
         df["macd"], df["macds"], _ = talib.MACD(
             df.close, fastperiod=12, slowperiod=26, signalperiod=9
         )
+        
+        # Calculate Average True Range for volatility-based stops
         df["atr"] = talib.ATR(df["high"], df["low"], df["close"], timeperiod=14)
 
         return df
@@ -128,24 +140,31 @@ def main():
     cipher.plot(rows=[["ohlc"], ["macd", "macds"]])
 ```
 
-## Signals
+![DOGE/USDT with MACD](examples/images/doge_usdt_macd.png)
 
-The entry signal for long: macd crosses macds from below when macds < 0.
+## Step 3: Generating Entry Signals
 
-Add the `entry` signal and the `signals` row to plot:
+### Signal Logic
+
+The entry signal triggers when:
+1. MACD line crosses above the signal line (bullish crossover)
+2. Both MACD and signal line are below zero (oversold conditions)
+
 ```python
 class MacdStrategy(Strategy):
     def compose(self):
         df = self.datas.df
 
+        # Technical indicators
         df["macd"], df["macds"], _ = talib.MACD(
             df.close, fastperiod=12, slowperiod=26, signalperiod=9
         )
+        df["atr"] = talib.ATR(df["high"], df["low"], df["close"], timeperiod=14)
+
+        # Entry signal generation
         difference = df["macds"] - df["macd"]
         cross = np.sign(difference.shift(1)) != np.sign(difference)
         df["entry"] = cross & (difference < 0) & (df["macds"] < 0)
-
-        df["atr"] = talib.ATR(df["high"], df["low"], df["close"], timeperiod=14)
 
         return df
 
@@ -158,13 +177,13 @@ def main():
     cipher.plot(rows=[["ohlc"], ["signals"], ["macd", "macds"]])
 ```
 
-## Position manipulation
+## Step 4: Complete Strategy Implementation
+
+### Full Strategy with Risk Management
 
 ```python
 import numpy as np
-
 import talib
-
 from cipher import Cipher, Session, Strategy, quote
 
 
@@ -172,38 +191,52 @@ class MacdStrategy(Strategy):
     def compose(self):
         df = self.datas.df
 
+        # Technical indicators
         df["macd"], df["macds"], _ = talib.MACD(
             df.close, fastperiod=12, slowperiod=26, signalperiod=9
         )
+        df["atr"] = talib.ATR(df["high"], df["low"], df["close"], timeperiod=14)
+        
+        # Entry signal
         difference = df["macds"] - df["macd"]
         cross = np.sign(difference.shift(1)) != np.sign(difference)
         df["entry"] = cross & (difference < 0) & (df["macds"] < 0)
 
-        df["atr"] = talib.ATR(df["high"], df["low"], df["close"], timeperiod=14)
+        # Risk management levels
         df["atr_stop_loss"] = df["close"] - (df["atr"] * 1.5)
         df["atr_take_profit"] = df["close"] + (df["atr"] * 1.5)
 
         return df
 
     def on_entry(self, row: dict, session: Session):
-        # add DOGE worth 100USD
+        """Execute entry logic with risk management setup"""
+        # Position sizing: $100 worth of the asset
         session.position = quote(100)
-        # set brackets
+        
+        # Set initial risk management levels
         session.stop_loss = row["atr_stop_loss"]
         session.take_profit = row["atr_take_profit"]
-        # remember the next_stop loss and take_profit for the session
+        
+        # Store second-stage targets
         session.meta["next_take_profit"] = (
             row["close"] + (row["atr_take_profit"] - row["close"]) * 2
         )
-        session.meta["next_stop_loss"] = row["close"]
+        session.meta["next_stop_loss"] = row["close"]  # Breakeven stop
 
     def on_take_profit(self, row: dict, session: Session):
+        """Implement two-stage take profit system"""
         if session.meta["next_take_profit"]:
+            # First take profit: reduce position by 50%
             session.position *= 0.5
+            
+            # Set second stage targets
             session.take_profit = session.meta["next_take_profit"]
+            session.stop_loss = session.meta["next_stop_loss"]  # Move to breakeven
+            
+            # Clear second stage flag
             session.meta["next_take_profit"] = None
-            session.stop_loss = session.meta["next_stop_loss"]
         else:
+            # Second take profit: close remaining position
             session.position = 0
 
 
@@ -212,15 +245,19 @@ def main():
     cipher.add_source("gateio_spot_ohlc", symbol="DOGE_USDT", interval="1h")
     cipher.set_strategy(MacdStrategy())
     cipher.run(start_ts="2025-01-01", stop_ts="2025-02-01")
+    
+    # Comprehensive plotting
     cipher.plot(
         rows=[
-            ["ohlc", "atr_stop_loss", "atr_take_profit"],
-            ["signals"],
-            ["macd", "macds"],
-            ["position"],
-            ["balance"],
+            ["ohlc", "atr_stop_loss", "atr_take_profit"],  # Price action with levels
+            ["signals"],                                    # Entry signals
+            ["macd", "macds"],                             # MACD indicator
+            ["position"],                                   # Position size over time
+            ["balance"],                                    # Portfolio balance
         ]
     )
+    
+    # Performance analysis
     print(cipher.sessions)
     print(cipher.stats)
 
@@ -229,7 +266,7 @@ if __name__ == "__main__":
     main()
 ```
 
-![doge_usdt_macd_position](examples/images/doge_usdt_macd_position.png)
+![Complete Strategy Results](examples/images/doge_usdt_macd_position.png)
 
 ```text
 Session                Period          PnL
@@ -279,6 +316,7 @@ romad             0.054961238041599234
 ## Exercise
 
 - Try different symbols, intervals, date ranges
-- Set commission
+- Experiment with different MACD parameters (fast/slow/signal periods)
+- Test alternative volatility measures for stop loss calculation
 - Implement shorting
-- Add `EMA200` and only long when price is above `EMA200`
+- Add market regime detection for adaptive strategy behavior

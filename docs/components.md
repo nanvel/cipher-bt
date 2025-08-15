@@ -1,20 +1,21 @@
 ---
-description: Details about each component on the system.
+description: Detailed documentation for each component in the Cipher trading system.
 ---
 
 # Components
 
-## Session (trading session)
+## Session (Trading Session)
 
-A session starts from us adding or reducing position inside `on_entry` method.
+A session begins when you add to or reduce a position within the `on_entry` method.
 
-A session is considered closed when its position is adjusted to zero.
+A session closes when its position is adjusted to zero.
 
-A long session is a session that starts from adding to the position, a short session - starts from reducing the position.
+- A **long session** starts by adding to the position
+- A **short session** starts by reducing the position
 
-Multiple open sessions can coexist at the same time.
+Multiple open sessions can exist simultaneously.
 
-Each session carries these attributes:
+Each session contains these attributes:
 
 - `position`
 - `transactions` (read-only)
@@ -22,28 +23,27 @@ Each session carries these attributes:
 - `stop_loss`
 - `meta`
 
-`position` adjustment creates a new `transaction` (combines both base and quote assets move).
+Position adjustments create new `transactions` (which combine both base and quote asset movements).
 
-`take_profit` and `stop_loss` - session brackets.
+`take_profit` and `stop_loss` define session brackets.
 
-Brackets can use `percent`:
+Brackets usage:
 ```python
 from cipher import percent
 
-
 session.take_profit = row['close'] * 1.015
-session.take_profit = percent('1.5')  # +1.5% of current price for long session
-session.stop_loss = percent('-1')  # -1% of current price for long session
-session.stop_loss = None  # disable stop loss
+session.take_profit = percent('1.5')  # +1.5% of current price for long sessions
+session.stop_loss = percent('-1')     # -1% of current price for long sessions
+session.stop_loss = None              # disable stop loss
 ```
 
-`meta` - a dict-like object where we can store the session state.
+`meta` is a dictionary-like object where you can store session state information.
 
 ## Position
 
-Each new session has a position equal to 0 initially.
+Each new session starts with a position of 0.
 
-We can add to a position, or reduce a position (it can be negative).
+You can add to or reduce a position (positions can be negative).
 
 Each position change creates a transaction.
 
@@ -51,57 +51,56 @@ There are multiple ways to adjust position:
 ```python
 from cipher import base, percent, quote
 
-
 session.position = 1
-session.position = base(1)  # same as the one above
-session.position = '1'  # int, str, float are being converted to Decimal
-session.position = quote(100)  # sets position worth 100 quote asset
-session.position += 1  # adds to the position
+session.position = base(1)           # same as above
+session.position = '1'               # int, str, float are converted to Decimal
+session.position = quote(100)        # sets position worth 100 quote asset units
+session.position += 1                # adds to the position
 session.position -= Decimal('1.25')  # reduces position by 1.25
-session.position += percent(50)  # adds 50% more position
-session.position *= 1.5  # has the same effect as the one above
+session.position += percent(50)      # adds 50% more to the position
+session.position *= 1.5              # same effect as above
 session.position = session.position.value + Decimal(1)  # not recommended
 ```
 
 ## Signals
 
-There is one signal that is required - `entry`. We can define as many as we want.
+The `entry` signal is required. You can define as many additional signals as needed.
 
 To add a new signal:
-- a bool column, with name equal the signal name, have to be present in the dataframe returned by compose method
-- a signal handler has to be added to the strategy: `on_<signal name>`
+- Add a boolean column with the signal name to the dataframe returned by the `compose` method
+- Add a signal handler to the strategy: `on_<signal_name>`
 
-on_entry is called only once for a new session.
+`on_entry` is called only once for each new session.
 
-`on_<signal>` is being called for each open session.
+`on_<signal>` is called for each open session.
 
-`on_step` - is similar to `on_entry`, only called for each row in the dataframe.
+`on_step` is similar to `on_entry`, but is called for every row in the dataframe.
 
-## Datas
+## Data Sources
 
 ![data flow](data_flow.png)
 
-Cipher supports multiple time series as input, they have to be combined into a single dataframe in the `compose` method.
+Cipher supports multiple time series as input. These must be combined into a single dataframe in the `compose` method.
 
-To add datas:
+To add data sources:
 ```python
 cipher.add_source("binance_spot_ohlc", symbol="BTCUSDT", interval="1h")
 cipher.add_source("binance_spot_ohlc", symbol="ETHUSDT", interval="1h")
 ```
 
-Then we can access data inside `compose`:
+Access data within the `compose` method:
 ```python
 def compose(self):
-    self.datas[0]  # btcusdt ohlc
-    self.datas[1]  # ethusdt ohlc
-    self.datas.df  # shortcut for self.datas[0]
+    self.datas[0]   # BTCUSDT OHLC data
+    self.datas[1]   # ETHUSDT OHLC data
+    self.datas.df   # shortcut for self.datas[0]
 ```
 
 ## Sources
 
-Sources are reading data from apis, files, etc., in blocks and writes them to a file.
+Sources read data from APIs, files, etc., in blocks and write them to files.
 
-There are a few sources already included:
+Several sources are included:
 
 - `binance_futures_ohlc [symbol, interval]`
 - `binance_spot_ohlc [symbol, interval]`
@@ -111,15 +110,14 @@ There are a few sources already included:
 
 ## Strategy
 
-Strategy explains Cipher when and how to adjust positions.
+The Strategy class tells Cipher when and how to adjust positions.
 
-This is the interface:
+Interface:
 ```python
 from pandas import DataFrame
 
 from .models import Datas, Wallet
 from .proxies import SessionProxy as Session
-
 
 class Strategy:
     datas: Datas
@@ -148,42 +146,47 @@ class Strategy:
         pass
 ```
 
-Strategies are stored in files, you can generate a new one using this command:
+Strategies are stored in files. Generate a new strategy using:
 
-```text
+```bash
 cipher new my_strategy
 ```
 
 To run it:
-```shell
+```bash
 python my_strategy.py
 ```
 
-## Cipher instance
+## Cipher Instance
 
-Cipher instance is a glue for Cipher components.
+The Cipher instance connects all Cipher components together.
 
 ```python
-cipher = Cipher()  # we can pass settings as kwargs, otherwise, settings will be loaded from .env or ENV variables
+# Pass settings as kwargs, otherwise settings load from .env or ENV variables
+cipher = Cipher()
 cipher.set_strategy(strategy_object)
 cipher.set_commission(commission_or_commission_object)
 cipher.add_source(source_name_or_source_object, **source_kwargs)
-cipher.run(start_ts, stop_ts)  # process data according to the strategy and generate output
+
+# Process data according to strategy and generate output
+cipher.run(start_ts, stop_ts)
+
 cipher.sessions  # returns sessions
-cipher.stats  # builds and returns stats object
-cipher.output  # raw output, contains the dataframe and sessions
-cipher.plot(plotter_or_plotter_object_or_none, rows_or_none)  # if plotter or rows is not specified, the values will be automatically selected
+cipher.stats     # builds and returns stats object
+cipher.output    # raw output containing dataframe and sessions
+
+# If plotter or rows aren't specified, values are automatically selected
+cipher.plot(plotter_or_plotter_object_or_none, rows_or_none)
 ```
 
 ## Commission
 
-Commission is an objects that implements this interface:
+Commission objects implement this interface:
 ```python
 from abc import ABC, abstractmethod
 from decimal import Decimal
 
 from cipher.models.transaction import Transaction
-
 
 class Commission(ABC):
     @abstractmethod
@@ -191,46 +194,45 @@ class Commission(ABC):
         pass
 ```
 
-`for_transaction` method returns how much quote asset have to be deducted.
+The `for_transaction` method returns how much quote asset should be deducted.
 
-By default, SimpleCommission is used, which returns the specified part from quote for each transaction.
+By default, SimpleCommission is used, which returns the specified portion of the quote for each transaction.
 
-Commission is only computed for stats and plotter, it does not apply to the output.
+Commission is only computed for stats and plotting—it doesn't apply to the output.
 
 ## Wallet
 
-The wallet can be accessed from a strategy:
+Access the wallet from a strategy:
 ```python
 self.wallet
 ```
 
-Cipher wallet has two assets: base and quote, they both have 0 initially.
+The Cipher wallet has two assets: base and quote, both starting at 0.
 
-The wallet does not have any limits, and assets can go negative.
+The wallet has no limits, and assets can go negative.
 
-Transactions are being applied to a wallet adjusting the assets.
+Transactions are applied to the wallet, adjusting the asset balances.
 
 ## Stats
 
-Stats is the object returned by `cipher.stats` property.
+Stats is the object returned by the `cipher.stats` property.
 
-We can use the stats for strategy performance evaluation.
+Use stats to evaluate strategy performance.
 
 ## Plotters
 
-Plotters take Output and build charts.
+Plotters take Output and generate charts.
 
-Currently, two plotters are available:
+Two plotters are currently available:
 
-- [finplot](https://github.com/highfestiva/finplot) (doesn't work in jupyter notebooks)
+- [finplot](https://github.com/highfestiva/finplot) (doesn't work in Jupyter notebooks)
 - [mplfinance](https://github.com/matplotlib/mplfinance)
 
-A custom plotter can be passed to `cipher.plot`.
+You can pass a custom plotter to `cipher.plot`.
 
-Plotters accept rows, which describe to the plotter how to group charts,
-use it if default layout does not fit your needs.
+Plotters accept rows that describe to the plotter how to group charts. Use this if the default layout doesn't fit your needs.
 
-Rows can contain one of:
+Rows can contain:
 
 - `ohlc`
 - `ohlcv`
@@ -239,19 +241,19 @@ Rows can contain one of:
 - `balance`
 - `sessions`
 - `brackets`
-- `<indicator name>`
+- `<indicator_name>`
 
-Example:
+Examples:
 ```python
-rows = [['ohlc']]  # show only ohlc
-rows = [['ohlc', 'ema50']]  # show ema50 as well (it should be present in the dataframe)
-rows = [['ohlcv', 'sessions'], ['balance']]  # show ohlcv with session marks on the top chart and balance in the bottom
+rows = [['ohlc']]                          # show only OHLC
+rows = [['ohlc', 'ema50']]                 # show EMA50 as well (must be in dataframe)
+rows = [['ohlcv', 'sessions'], ['balance']] # show OHLCV with session marks on top chart and balance below
 ```
 
-`plot` also accepts `limit` (number of rows to show) and `start` (where the plot starts).
-`start` can be one of: datetime, offset, negative offset.
+`plot` also accepts `limit` (number of rows to show) and `start` (where the plot begins).
+`start` can be: datetime, offset, or negative offset.
 
-Indicator name can be appended with marker and color. See markers [here](https://matplotlib.org/stable/api/markers_api.html).
+Indicator names can include markers and colors. See markers [here](https://matplotlib.org/stable/api/markers_api.html).
 
 Example:
 ```python
@@ -260,11 +262,10 @@ rows = [['ohlc', 'my_indicator|^', 'another_indicator|s|red']]
 
 ## Settings
 
-Settings can be passed to Cipher as arguments or in `.env` or using ENV variables.
+Pass settings to Cipher as arguments, or use `.env` file or environment variables.
 
 Available settings: `cache_root`, `log_level`.
 
-`cache_root`. `cache_root` contains path to the cache folder. Default: `.cache`
+**cache_root**: Contains the path to the cache folder. Default: `.cache`
 
-If there are a few directories with strategies,
-and we want to reuse one cache - we can specify the same cache_root for both.
+If you have multiple directories with strategies and want to reuse one cache, specify the same `cache_root` for both.

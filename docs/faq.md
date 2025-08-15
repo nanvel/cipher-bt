@@ -1,36 +1,32 @@
-# FAQ
+# Strategy FAQ
 
-## How to have a single open session
+## How to allow only one open session at a time
 
-In most cases, opening a new session, while there are other open sessions, is desirable.
+By default, the system allows multiple concurrent sessions. To restrict to a single open session, check if a position is already held before entering a new one:
 
-If we don't want to start a new session while there are open sessions:
 ```python
 def on_entry(self, row, session):
     if self.wallet.base != 0:
-        # we still hold a position for an open session
+        # Skip entry if we already hold a position from another session
         return
-    ...
+    # ... rest of your entry logic
 ```
 
-## Why cipher cuts the dataframe
+## Why does Cipher truncate the dataframe?
 
-Cipher may cut the composed dataframe if it contains indicators that need time to initialize.
+Cipher automatically removes rows from the beginning of the dataframe when using indicators that require a warm-up period.
 
-For example, if the dataframe contains EMA50, it means that the first 50 rows will be nulls,
-and so we can not use the indicator in the first 50 rows.
+**Example:** If your dataframe includes an EMA50 indicator, the first 50 rows will contain null values since the indicator needs 50 data points to calculate meaningful results. Cipher removes these unusable rows to ensure your strategy only processes valid data.
 
-## How to debug a strategy code
+## How to debug strategy code
 
-Use `pdb.set_trace()`.
+Use Python's built-in debugger (`pdb`) to step through your code interactively:
 
-Example:
 ```python
 def compose(self):
     df = self.datas.df
 
-    import pdb
-    pdb.set_trace()
+    breakpoint()  # Execution will pause here for debugging
 
     return df
 ```
