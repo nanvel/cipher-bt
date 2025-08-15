@@ -7,22 +7,23 @@ description: This comprehensive tutorial demonstrates how to implement and test 
 This comprehensive tutorial demonstrates how to implement and test a Moving Average Convergence Divergence (MACD) trading strategy featuring ATR-based stop losses and a two-stage take profit system.
 
 **Strategy Overview:**
+
 - **Entry Signal**: MACD line crosses above signal line when both are below zero
 - **Stop Loss**: Based on Average True Range (ATR) for dynamic risk management
 - **Take Profit**: Two-stage system using ATR multiples for optimized exits
 
-*Original strategy source: [YouTube Trading Video](https://www.youtube.com/embed/Hgvt3lP7WxQ)*
+*Original strategy source: [Highly Profitable MACD Trading Strategy Proven 100 Trades (2 Stage Take Profit)](https://www.youtube.com/embed/Hgvt3lP7WxQ) on YouTube*
 
-## Step 1: Creating the Strategy Framework
+## Step 1: Creating the Strategy Template
 
-Begin by creating a new strategy file using the Cipher framework:
+Begin by creating a new strategy file:
 
 ```shell
 cipher new macd
 cat macd.py
 ```
 
-This generates the basic strategy template:
+This generates a basic strategy template:
 
 ```python
 from cipher import Cipher, Strategy
@@ -34,9 +35,9 @@ class MacdStrategy(Strategy):
 
 def main():
     cipher = Cipher()
-    cipher.add_source('binance_spot_ohlc', symbol='BTCUSDT', interval='1h')
+    cipher.add_source("gateio_spot_ohlc", symbol="DOGE_USDT", interval="1h")
     cipher.set_strategy(MacdStrategy())
-    cipher.run(start_ts='2020-01-01', stop_ts='2020-02-01')
+    cipher.run(start_ts="2020-01-01", stop_ts="2020-02-01")
     print(cipher.sessions)
     print(cipher.stats)
     cipher.plot()
@@ -44,12 +45,6 @@ def main():
 
 if __name__ == '__main__':
     main()
-```
-
-**Configuration Update**: For this tutorial, we'll use DOGE/USDT hourly data from GateIO:
-
-```python
-cipher.add_source('gateio_spot_ohlc', symbol='DOGE_USDT', interval='1h')
 ```
 
 Execute the initial backtest:
@@ -65,6 +60,7 @@ python macd.py
 ### Adding MACD and ATR Indicators
 
 The strategy requires two key indicators:
+
 - **MACD**: For trend identification and entry signals
 - **ATR**: For dynamic stop loss and take profit levels
 
@@ -80,15 +76,13 @@ class MacdStrategy(Strategy):
         return df
 ```
 
-**Pro Tip**: Use your IDE's debugging features (like PyCharm's breakpoint system) for a better development experience.
-
 #### Testing MACD Parameters
 
 In the interactive session, test the MACD indicator:
 
 ```python
 talib.MACD(df.close, fastperiod=12, slowperiod=26, signalperiod=9)
-# Returns: MACD_12_26_9, MACDh_12_26_9, MACDs_12_26_9
+# Returns: macd, macd signal, and macd histogram
 ```
 
 To explore indicator parameters, use Python's help system:
@@ -104,12 +98,15 @@ help(talib.MACD)
 class MacdStrategy(Strategy):
     def compose(self):
         df = self.datas.df
-        return df.merge(df.ta.macd(), left_index=True, right_index=True)
+        df["macd"], df["macds"], _ = talib.MACD(
+            df.close, fastperiod=12, slowperiod=26, signalperiod=9
+        )
+        return df
 
 
 def main():
     # ... existing code ...
-    cipher.plot(rows=[['ohlc'], ['MACD_12_26_9', 'MACDh_12_26_9', 'MACDs_12_26_9']])
+    cipher.plot(rows=[["ohlc"], ["macd", "macds"]])
 ```
 
 ### Refined Indicator Setup
@@ -147,6 +144,7 @@ def main():
 ### Signal Logic
 
 The entry signal triggers when:
+
 1. MACD line crosses above the signal line (bullish crossover)
 2. Both MACD and signal line are below zero (oversold conditions)
 
@@ -184,6 +182,7 @@ def main():
 ```python
 import numpy as np
 import talib
+
 from cipher import Cipher, Session, Strategy, quote
 
 
@@ -249,9 +248,9 @@ def main():
     # Comprehensive plotting
     cipher.plot(
         rows=[
-            ["ohlc", "atr_stop_loss", "atr_take_profit"],  # Price action with levels
+            ["ohlc", "atr_stop_loss", "atr_take_profit"],   # Price action with levels
             ["signals"],                                    # Entry signals
-            ["macd", "macds"],                             # MACD indicator
+            ["macd", "macds"],                              # MACD indicator
             ["position"],                                   # Position size over time
             ["balance"],                                    # Portfolio balance
         ]

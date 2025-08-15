@@ -31,9 +31,9 @@ Brackets usage:
 ```python
 from cipher import percent
 
-session.take_profit = row['close'] * 1.015
-session.take_profit = percent('1.5')  # +1.5% of current price for long sessions
-session.stop_loss = percent('-1')     # -1% of current price for long sessions
+session.take_profit = row["close"] * 1.015
+session.take_profit = percent("1.5")  # +1.5% of current price for long sessions
+session.stop_loss = percent("-1")     # -1% of current price for long sessions
 session.stop_loss = None              # disable stop loss
 ```
 
@@ -53,10 +53,10 @@ from cipher import base, percent, quote
 
 session.position = 1
 session.position = base(1)           # same as above
-session.position = '1'               # int, str, float are converted to Decimal
+session.position = "1"               # int, str, float are converted to Decimal
 session.position = quote(100)        # sets position worth 100 quote asset units
 session.position += 1                # adds to the position
-session.position -= Decimal('1.25')  # reduces position by 1.25
+session.position -= Decimal("1.25")  # reduces position by 1.25
 session.position += percent(50)      # adds 50% more to the position
 session.position *= 1.5              # same effect as above
 session.position = session.position.value + Decimal(1)  # not recommended
@@ -245,9 +245,9 @@ Rows can contain:
 
 Examples:
 ```python
-rows = [['ohlc']]                          # show only OHLC
-rows = [['ohlc', 'ema50']]                 # show EMA50 as well (must be in dataframe)
-rows = [['ohlcv', 'sessions'], ['balance']] # show OHLCV with session marks on top chart and balance below
+rows = [["ohlc"]]                            # show only OHLC
+rows = [["ohlc", "ema50"]]                   # show EMA50 as well (must be in dataframe)
+rows = [["ohlcv", "sessions"], ["balance"]]  # show OHLCV with session marks on top chart and balance below
 ```
 
 `plot` also accepts `limit` (number of rows to show) and `start` (where the plot begins).
@@ -257,7 +257,7 @@ Indicator names can include markers and colors. See markers [here](https://matpl
 
 Example:
 ```python
-rows = [['ohlc', 'my_indicator|^', 'another_indicator|s|red']]
+rows = [["ohlc", "my_indicator|^", "another_indicator|s|red"]]
 ```
 
 ## Settings
