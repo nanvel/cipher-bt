@@ -33,7 +33,7 @@ class Plotter(ABC):
 
         self.output = output
 
-        self.plot_to_file = environ.get("CIPHER_PLOT_TO_FILE", False)
+        self.plot_to_file = environ.get("CIPHER_PLOT_TO_FILE")
 
         limit = limit or self.default_limit
 

@@ -1,6 +1,4 @@
-from pathlib import Path
 from typing import Optional
-
 
 try:
     import mplfinance as mpf
@@ -196,7 +194,7 @@ class MPLFinancePlotter(Plotter):
             addplot=ap,
             title=self.title,
             tight_layout=True,
-            savefig=Path(__file__).with_suffix(".png") if self.plot_to_file else None,
+            savefig=self.plot_to_file if self.plot_to_file else None,
         )
 
     def _filter_rows(self, rows: list) -> list:
