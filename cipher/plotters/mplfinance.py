@@ -187,6 +187,9 @@ class MPLFinancePlotter(Plotter):
                         )
                     )
 
+        kwargs = {}
+        if self.plot_to_file:
+            kwargs["savefig"] = self.plot_to_file
         mpf.plot(
             self.original_df,
             type="candle",
@@ -194,7 +197,7 @@ class MPLFinancePlotter(Plotter):
             addplot=ap,
             title=self.title,
             tight_layout=True,
-            savefig=self.plot_to_file if self.plot_to_file else None,
+            **kwargs,
         )
 
     def _filter_rows(self, rows: list) -> list:
