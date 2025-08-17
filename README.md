@@ -114,7 +114,7 @@ def main():
     cipher = Cipher()
     cipher.add_source("binance_spot_ohlc", symbol="BTCUSDT", interval="1h")
     cipher.set_strategy(EmaCrossoverStrategy())
-    cipher.run(start_ts="2020-01-01", stop_ts="2020-04-01")
+    cipher.run(start_ts="2025-01-01", stop_ts="2025-04-01")
     cipher.set_commission("0.00075")
     print(cipher.sessions)
     print(cipher.stats)
@@ -131,7 +131,7 @@ if __name__ == "__main__":
 
 ```shell
 brew install uv
-uv sync
+uv sync --all-extras
 source .venv/bin/activate
 
 pytest tests

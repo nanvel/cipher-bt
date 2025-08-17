@@ -60,26 +60,6 @@ class MPLFinancePlotter(Plotter):
             )
         )
 
-        if self._position_supported() and len(rows) > 1 and "position" in rows[1]:
-            ap.append(
-                mpf.make_addplot(
-                    self.extras_df["base"],
-                    panel=1,
-                    color=next(palette),
-                    secondary_y=show_volume,
-                )
-            )
-
-        if self._balance_supported() and len(rows) > 1 and "balance" in rows[1]:
-            ap.append(
-                mpf.make_addplot(
-                    self.extras_df["balance"],
-                    panel=1,
-                    color=next(palette),
-                    secondary_y=True,
-                )
-            )
-
         if self._sessions_supported() and "sessions" in rows[0]:
             if self.extras_df["sessions_long_open"].notnull().any():
                 ap.append(
@@ -162,8 +142,12 @@ class MPLFinancePlotter(Plotter):
                     )
                 )
 
-        if len(rows) > 1:
-            for row in rows[1]:
+        for n, _rows in enumerate(rows[1:]):
+            if show_volume:
+                row_n = n + 2
+            else:
+                row_n = n + 1
+            for row in _rows:
                 row, *args = row.split("|")
                 if len(args) == 1:
                     marker = args[0]
@@ -175,11 +159,30 @@ class MPLFinancePlotter(Plotter):
                     marker = None
                     color = None
 
+                if row == "position" and self._position_supported():
+                    ap.append(
+                        mpf.make_addplot(
+                            self.extras_df["base"],
+                            panel=row_n,
+                            color=next(palette),
+                        )
+                    )
+
+                if row == "balance" and self._balance_supported():
+                    ap.append(
+                        mpf.make_addplot(
+                            self.extras_df["balance"],
+                            panel=row_n,
+                            color=next(palette),
+                            secondary_y="position" in _rows,
+                        )
+                    )
+
                 if row not in self.OPTIONS and row in self.original_df.columns:
                     ap.append(
                         mpf.make_addplot(
                             self.original_df[row],
-                            panel=1,
+                            panel=row_n,
                             color=color or next(palette),
                             secondary_y=show_volume,
                             type="scatter" if marker else "line",
@@ -216,7 +219,7 @@ class MPLFinancePlotter(Plotter):
                     new_rr.append(r)
             if new_rr:
                 result.append(new_rr)
-        return result[:2]
+        return result
 
     def _ohlc_supported(self):
         return {"open", "close", "high", "low"}.issubset(set(self.original_df.columns))
